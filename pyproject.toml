@@ -32,7 +32,7 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "numpy==2.0.2"
+    "numpy>=1.25"
 ]
 
 dynamic = ["version"]
