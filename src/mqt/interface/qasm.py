@@ -1,9 +1,9 @@
+import math
 import re
 import warnings
-import math
 
 
-class QASM():
+class QASM:
     def __init__(self):
         self._program = None
 
@@ -14,16 +14,14 @@ class QASM():
         """
         # define regular expressions for parsing
         rgxs = {
-            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment":       re.compile(r"^//"),
+            "header":      re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment":     re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end":   re.compile(r"\*/"),
-            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            "gate":          re.compile(
-                    r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"
-            ),
-            "error":         re.compile(r"^(gate|if)"),
-            "ignore":        re.compile(r"^(creg|measure|barrier)"),
+            "comment_end": re.compile(r"\*/"),
+            "qreg":        re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "gate":        re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
+            "error":       re.compile(r"^(gate|if)"),
+            "ignore":      re.compile(r"^(creg|measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for gates
@@ -57,10 +55,10 @@ class QASM():
             match = rgxs["qreg"].match(line)
             if match:
                 name, nq, qsizes = match.groups()
-                nq = int(*re.search(r'\[(\d+)\]', nq).groups())
+                nq = int(*re.search(r"\[(\d+)\]", nq).groups())
 
                 if qsizes:
-                    qsizes = qsizes.split(',') if qsizes else []
+                    qsizes = qsizes.split(",") if qsizes else []
                     qsizes = [int(num) for num in qsizes]
                 else:
                     qsizes = [2] * nq
@@ -75,17 +73,14 @@ class QASM():
                 # certain operations we can just ignore and warn about
                 (op,) = match.groups()
                 if not warned.get(op, False):
-                    warnings.warn(
-                            f"Unsupported operation ignored: {op}", SyntaxWarning
-                    )
+                    warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning)
                     warned[op] = True
                 continue
 
             if rgxs["error"].match(line):
                 # raise hard error for custom tate defns etc
-                raise NotImplementedError(
-                        f"Custom gate definitions are not supported: {line}"
-                )
+                msg = f"Custom gate definitions are not supported: {line}"
+                raise NotImplementedError(msg)
 
             match = rgxs["gate"].search(line)
             if match:
@@ -97,25 +92,21 @@ class QASM():
                 )
 
                 if params:
-                    params = tuple(
-                            eval(param, {"pi": math.pi})
-                            for param in params.strip("()").split(",")
-                    )
+                    params = tuple(eval(param, {"pi": math.pi}) for param in params.strip("()").split(","))
                 else:
                     params = ()
 
-                qubits = tuple(
-                        sitemap[qubit.strip()] for qubit in qubits.split(",")
-                )
+                qubits = tuple(sitemap[qubit.strip()] for qubit in qubits.split(","))
                 gates.append((label, params, qubits))
                 continue
 
             # if not covered by previous checks, simply raise
-            raise SyntaxError(f"{line}")
+            msg = f"{line}"
+            raise SyntaxError(msg)
         self._program = {
-            "n":       len(sitemap),
+            "n":     len(sitemap),
             "sitemap": sitemap,
-            "gates":   gates,
+            "gates": gates,
             "n_gates": len(gates),
         }
         return self._program

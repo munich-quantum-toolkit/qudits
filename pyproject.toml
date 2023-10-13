@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mqt.quditstateprep"
+name = "mqt.qudit"
 description = "MQT Qudits: A framework for mixed-dimensional qudit quantum computing"
 readme = "README.md"
 authors = [

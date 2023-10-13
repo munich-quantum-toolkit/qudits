@@ -1,14 +1,14 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-# MQT Qudit State Preparation - A Tool For
+# MQT Qudit - A Tool For
 
 A tool for
 the [Chair for Design Automation](https://www.cda.cit.tum.de/) at
 the [Technical University of Munich](https://www.tum.de/).
 
 If you have any questions, feel free to contact us via [quantum.cda@xcit.tum.de](mailto:quantum.cda@xcit.tum.de) or by
-creating an [issue](https://github.com/cda-tum/mqt-qudit-compression/issues) on GitHub. For more information on Decision Diagrams,
-please visit [www.cda.cit.tum.de/research/quantum_dd/](https://www.cda.cit.tum.de/research/quantum/).
+creating an [issue](https://github.com/cda-tum/mqt-qudit-compression/issues) on GitHub. For more
+information [www.cda.cit.tum.de/research/](https://www.cda.cit.tum.de/research/quantum/).
 
 ### System Requirements
 

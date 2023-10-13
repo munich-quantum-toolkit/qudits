@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-
-import numpy as np
+from typing import Any, TYPE_CHECKING
 
 from mqt.exceptions.circuiterror import CircuitError
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 class Gate(ABC):
@@ -38,7 +40,7 @@ class Gate(ABC):
     __array_priority__ = 20
 
     @abstractmethod
-    def __array__(self, dytpe='complex'):
+    def __array__(self, dtype: str = "complex") -> Any:
         pass
 
     def to_matrix(self) -> np.ndarray:
@@ -53,7 +55,8 @@ class Gate(ABC):
         """
         if hasattr(self, "__array__"):
             return self.__array__
-        raise CircuitError("to_matrix not defined for this ", {type(self)})
+        msg = "to_matrix not defined for this "
+        raise CircuitError(msg, {type(self)})
 
     @abstractmethod
     def control(
@@ -78,7 +81,6 @@ class Gate(ABC):
         Raises:
             QiskitError: unrecognized mode or invalid ctrl_state
         """
-        pass
 
     @abstractmethod
     def validate_parameter(self, parameter):
