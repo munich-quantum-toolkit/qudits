@@ -2,11 +2,11 @@ name: Deploy to PyPI
 
 on:
   release:
-    types: [ published ]
+    types: [published]
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
       - name: Install package
         run: |
           pip install -U pip setuptools wheel
-          pip install -r requirements.txt
+          pip3 install .
 
       - name: Test package
         run: python -m unittest discover -s ./tests

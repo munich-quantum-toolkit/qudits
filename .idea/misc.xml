@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.10 (SERVER)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (MQTQudit MISIM)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (MQTQudit)" project-jdk-type="Python SDK" />
 </project>
