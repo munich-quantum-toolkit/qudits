@@ -2,15 +2,16 @@ from mqt.interface.qasm import QASM
 
 
 class QuantumCircuit:
-    def __init__(self, num_qudits, sizes, numcl=0):
+    def __init__(self, num_qudits, sizes=None, numcl=0):
         self._sitemap = None
         self._num_qudits = num_qudits
-        self._sizes = sizes
+        self._sizes = num_qudits * [2] if sizes is None else sizes
         self._num_cl = numcl
         self.instructions = []
 
-    def csum(self):
+    def csum(self, control, target):
         pass
+        # self.instructions.append(CSum())
 
     def custom_unitary(self):
         pass
@@ -45,7 +46,7 @@ class QuantumCircuit:
     def from_qasm_file(self, fname):
         qasm_parser = QASM().parse_ditqasm2_file(fname)
         self._num_qudits = qasm_parser["n"]
-        self.instructions = qasm_parser["gates"]
+        self.instructions = qasm_parser["instructions"]
         self._sitemap = qasm_parser["sitemap"]
 
     def to_qasm(self):
