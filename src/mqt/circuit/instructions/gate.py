@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from mqt.exceptions.circuiterror import CircuitError
 
 if TYPE_CHECKING:
     import numpy as np
+    from numpy import ndarray
 
 
 class Gate(ABC):
@@ -16,7 +17,7 @@ class Gate(ABC):
         self,
         name: str,
         num_qudits: int,
-        params: list,
+        params: list | None = None,
         label: str | None = None,
         duration=None,
         unit="dt",
@@ -44,7 +45,7 @@ class Gate(ABC):
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         pass
 
-    def to_matrix(self) -> np.ndarray:
+    def to_matrix(self) -> Callable[[str], ndarray]:
         """Return a Numpy.array for the gate unitary matrix.
 
         Returns:
@@ -63,8 +64,8 @@ class Gate(ABC):
     def control(
         self,
         num_ctrl_qudits: int = 1,
-        label: str | None = None,
-        ctrl_state: int | str | None = None,
+        label_indeces: list[int] | list[str] | int | str | None = None,
+        ctrl_state: list[int] | list[str] | int | str | None = None,
     ):
         pass
         """Return controlled version of gate. See :class:`.ControlledGate` for usage.
@@ -85,7 +86,7 @@ class Gate(ABC):
         """
 
     @abstractmethod
-    def validate_parameter(self, parameter):
+    def validate_parameter(self, parameter) -> bool:
         pass
         """
         if isinstance(parameter, ParameterExpression):
@@ -105,4 +106,5 @@ class Gate(ABC):
 
     @abstractmethod
     def __qasm__(self) -> str:
+        # TODO
         pass

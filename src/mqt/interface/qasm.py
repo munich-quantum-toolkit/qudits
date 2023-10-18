@@ -33,7 +33,7 @@ class QASM:
     def parse_gate(self, line, rgxs, sitemap, gates):
         match = rgxs["gate"].search(line)
         if match:
-            label, params, qubits = (
+            label, params, qudits = (
                 match.group(1),
                 match.group(2),
                 match.group(3),
@@ -44,9 +44,14 @@ class QASM:
                 if params
                 else ()
             )
-
-            qubits = tuple(sitemap[qubit.strip()] for qubit in qubits.split(","))
-            gates.append((label, params, qubits))
+            for dit in qudits.split(","):
+                match = rgxs["qreg_indexing"].match(str(dit))
+                if match:
+                    name, reg_qudit_index = match.groups()
+                    reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
+                    qudits = tuple(sitemap[(name, reg_qudit_index)])
+                    gate_dict = {"name": label, "params": params, "qudits": qudits}
+                    gates.append(gate_dict)
 
             return True
         return False
@@ -63,6 +68,7 @@ class QASM:
             "comment_start": re.compile(r"/\*"),
             "comment_end": re.compile(r"\*/"),
             "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             "gate": re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
             "error": re.compile(r"^(gate|if)"),
             "ignore": re.compile(r"^(creg|measure|barrier)"),
@@ -85,17 +91,17 @@ class QASM:
 
             match = rgxs["qreg"].match(line)
             if match:
-                name, nq, qsizes = match.groups()
+                name, nq, qdims = match.groups()
                 nq = int(*re.search(r"\[(\d+)\]", nq).groups())
 
-                if qsizes:
-                    qsizes = qsizes.split(",") if qsizes else []
-                    qsizes = [int(num) for num in qsizes]
+                if qdims:
+                    qdims = qdims.split(",") if qdims else []
+                    qdims = [int(num) for num in qdims]
                 else:
-                    qsizes = [2] * nq
+                    qdims = [2] * nq
 
                 for i in range(int(nq)):
-                    sitemap[f"{name}[{i}]"] = len(sitemap), qsizes[i]
+                    sitemap[(str(name), i)] = len(sitemap), qdims[i]
 
                 continue
 
@@ -127,8 +133,8 @@ class QASM:
         }
         return self._program
 
-    def parse_openqasm2_file(self, fname, **kwargs):
+    def parse_ditqasm2_file(self, fname):
         """Parse an OpenQASM 2.0 file."""
         path = Path(fname)
         with path.open() as f:
-            return self.parse_openqasm2_str(f.read(), **kwargs)
+            return self.parse_ditqasm2_str(f.read())

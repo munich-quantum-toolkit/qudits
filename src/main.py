@@ -1,3 +1,5 @@
+from mqt.circuit.circuit import QuantumCircuit
+from mqt.circuit.quantum_register import QuantumRegister
 from mqt.interface.qasm import QASM
 
 qasm = """
@@ -16,6 +18,11 @@ qasm = """
         """
 
 print(QASM().parse_ditqasm2_str(qasm))
+s = QuantumRegister("x", 2)
+print(s.__qasm__)
+circ = QuantumCircuit(s)
+circ.append(QuantumRegister("c", 2, [3, 3]))
+x = 0
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
