@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import ClassVar
 
 from mqt.circuit.quantum_register import QuantumRegister
@@ -59,58 +61,70 @@ class QuantumCircuit:
             qreg.local_sitemap[i] = num_lines_stored + i
             self._sitemap[(str(qreg.label), i)] = (num_lines_stored + i, qreg.dimensions[i])
 
-    def csum(self, control: int, target: int):
-        pass
-        # self.instructions.append(CSum())
-
-    def custom_unitary(self):
+    def csum(self, qudits: list[int]):
         pass
 
-    def cx(self):
+    def custom_unitary(self, qudits: list[int] | int):
         pass
 
-    def h(self):
+    def cx(self, qudits: list[int]):
         pass
 
-    def ls(self):
+    def h(self, qudit: int):
         pass
 
-    def ms(self):
+    def ls(self, qudits: list[int]):
         pass
 
-    def pm(self):
+    def ms(self, qudits: list[int]):
         pass
 
-    def r(self):
+    def pm(self, params, qudits: list[int] | int):
         pass
 
-    def rz(self):
+    def r(self, params, qudit: int):
         pass
 
-    def s(self):
+    def rz(self, params, qudit: int):
         pass
 
-    def z(self):
+    def s(self, qudit: int):
         pass
 
-    def from_qasm_file(self, fname):
+    def z(self, qudit: int):
+        pass
+
+    def from_qasm(self, qasm_prog):
         self.reset()
-        qasm_parser = QASM().parse_ditqasm2_file(fname)
-
-        self._num_qudits = qasm_parser["n"]
+        qasm_parser = QASM().parse_ditqasm2_str(qasm_prog)
         instructions = qasm_parser["instructions"]
-        self._sitemap = qasm_parser["sitemap"]
-        # self.number_gates = self._sitemap["n_gates"]
+        temp_sitemap = qasm_parser["sitemap"]
+        for qreg in QuantumRegister.from_map(temp_sitemap):
+            self.append(qreg)
 
         qasm_set = self.get_qasm_set()
         for op in instructions:
-            if op in qasm_set:
+            if op["name"] in qasm_set:
                 gate_constructor_name = qasm_set[op["name"]]
                 if hasattr(self, gate_constructor_name):
                     function = getattr(self, gate_constructor_name)
-                    function(op["params"], op["qudits"])
+
+                    tuples_qudits = op["qudits"]
+                    if not tuples_qudits:
+                        msg = "Qudit parameter not applied"
+                        raise IndexError(msg)
+                    # Check if the list contains only one tuple
+                    if len(tuples_qudits) == 1:
+                        qudits_call = tuples_qudits[0][0]
+                    # Extract the first element from each tuple and return as a list
+                    else:
+                        qudits_call = [t[0] for t in list(tuples_qudits)]
+                    if op["params"]:
+                        function(op["params"], qudits_call)
+                    else:
+                        function(qudits_call)
                 else:
-                    msg = "the require gate is not available anymore."
+                    msg = "the required gate is not available anymore."
                     raise NotImplementedError(msg)
 
     def to_qasm(self):
@@ -121,26 +135,9 @@ class QuantumCircuit:
         for op in self.instructions:
             text += op.__qasm__
 
-    """
     def draw(self):
-        custom_counter = 0
-
-        for line in self.qreg:
-            print("|0>---", end="")
-            for gate in line:
-                if isinstance(gate, Rz):
-                    print("--[Rz" + str(gate.lev) + "(" + str(round(gate.theta, 2)) + ")]--", end="")
-
-                elif isinstance(gate, R):
-                    print("--[R" + str(gate.lev_a) + str(gate.lev_b) + "(" + str(round(gate.theta, 2)) + "," + str(
-                        round(gate.phi, 2)) + ")]--", end="")
-
-                elif isinstance(gate, Custom_Unitary):
-                    print("--[C" + str(custom_counter) + "]--", end="")
-                    custom_counter = custom_counter + 1
-
-            print("---=||")
-    """
+        # TODO
+        pass
 
     def reset(self):
         self.number_gates = 0

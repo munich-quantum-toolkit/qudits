@@ -16,7 +16,8 @@ qasm = """
         measure q[1] -> meas[1];
         measure q[2] -> meas[2];
         """
-
+c = QuantumCircuit()
+c.from_qasm(qasm)
 print(QASM().parse_ditqasm2_str(qasm))
 s = QuantumRegister("x", 2)
 print(s.__qasm__)

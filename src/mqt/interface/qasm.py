@@ -44,14 +44,16 @@ class QASM:
                 if params
                 else ()
             )
+            qudits_list = []
             for dit in qudits.split(","):
                 match = rgxs["qreg_indexing"].match(str(dit))
                 if match:
                     name, reg_qudit_index = match.groups()
                     reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
-                    qudits = tuple(sitemap[(name, reg_qudit_index)])
-                    gate_dict = {"name": label, "params": params, "qudits": qudits}
-                    gates.append(gate_dict)
+                    qudit = tuple(sitemap[(name, reg_qudit_index)])
+                    qudits_list.append(qudit)
+            gate_dict = {"name": label, "params": params, "qudits": qudits_list}
+            gates.append(gate_dict)
 
             return True
         return False

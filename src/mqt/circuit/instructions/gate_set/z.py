@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from mqt.circuit.instructions.gate import Gate
@@ -10,7 +12,12 @@ class Z(Gate):
     def __array__(self, dtype: str = "complex") -> Any:
         pass
 
-    def control(self, num_ctrl_qudits: int = 1, label: str | None = None, ctrl_state: int | str | None = None):
+    def control(
+        self,
+        num_ctrl_qudits: int = 1,
+        label_indeces: list[int] | int | None = None,
+        ctrl_state: list[int] | int | None = None,
+    ):
         pass
 
     def validate_parameter(self, parameter):
@@ -18,3 +25,6 @@ class Z(Gate):
 
     def __init__(self, name: str, num_qudits: int, params: list):
         super().__init__(name, num_qudits, params)
+
+    def __str__(self):
+        pass

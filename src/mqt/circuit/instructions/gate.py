@@ -64,8 +64,8 @@ class Gate(ABC):
     def control(
         self,
         num_ctrl_qudits: int = 1,
-        label_indeces: list[int] | list[str] | int | str | None = None,
-        ctrl_state: list[int] | list[str] | int | str | None = None,
+        label_indeces: list[int] | int | None = None,
+        ctrl_state: list[int] | int | None = None,
     ):
         pass
         """Return controlled version of gate. See :class:`.ControlledGate` for usage.
@@ -106,5 +106,9 @@ class Gate(ABC):
 
     @abstractmethod
     def __qasm__(self) -> str:
-        # TODO
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        # String representation for drawing?
         pass
