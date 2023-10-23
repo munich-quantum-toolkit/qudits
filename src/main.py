@@ -1,6 +1,6 @@
 from mqt.circuit.circuit import QuantumCircuit
-from mqt.circuit.quantum_register import QuantumRegister
-from mqt.interface.qasm import QASM
+from mqt.circuit.components.registers.quantum_register import QuantumRegister
+from mqt.simulation.provider.mqtvider import MQTProvider
 
 qasm = """
         DITQASM 2.0;
@@ -16,14 +16,23 @@ qasm = """
         measure q[1] -> meas[1];
         measure q[2] -> meas[2];
         """
-c = QuantumCircuit()
-c.from_qasm(qasm)
-print(QASM().parse_ditqasm2_str(qasm))
-s = QuantumRegister("x", 2)
-print(s.__qasm__)
-circ = QuantumCircuit(s)
-circ.append(QuantumRegister("c", 2, [3, 3]))
-x = 0
+# c = QuantumCircuit()
+# c.from_qasm(qasm)
+# print(QASM().parse_ditqasm2_str(qasm))
+qreg_example = QuantumRegister("x", 2, [3, 3])
+circ = QuantumCircuit(qreg_example)
+# circ.from_qasm(qasm)
+h3 = circ.h(0)
+print(h3.to_matrix())
 
+provider = MQTProvider()
+print(provider.backends("sim"))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+backend = provider.get_backend("tnsim")
+result = backend.run(circ)
+
+state_size = 1
+for s in circ.dimensions:
+    state_size *= s
+
+print(result.tensor.reshape(1, state_size))

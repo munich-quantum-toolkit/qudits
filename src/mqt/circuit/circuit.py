@@ -1,9 +1,23 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
-from mqt.circuit.quantum_register import QuantumRegister
-from mqt.interface.qasm import QASM
+from mqt.circuit.components.instructions.gate_set.h import H
+from mqt.circuit.components.registers.quantum_register import QuantumRegister
+from mqt.circuit.qasm_interface.qasm import QASM
+
+if TYPE_CHECKING:
+    from mqt.circuit.components.instructions.gate_extensions.controls import ControlData
+
+
+def add_gate_decorator(func):
+    def gate_constructor(circ, *args):
+        gate = func(circ, *args)
+        circ.number_gates += 1
+        circ.instructions.append(gate)
+        return gate
+
+    return gate_constructor
 
 
 class QuantumCircuit:
@@ -51,6 +65,23 @@ class QuantumCircuit:
     def get_qasm_set(cls):
         return cls.__qasm_to_gate_set_dict
 
+    @property
+    def num_qudits(self):
+        return self._num_qudits
+
+    @property
+    def dimensions(self):
+        return self._dimensions
+
+    def reset(self):
+        self.number_gates = 0
+        self.instructions = []
+        self.quantum_registers = []
+        self._sitemap = {}
+        self._num_cl = 0
+        self._num_qudits = 0
+        self._dimensions = []
+
     def append(self, qreg: QuantumRegister):
         self.quantum_registers.append(qreg)
         self._num_qudits += qreg.size
@@ -61,37 +92,39 @@ class QuantumCircuit:
             qreg.local_sitemap[i] = num_lines_stored + i
             self._sitemap[(str(qreg.label), i)] = (num_lines_stored + i, qreg.dimensions[i])
 
+    @add_gate_decorator
     def csum(self, qudits: list[int]):
         pass
 
     def custom_unitary(self, qudits: list[int] | int):
         pass
 
-    def cx(self, qudits: list[int]):
+    def cx(self, qudits: list[int], controls: ControlData | None = None):
         pass
 
-    def h(self, qudit: int):
+    @add_gate_decorator
+    def h(self, qudit: int, controls: ControlData | None = None):
+        return H(self, "H" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
+
+    def ls(self, qudits: list[int], controls: ControlData | None = None):
         pass
 
-    def ls(self, qudits: list[int]):
+    def ms(self, qudits: list[int], controls: ControlData | None = None):
         pass
 
-    def ms(self, qudits: list[int]):
+    def pm(self, params, qudits: list[int] | int, controls: ControlData | None = None):
         pass
 
-    def pm(self, params, qudits: list[int] | int):
+    def r(self, params, qudit: int, controls: ControlData | None = None):
         pass
 
-    def r(self, params, qudit: int):
+    def rz(self, params, qudit: int, controls: ControlData | None = None):
         pass
 
-    def rz(self, params, qudit: int):
+    def s(self, qudit: int, controls: ControlData | None = None):
         pass
 
-    def s(self, qudit: int):
-        pass
-
-    def z(self, qudit: int):
+    def z(self, qudit: int, controls: ControlData | None = None):
         pass
 
     def from_qasm(self, qasm_prog):
@@ -138,12 +171,3 @@ class QuantumCircuit:
     def draw(self):
         # TODO
         pass
-
-    def reset(self):
-        self.number_gates = 0
-        self.instructions = []
-        self.quantum_registers = []
-        self._sitemap = {}
-        self._num_cl = 0
-        self._num_qudits = 0
-        self._dimensions = []
