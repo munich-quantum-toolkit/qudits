@@ -1,11 +1,12 @@
-from mqt.circuit.circuit import QuantumCircuit
-from mqt.circuit.components.registers.quantum_register import QuantumRegister
-from mqt.simulation.provider.mqtvider import MQTProvider
+from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+from mqt.qudits.qudit_circuits.components.registers.quantum_register import QuantumRegister
+from mqt.qudits.simulation.provider.qudit_provider import MQTQuditProvider
+from mqt.qudits.visualisation.run_info import plot_histogram
 
 qasm = """
         DITQASM 2.0;
         qreg q [3][3,2,3];
-        qreg j [2][2,2];
+        qreg bob [2][2,2];
         creg meas[3];
         h q[2];
         cx q[2],q[1];
@@ -19,13 +20,19 @@ qasm = """
 # c = QuantumCircuit()
 # c.from_qasm(qasm)
 # print(QASM().parse_ditqasm2_str(qasm))
-qreg_example = QuantumRegister("x", 2, [3, 3])
+qreg_example = QuantumRegister("x", 3, [3, 2, 2])
 circ = QuantumCircuit(qreg_example)
+# circ.append(QuantumRegister())
 # circ.from_qasm(qasm)
 h3 = circ.h(0)
-print(h3.to_matrix())
+# x = circ.x(0)
+# csum = circ.csum([0, 2])
 
-provider = MQTProvider()
+# print(h3.to_matrix(identities=1))
+# print(csum.to_matrix(identities=1))
+
+
+provider = MQTQuditProvider()
 print(provider.backends("sim"))
 
 backend = provider.get_backend("tnsim")
@@ -35,4 +42,7 @@ state_size = 1
 for s in circ.dimensions:
     state_size *= s
 
-print(result.tensor.reshape(1, state_size))
+result = result.tensor.reshape(1, state_size)
+
+# takes a vector in
+plot_histogram(result, circ)
