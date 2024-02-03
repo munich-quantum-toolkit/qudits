@@ -34,15 +34,14 @@ class CustomMulti(CustomUnitary):
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
 
+        self.qasm_tag = "cumulti"
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         return self.__array_storage
 
     def validate_parameter(self, parameter=None):
         return isinstance(parameter, np.ndarray)
 
-    def __qasm__(self) -> str:
-        # TODO
-        pass
+
 
     def __str__(self):
         # TODO

@@ -29,6 +29,7 @@ class X(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.qasm_tag = "x"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         basis_states_list = list(range(self._dimensions))
@@ -46,7 +47,7 @@ class X(Gate):
             array1 = np.array(l1, dtype="complex")
             array2 = np.array(l2, dtype="complex")
 
-            result = np.outer(array1, array2)
+            result = np.outer(array2, array1)
             matrix = matrix + result
 
         return matrix
@@ -54,9 +55,7 @@ class X(Gate):
     def validate_parameter(self, parameter=None):
         return True
 
-    def __qasm__(self) -> str:
-        # TODO
-        pass
+
 
     def __str__(self):
         # TODO

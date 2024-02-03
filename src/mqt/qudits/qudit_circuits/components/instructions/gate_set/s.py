@@ -29,6 +29,7 @@ class S(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.qasm_tag = "s"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         dimension = self._dimensions
@@ -58,9 +59,7 @@ class S(Gate):
     def validate_parameter(self, parameter=None):
         return True
 
-    def __qasm__(self) -> str:
-        # TODO
-        pass
+
 
     def __str__(self):
         # TODO

@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
 class RandU(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ):
         super().__init__(
             circuit=circuit,
@@ -32,6 +32,7 @@ class RandU(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.qasm_tag = "rdu"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         dim = reduce(lambda x, y: x * y, self._dimensions)
@@ -39,10 +40,6 @@ class RandU(Gate):
 
     def validate_parameter(self, parameter):
         return True
-
-    def __qasm__(self) -> str:
-        # TODO
-        pass
 
     def __str__(self):
         # TODO

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import enum
 from abc import ABC
 from typing import TYPE_CHECKING
 
@@ -14,13 +15,15 @@ if TYPE_CHECKING:
 
 class CustomUnitary(Gate, ABC):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        parameters: np.ndarray,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: enum,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            parameters: list | None = None,
+            control_set=None,
+            label: str | None = None
     ):
         pass
 
@@ -31,7 +34,7 @@ class CustomUnitary(Gate, ABC):
         pass
 
     def __qasm__(self) -> str:
-        pass
+        raise NotImplemented
 
     def __str__(self):
         pass

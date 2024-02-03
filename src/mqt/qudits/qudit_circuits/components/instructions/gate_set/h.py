@@ -30,6 +30,7 @@ class H(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.qasm_tag = "h"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         basis_states_projectors = [list(range(self._dimensions)), list(range(self._dimensions))]
@@ -59,10 +60,6 @@ class H(Gate):
 
     def validate_parameter(self, parameter=None):
         return True
-
-    def __qasm__(self) -> str:
-        # TODO
-        pass
 
     def __str__(self):
         # TODO

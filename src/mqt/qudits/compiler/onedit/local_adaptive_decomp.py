@@ -1,0 +1,283 @@
+import gc
+
+import numpy as np
+from mqt.qudits.compiler.compiler_pass import CompilerPass
+from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import cost_calculator, gate_chain_condition, \
+    graph_rule_ongate, \
+    graph_rule_update
+from mqt.qudits.compiler.onedit.local_qr_decomp import QrDecomp
+from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import new_mod
+from mqt.qudits.core.structures.trees.dfs_tree import NAryTree
+from mqt.qudits.exceptions.compilerexception import SequenceFoundException
+from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
+from mqt.qudits.qudit_circuits.components.instructions.gate_set.custom_one import CustomOne
+from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
+from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+
+np.seterr(all='ignore')
+
+
+class LocAdaPass(CompilerPass):
+    def __init__(self, backend):
+        super().__init__(backend)
+
+    def transpile(self, circuit):
+        self.circuit = circuit
+        instructions = circuit.instructions
+        new_instructions = []
+
+        for i, gate in enumerate(instructions):
+
+            if gate.gate_type == GateTypes.SINGLE:
+                energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
+                # ini_lpmap = list(self.backend.energy_level_graphs.log_phy_map)
+
+                # if self.verify:
+                #    recover_dict = {}
+                #    inode = self.energy_level_graph._1stInode
+                #    if 'phase_storage' in self.energy_level_graph.nodes[inode]:
+                #       for i in range(len(list(self.energy_level_graph.nodes))):
+                #            thetaZ = newMod(self.energy_level_graph.nodes[i]['phase_storage'])
+                #            recover_dict[i] = thetaZ
+
+                QR = QrDecomp(gate, energy_graph_i)
+
+                decomp, algorithmic_cost, total_cost = QR.execute()
+
+                Adaptive = AdaptiveDecomposition(gate, energy_graph_i,
+                                                 (algorithmic_cost, total_cost), gate._dimensions)
+
+                (matrices_decomposed, best_cost,
+                 self.backend.energy_level_graphs[gate._target_qudits]) = Adaptive.execute()
+
+                # if self.verify:
+                #     nodes = list(self.energy_level_graph.nodes)
+                #     lpmap = list(self.energy_level_graph.log_phy_map)
+                #
+                #     Vgate = deepcopy(gate)
+                #     inode = self.energy_level_graph._1stInode
+                #
+                #     if 'phase_storage' in self.energy_level_graph.nodes[inode]:
+                #         for i in range(len(recover_dict)):
+                #             if abs(recover_dict[i]) > 1.0e-4:
+                #                 phase_gate = Rz(-recover_dict[i], i, self.dimension)  # logical rotation
+                #                 Vgate = Custom_Unitary(matmul(phase_gate.matrix, Vgate.matrix), self.dimension)
+                #
+                #     V = Verifier(matrices_decomposed, Vgate, nodes, ini_lpmap, lpmap, self.dimension)
+                #     Vr = V.verify()
+                #
+                #     if not Vr:
+                #         raise Exception
+                new_instructions += matrices_decomposed
+                # circuit.replace_gate(i, matrices_decomposed)
+                gc.collect()
+            else:
+                new_instructions.append(gate)  # TODO REENCODING
+        transpiled_circuit = self.circuit.copy()
+        return transpiled_circuit.set_instructions(new_instructions)
+
+
+class AdaptiveDecomposition:
+
+    def __init__(self, gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False):
+        self.circuit = gate.parent_circuit
+        self.U = gate.to_matrix(identities=0)
+        self.qudit_index = gate._target_qudits
+        self.graph = graph_orig
+        self.graph.phase_storing_setup()
+        self.cost_limit = cost_limit
+        self.dimension = dimension
+        self.phase_propagation = Z_prop
+        self.TREE = NAryTree()
+
+    def execute(self):
+
+        self.TREE.add(0, CustomOne(self.circuit, "CUo", self.qudit_index,
+                                   np.identity(self.dimension, dtype='complex'), self.dimension),
+                      self.U,
+                      self.graph, 0, 0, self.cost_limit, [])
+        try:
+            self.DFS(self.TREE.root)
+        except SequenceFoundException:
+            pass
+        finally:
+            matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
+
+            if matrices_decomposed != []:
+                matrices_decomposed, final_graph = self.Z_extraction(matrices_decomposed, final_graph,
+                                                                     self.phase_propagation)
+            else:
+                print("couldn't decompose\n")
+
+            tree_print = self.TREE.print_tree(self.TREE.root, "TREE: ")
+
+            return matrices_decomposed, best_cost, final_graph
+
+    def Z_extraction(self, decomposition, placement, phase_propagation):
+        matrices = []
+
+        for d in decomposition[1:]:
+            # exclude the identity matrix coming from the root of the tree of solutions which is just for correctness
+            matrices = matrices + d.PI_PULSES
+            matrices = matrices + [d.rotation]
+
+        U_ = decomposition[-1].U_of_level  # take U of last elaboration which should be the diagonal matrix found
+
+        # check if close to diagonal
+        Ucopy = U_.copy()
+
+        # check if the diagonal is made only of noise
+        valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)  # > 1.0e-4
+
+        # are the non diagonal entries zeroed-out
+        filtered_Ucopy = abs(Ucopy) > 1.0e-4
+        np.fill_diagonal(filtered_Ucopy, 0)
+
+        not_diag = filtered_Ucopy.any()
+
+        if not_diag or not valid_diag:  # if is diagonal enough then somehow signal end of algorithm
+            raise Exception('Matrix isnt close to diagonal!')
+        else:
+            diag_U = np.diag(U_)
+            dimension = U_.shape[0]
+
+            for i in range(dimension):
+                if abs(np.angle(diag_U[i])) > 1.0e-4:
+
+                    if phase_propagation:
+                        inode = placement._1stInode
+                        if 'phase_storage' in placement.nodes[inode]:
+                            placement.nodes[i]['phase_storage'] = placement.nodes[i]['phase_storage'] + np.angle(
+                                    diag_U[i])
+                            placement.nodes[i]['phase_storage'] = new_mod(placement.nodes[i]['phase_storage'])
+                    else:
+                        phy_n_i = placement.nodes[i]['lpmap']
+
+                        phase_gate = VirtRz(self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_U[i])],
+                                            self.dimension)  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
+                        # dimension)
+
+                        U_ = phase_gate.to_matrix(identities=0) @ U_  # matmul(phase_gate.to_matrix(identities=0), U_)
+
+                        matrices.append(phase_gate)
+
+            if not phase_propagation:
+                inode = placement._1stInode
+                if 'phase_storage' in placement.nodes[inode]:
+                    for i in range(len(list(placement.nodes))):
+                        thetaZ = new_mod(placement.nodes[i]['phase_storage'])
+                        if abs(thetaZ) > 1.0e-4:
+                            phase_gate = VirtRz(self.circuit, "VRz", self.qudit_index, [placement.nodes[i]['lpmap'],
+                                                                                        thetaZ],
+                                                self.dimension)  # VirtRz(thetaZ, placement.nodes[i]['lpmap'],
+                            # dimension)
+                            matrices.append(phase_gate)
+                        # reset the node
+                        placement.nodes[i]['phase_storage'] = 0
+
+            return matrices, placement
+
+    def DFS(self, current_root, level=0):
+
+        # check if close to diagonal
+        Ucopy = current_root.U_of_level.copy()
+
+        current_placement = current_root.graph
+
+        # is the diagonal noisy?
+        valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)
+
+        # are the non diagonal entries zeroed-out?
+        filtered_Ucopy = abs(Ucopy) > 1.0e-4
+        np.fill_diagonal(filtered_Ucopy, 0)
+
+        not_diag = filtered_Ucopy.any()
+
+        # if is diagonal enough then somehow signal end of algorithm
+        if (not not_diag) and valid_diag:
+            current_root.finished = True
+
+            raise SequenceFoundException(current_root.key)
+
+        ################################################
+        ###############
+        #########
+
+        # BEGIN SEARCH
+
+        U_ = current_root.U_of_level
+
+        dimension = U_.shape[0]
+
+        for c in range(dimension):
+
+            for r in range(c, dimension):
+
+                for r2 in range(r + 1, dimension):
+
+                    if abs(U_[r2, c]) > 1.0e-8 and (abs(U_[r, c]) > 1.0e-18 or abs(U_[r, c]) == 0):
+
+                        theta = 2 * np.arctan2(abs(U_[r2, c]), abs(U_[r, c]))
+
+                        phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
+
+                        rotation_involved = R(self.circuit, "R", self.qudit_index, [r, r2, theta, phi],
+                                              self.dimension)  # R(theta, phi, r, r2, dimension)
+
+                        U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
+
+                        non_zeros = np.count_nonzero(abs(U_temp) > 1.0e-4)
+
+                        estimated_cost, pi_pulses_routing, new_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
+                                rotation_involved, current_placement, non_zeros)
+
+                        next_step_cost = (estimated_cost + current_root.current_cost)
+                        decomp_next_step_cost = (cost_of_pi_pulses + gate_cost + current_root.current_decomp_cost)
+
+                        branch_condition = current_root.max_cost[
+                                               1] - decomp_next_step_cost  # SECOND POSITION IS PHYISCAL COST
+                        # branch_condition_2 = current_root.max_cost[0] - next_step_cost  # deprecated: FIRST IS ALGORITHMIC COST
+
+                        if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
+                            # if cost is better can be only candidate otherwise try them all
+
+                            self.TREE.global_id_counter = self.TREE.global_id_counter + 1
+                            new_key = self.TREE.global_id_counter
+
+                            #
+                            if new_placement.nodes[r]['lpmap'] > new_placement.nodes[r2]['lpmap']:
+                                phi = phi * -1
+                            #
+                            physical_rotation = R(self.circuit, "R", self.qudit_index,
+                                                  [new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'],
+                                                   theta, phi], self.dimension)
+                            # R(theta, phi, new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'], dimension)
+                            #
+                            physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
+                            #
+                            physical_rotation = graph_rule_ongate(physical_rotation, new_placement)
+                            #
+
+                            # take care of phases accumulated by not pi-pulsing back
+                            p_backs = []
+                            for ppulse in pi_pulses_routing:
+                                p_backs.append(R(self.circuit, "R", self.qudit_index,
+                                                 [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
+                                                 self.dimension))
+                                # p_backs.append(R(ppulse.theta, -ppulse.phi, ppulse.lev_a, ppulse.lev_b, dimension))
+
+                            for p_back in p_backs:
+                                graph_rule_update(p_back, new_placement)
+
+                            current_root.add(new_key, physical_rotation, U_temp, new_placement, next_step_cost,
+                                             decomp_next_step_cost, current_root.max_cost, pi_pulses_routing)
+
+        # ===============CONTINUE SEARCH ON CHILDREN========================================
+        if current_root.children is not None:
+
+            for child in current_root.children:
+                self.DFS(child, level + 1)
+        # ===================================================================================
+
+        # END OF RECURSION#
+        return

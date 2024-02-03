@@ -2,7 +2,9 @@ import re
 import warnings
 from pathlib import Path
 
-import sympy as sp
+import numpy as np
+
+from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
 
 class QASM:
@@ -30,20 +32,58 @@ class QASM:
             return True, in_comment
         return False, in_comment
 
+    def parse_qreg(self, line, rgxs, sitemap):
+        match = rgxs["qreg"].match(line)
+        if match:
+            name, nq, qdims = match.groups()
+            nq = int(*re.search(r"\[(\d+)\]", nq).groups())
+
+            if qdims:
+                qdims = qdims.split(",") if qdims else []
+                qdims = [int(num) for num in qdims]
+            else:
+                qdims = [2] * nq
+
+            for i in range(int(nq)):
+                sitemap[(str(name), i)] = len(sitemap), qdims[i]
+
+            return True
+        return False
+
+    def safe_eval_math_expression(self, expression):
+        try:
+            expression = expression.replace("pi", str(np.pi))
+            # Define a dictionary of allowed names
+            allowed_names = {'__builtins__': None, 'pi': np.pi}
+            # Use eval with restricted names
+            result = eval(expression, allowed_names)
+            return result
+        except (ValueError, SyntaxError) as e:
+            print(f"Error evaluating expression: {e}")
+            return None
+
     def parse_gate(self, line, rgxs, sitemap, gates):
         match = rgxs["gate"].search(line)
         if match:
-            label, params, qudits = (
-                match.group(1),
-                match.group(2),
-                match.group(3),
-            )
+            label = match.group(1)
+            params = match.group(2)
+            qudits = match.group(3)
+            ctl_pattern = match.group(5)
+            ctl_qudits = match.group(6)
+            ctl_levels = match.group(8)
 
+            # params = (
+            #     tuple(sp.sympify(param.replace("pi", str(sp.pi))) for param in params.strip("()").split(","))
+            #     if params
+            #     else ()
+            # )
+            # Evaluate params using NumPy and NumExpr
             params = (
-                tuple(sp.sympify(param.replace("pi", str(sp.pi))) for param in params.strip("()").split(","))
+                tuple(self.safe_eval_math_expression(param) for param in params.strip("()").split(","))
                 if params
                 else ()
             )
+
             qudits_list = []
             for dit in qudits.split(","):
                 match = rgxs["qreg_indexing"].match(str(dit))
@@ -52,9 +92,42 @@ class QASM:
                     reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
                     qudit = tuple(sitemap[(name, reg_qudit_index)])
                     qudits_list.append(qudit)
-            gate_dict = {"name": label, "params": params, "qudits": qudits_list}
+
+            qudits_control_list = []
+            if ctl_pattern is not None:
+                matches = rgxs["qreg_indexing"].findall(ctl_qudits)
+                for match in matches:
+                    name, reg_qudit_index = match
+                    reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
+                    qudit = tuple(sitemap[(name, reg_qudit_index)])
+                    qudits_control_list.append(qudit[0])
+
+            qudits_levels_list = []
+            if ctl_levels is not None:
+                numbers = re.compile(r'\d+')
+                matches = numbers.findall(ctl_levels)
+                for level in matches:
+                    qudits_levels_list.append(int(level))
+
+            if len(qudits_control_list) == 0 and len(qudits_levels_list) == 0:
+                controls = None
+            else:
+                controls = ControlData(qudits_control_list, qudits_levels_list)
+            gate_dict = {"name": label, "params": params, "qudits": qudits_list, "controls": controls}
+
             gates.append(gate_dict)
 
+            return True
+        return False
+
+    def parse_ignore(self, line, rgxs, warned):
+        match = rgxs["ignore"].match(line)
+        if match:
+            # certain operations we can just ignore and warn about
+            (op,) = match.groups()
+            if not warned.get(op, False):
+                #warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning, stacklevel=2)
+                warned[op] = True
             return True
         return False
 
@@ -65,15 +138,19 @@ class QASM:
         """
         # define regular expressions for parsing
         rgxs = {
-            "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment": re.compile(r"^//"),
+            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment":       re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end": re.compile(r"\*/"),
-            "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "comment_end":   re.compile(r"\*/"),
+            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\d+\s*\])\s*(\s*\w+\s*\[\d+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
-            "gate": re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
-            "error": re.compile(r"^(gate|if)"),
-            "ignore": re.compile(r"^(creg|measure|barrier)"),
+            # "gate":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
+            "gate":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                                        r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                                        r"\s*;"),
+            "error":         re.compile(r"^(gate|if)"),
+            "ignore":        re.compile(r"^(creg|measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
@@ -91,29 +168,13 @@ class QASM:
             if continue_flag:
                 continue
 
-            match = rgxs["qreg"].match(line)
-            if match:
-                name, nq, qdims = match.groups()
-                nq = int(*re.search(r"\[(\d+)\]", nq).groups())
-
-                if qdims:
-                    qdims = qdims.split(",") if qdims else []
-                    qdims = [int(num) for num in qdims]
-                else:
-                    qdims = [2] * nq
-
-                for i in range(int(nq)):
-                    sitemap[(str(name), i)] = len(sitemap), qdims[i]
-
+            if self.parse_qreg(line, rgxs, sitemap):
                 continue
 
-            match = rgxs["ignore"].match(line)
-            if match:
-                # certain operations we can just ignore and warn about
-                (op,) = match.groups()
-                if not warned.get(op, False):
-                    warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning, stacklevel=2)
-                    warned[op] = True
+            if self.parse_ignore(line, rgxs, warned):
+                continue
+
+            if self.parse_gate(line, rgxs, sitemap, gates):
                 continue
 
             if rgxs["error"].match(line):
@@ -121,17 +182,14 @@ class QASM:
                 msg = f"Custom gate definitions are not supported: {line}"
                 raise NotImplementedError(msg)
 
-            if self.parse_gate(line, rgxs, sitemap, gates):
-                continue
-
             # if not covered by previous checks, simply raise
             msg = f"{line}"
             raise SyntaxError(msg)
         self._program = {
-            "n": len(sitemap),
-            "sitemap": sitemap,
+            "n":            len(sitemap),
+            "sitemap":      sitemap,
             "instructions": gates,
-            "n_gates": len(gates),
+            "n_gates":      len(gates),
         }
         return self._program
 
@@ -140,3 +198,4 @@ class QASM:
         path = Path(fname)
         with path.open() as f:
             return self.parse_ditqasm2_str(f.read())
+

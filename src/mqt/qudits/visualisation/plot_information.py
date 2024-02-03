@@ -1,5 +1,4 @@
 import itertools
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,10 +32,7 @@ class HistogramWithErrors:
         plt.close()
 
 
-def plot_histogram(result: np.ndarray, circuit: QuantumCircuit, errors=None) -> None:
-    result = np.squeeze(result).tolist()
-    if errors is None:
-        errors = len(result) * [0]
+def state_labels(circuit):
     dimensions = circuit.dimensions
     logic = []
     lut = []
@@ -53,6 +49,38 @@ def plot_histogram(result: np.ndarray, circuit: QuantumCircuit, errors=None) -> 
             s += str(state)
         string_states.append(s)
 
+    return string_states
+
+
+def plot_state(result: np.ndarray, circuit: QuantumCircuit, errors=None) -> None:
+    result = np.squeeze(result).tolist()
+    if errors is None:
+        errors = len(result) * [0]
+
+    string_states = state_labels(circuit)
+
     result = [abs(coeff) for coeff in result]
     h_plotter = HistogramWithErrors(string_states, result, errors, title="Simulation")
     h_plotter.generate_histogram()
+
+
+def plot_counts(result, circuit: QuantumCircuit) -> None:
+    custom_labels = state_labels(circuit)
+
+    # Count the frequency of each outcome
+    counts = {label: result.count(i) for i, label in enumerate(custom_labels)}
+
+    # Create a bar plot with custom labels
+    plt.bar(custom_labels, counts.values())
+
+    # Add labels and title
+    plt.xlabel('States')
+    plt.ylabel('Counts')
+    plt.title('Simulation')
+
+    # Show the plot
+    plt.show()
+
+    return counts
+
+

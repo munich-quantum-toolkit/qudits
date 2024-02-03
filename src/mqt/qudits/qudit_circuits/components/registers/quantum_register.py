@@ -13,13 +13,13 @@ class QuantumRegister:
             else:
                 registers_map[reg_name][0][inreg_line_index] = line_info[0]
                 registers_map[reg_name][1].append(line_info[1])
-        print(registers_map)
+        #print(registers_map)
         registers_from_qasm = []
         for label, data in registers_map.items():
             temp = QuantumRegister(label, len(data[0]), data[1])
             temp.local_sitemap = data[0]
             registers_from_qasm.append(temp)
-        print(registers_from_qasm)
+        #print(registers_from_qasm)
         return registers_from_qasm
 
     def __init__(self, name, size, dims=None):
@@ -28,7 +28,6 @@ class QuantumRegister:
         self.dimensions = size * [2] if dims is None else dims
         self.local_sitemap = {}
 
-    @property
     def __qasm__(self):
         string_dims = str(self.dimensions).replace(" ", "")
         return "qreg " + self.label + " [" + str(self.size) + "]" + string_dims + ";"

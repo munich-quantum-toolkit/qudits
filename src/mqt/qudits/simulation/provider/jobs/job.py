@@ -1,12 +1,12 @@
+import os
 import time
-from abc import ABC, abstractmethod
 from typing import Callable, Optional
 
 from mqt.qudits.exceptions.joberror import JobError, JobTimeoutError
 from mqt.qudits.simulation.provider.jobs.jobstatus import JobStatus
 
 
-class JobV1(ABC):
+class Job():
     """Class to handle jobs
 
     This first version of the Backend abstract class is written to be mostly
@@ -19,7 +19,7 @@ class JobV1(ABC):
     version = 1
     _async = True
 
-    def __init__(self, backend: Optional["Backend"], job_id: str, **kwargs) -> None:
+    def __init__(self, backend: Optional["Backend"], job_id: str = "auto", **kwargs) -> None:
         """Initializes the asynchronous job.
 
         Args:
@@ -27,7 +27,11 @@ class JobV1(ABC):
             job_id: a unique id in the context of the backend used to run the job.
             kwargs: Any key-value metadata to associate with this job.
         """
-        self._job_id = job_id
+        if job_id == "auto":
+            current_time = int(time.time() * 1000)
+            self._job_id = hash((os.getpid(), current_time))
+        else:
+            self._job_id = job_id
         self._backend = backend
         self.metadata = kwargs
 
@@ -59,7 +63,7 @@ class JobV1(ABC):
         return self.status() in JobStatus.JOB_FINAL_STATES
 
     def wait_for_final_state(
-        self, timeout: Optional[float] = None, wait: float = 5, callback: Optional[Callable] = None
+            self, timeout: Optional[float] = None, wait: float = 5, callback: Optional[Callable] = None
     ) -> None:
         """Poll the job status until it progresses to a final state such as DONE or ERROR.
 
@@ -85,18 +89,21 @@ class JobV1(ABC):
             time.sleep(wait)
             status = self.status()
 
-    @abstractmethod
     def submit(self):
         """Submit the job to the backend for execution."""
+        raise NotImplementedError
 
-    @abstractmethod
     def result(self):
         """Return the results of the job."""
+        return self._result
+
+    def set_result(self, result):
+        self._result = result
 
     def cancel(self):
         """Attempt to cancel the job."""
         raise NotImplementedError
 
-    @abstractmethod
     def status(self) -> str:
         """Return the status of the job, among the values of BackendStatus."""
+        raise NotImplementedError

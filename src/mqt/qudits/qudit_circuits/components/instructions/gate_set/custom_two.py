@@ -14,13 +14,13 @@ if TYPE_CHECKING:
 
 class CustomTwo(CustomUnitary):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        parameters: np.ndarray,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            parameters: np.ndarray,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ):
         super().__init__(
             circuit=circuit,
@@ -34,15 +34,14 @@ class CustomTwo(CustomUnitary):
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
 
+        self.qasm_tag = "cutwo"
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         return self.__array_storage
 
     def validate_parameter(self, parameter=None):
         return isinstance(parameter, np.ndarray)
 
-    def __qasm__(self) -> str:
-        # TODO
-        pass
+
 
     def __str__(self):
         # TODO

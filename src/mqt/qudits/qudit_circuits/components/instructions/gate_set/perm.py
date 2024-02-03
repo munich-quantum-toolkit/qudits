@@ -33,6 +33,8 @@ class Perm(Gate):
         )
         if self.validate_parameter(parameters):
             self.perm_data = parameters
+            self._params = parameters
+        self.qasm_tag = "pm"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         return np.eye(reduce(lambda x, y: x * y, self._dimensions))[:, self.perm_data]
@@ -44,9 +46,7 @@ class Perm(Gate):
         ), "Numbers are not within the range of the list length"
         return True
 
-    def __qasm__(self) -> str:
-        # TODO
-        pass
+
 
     def __str__(self):
         # TODO

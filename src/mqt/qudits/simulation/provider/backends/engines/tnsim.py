@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Iterable, List, Union
 
 import numpy as np
@@ -8,6 +9,9 @@ from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.simulation.provider.backend_properties.quditproperties import QuditProperties
 from mqt.qudits.simulation.provider.backends.backendv2 import Backend
+from mqt.qudits.simulation.provider.backends.stocastic_components.stocastic_sim import stocastic_simulation
+from mqt.qudits.simulation.provider.jobs.job import Job
+from mqt.qudits.simulation.provider.jobs.job_result.job_result import JobResult
 
 
 class TNSim(Backend):
@@ -35,13 +39,33 @@ class TNSim(Backend):
         raise NotImplementedError
 
     def run(self, circuit: QuantumCircuit, **options):
+        job = Job(self)
+
+        self._options.update(options)
+        self.noise_model = self._options.get("noise_model", None)
+        self.shots = self._options.get("shots", 1 if self.noise_model is None else 1000)
+        self.memory = self._options.get("memory", False)
+        self.full_state_memory = self._options.get("full_state_memory", False)
+        self.file_path = self._options.get("file_path", None)
+        self.file_name = self._options.get("file_name", None)
+
+        if self.noise_model is not None:
+            assert self.shots >= 1000, "Number of shots should be above 1000"
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stocastic_simulation(self, circuit)))
+        else:
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))
+
+        return job
+
+    def execute(self, circuit: QuantumCircuit):
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
-        return self.__execute(self.system_sizes, self.circ_operations)
 
-    @classmethod
-    def _default_options(cls):
-        pass
+        result = self.__contract_circuit(self.system_sizes, self.circ_operations)
+
+        state_size = reduce(lambda x, y: x * y, self.system_sizes, 1)
+        result = result.tensor.reshape(1, state_size)
+        return result
 
     def __init__(self, **fields):
         self.system_sizes = None
@@ -54,7 +78,7 @@ class TNSim(Backend):
             tn.connect(qudit_edges[bit], op[i])
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
-    def __execute(self, system_sizes, operations: List[Gate]):
+    def __contract_circuit(self, system_sizes, operations: List[Gate]):
         all_nodes = []
 
         with tn.NodeCollection(all_nodes):
@@ -75,7 +99,8 @@ class TNSim(Backend):
 
                 elif op.gate_type == GateTypes.TWO and not op.is_long_range:
                     op_matrix = op_matrix.reshape(
-                        (system_sizes[lines[0]], system_sizes[lines[1]], system_sizes[lines[0]], system_sizes[lines[1]])
+                            (system_sizes[lines[0]], system_sizes[lines[1]], system_sizes[lines[0]],
+                             system_sizes[lines[1]])
                     )
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
@@ -91,4 +116,4 @@ class TNSim(Backend):
 
                 self.__apply_gate(qudits_legs, op_matrix, lines)
 
-        return tn.contractors.optimal(all_nodes, output_edge_order=qudits_legs)
+        return tn.contractors.auto(all_nodes, output_edge_order=qudits_legs)
