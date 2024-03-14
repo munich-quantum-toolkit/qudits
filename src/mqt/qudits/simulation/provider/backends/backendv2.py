@@ -14,19 +14,19 @@ class Backend(ABC):
         return 2
 
     def __init__(
-            self,
-            provider: Optional[Provider] = None,
-            name: Optional[str] = None,
-            description: Optional[str] = None,
-            online_date: Optional[datetime] = None,
-            backend_version: Optional[str] = None,
-            **fields,
+        self,
+        provider: Optional[Provider] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        online_date: Optional[datetime] = None,
+        backend_version: Optional[str] = None,
+        **fields,
     ):
         self._options = self._default_options()
         self._provider = provider
 
         if fields:
-            #for field in fields:
+            # for field in fields:
             #    if field not in self._options.data:
             #        msg = f"Options field '{field}' is not valid for this backend"
             #        raise AttributeError(msg)
@@ -88,7 +88,7 @@ class Backend(ABC):
         pass
 
     def _default_options(self):
-        return {'shots': 1000, 'memory': False}
+        return {"shots": 1000, "memory": False}
 
     @property
     def dt(self) -> Union[float, None]:

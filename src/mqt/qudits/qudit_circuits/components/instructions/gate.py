@@ -11,10 +11,8 @@ from mqt.qudits.qudit_circuits.components.instructions.instruction import Instru
 
 if TYPE_CHECKING:
     import enum
-
     import numpy as np
     from numpy import ndarray
-
     from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 
 
@@ -22,17 +20,17 @@ class Gate(Instruction, ABC):
     """Unitary gate."""
 
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            gate_type: enum,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            params: list | None = None,
-            control_set=None,
-            label: str | None = None,
-            duration=None,
-            unit="dt",
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        gate_type: enum,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        params: list | None = None,
+        control_set=None,
+        label: str | None = None,
+        duration=None,
+        unit="dt",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -69,6 +67,7 @@ class Gate(Instruction, ABC):
     def dag(self):
         self._name = self._name + "_dag"
         self.dagger = True
+        return self
 
     def to_matrix(self, identities=0) -> Callable[[str], ndarray]:
         """Return a np.ndarray for the gate unitary parameters.
@@ -90,7 +89,7 @@ class Gate(Instruction, ABC):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-                idx >= self.parent_circuit.num_qudits for idx in indices
+            idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -101,7 +100,7 @@ class Gate(Instruction, ABC):
         elif any(idx in list(self._target_qudits) for idx in indices):
             msg = "Controls overlap with targets"
             raise IndexError(msg)
-        #if isinstance(self._dimensions, int):
+        # if isinstance(self._dimensions, int):
         #    dimensions = [self._dimensions]
         if any(ctrl >= self.parent_circuit._dimensions[i] for i, ctrl in enumerate(ctrl_states)):
             msg = "Controls States beyond qudit size "
@@ -132,12 +131,16 @@ class Gate(Instruction, ABC):
         elif isinstance(self._target_qudits, list):
             targets = self._target_qudits
         for qudit in targets:
-            string += f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}], "
+            string += (
+                f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}], "
+            )
         string = string[:-2]
         if self._controls_data:
             string += " ctl "
-            for ctrl in self._controls_data.indices:
-                string += f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}] "
+            for _ctrl in self._controls_data.indices:
+                string += (
+                    f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}] "
+                )
             string += str(self._controls_data.ctrl_states)
 
         return string + ";\n"
@@ -171,8 +174,8 @@ class Gate(Instruction, ABC):
     @property
     def control_info(self):
         return {
-            "target":           self._target_qudits,
+            "target": self._target_qudits,
             "dimensions_slice": self._dimensions,
-            "params":           self._params,
-            "controls":         self._controls_data,
+            "params": self._params,
+            "controls": self._controls_data,
         }

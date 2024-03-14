@@ -4,35 +4,35 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.abstract_custom import CustomUnitary
 
 if TYPE_CHECKING:
     from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
     from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
 
-class CustomOne(CustomUnitary):
+class CustomOne(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: np.ndarray,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: np.ndarray,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                parameters=parameters,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
+            self._params = "--"
         self.qasm_tag = "cuone"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:

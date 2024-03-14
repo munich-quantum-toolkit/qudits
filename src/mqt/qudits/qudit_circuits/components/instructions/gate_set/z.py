@@ -22,14 +22,15 @@ class Z(Gate):
         controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         self.qasm_tag = "z"
+
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         dimension = self._dimensions
         levels_list = list(range(dimension))
@@ -48,8 +49,8 @@ class Z(Gate):
 
             array1 = np.array(l1, dtype="complex")
             array2 = np.array(l2, dtype="complex")
-
-            result = omega * np.outer(array1, array2)
+            proj = np.outer(array1, array2)
+            result = omega * proj
 
             matrix = matrix + result
 
@@ -57,8 +58,6 @@ class Z(Gate):
 
     def validate_parameter(self, parameter=None):
         return True
-
-
 
     def __str__(self):
         # TODO

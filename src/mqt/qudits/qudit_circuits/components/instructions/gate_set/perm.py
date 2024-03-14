@@ -46,8 +46,6 @@ class Perm(Gate):
         ), "Numbers are not within the range of the list length"
         return True
 
-
-
     def __str__(self):
         # TODO
         pass

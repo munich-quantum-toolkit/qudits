@@ -6,7 +6,7 @@ from mqt.qudits.exceptions.joberror import JobError, JobTimeoutError
 from mqt.qudits.simulation.provider.jobs.jobstatus import JobStatus
 
 
-class Job():
+class Job:
     """Class to handle jobs
 
     This first version of the Backend abstract class is written to be mostly
@@ -63,7 +63,7 @@ class Job():
         return self.status() in JobStatus.JOB_FINAL_STATES
 
     def wait_for_final_state(
-            self, timeout: Optional[float] = None, wait: float = 5, callback: Optional[Callable] = None
+        self, timeout: Optional[float] = None, wait: float = 5, callback: Optional[Callable] = None
     ) -> None:
         """Poll the job status until it progresses to a final state such as DONE or ERROR.
 

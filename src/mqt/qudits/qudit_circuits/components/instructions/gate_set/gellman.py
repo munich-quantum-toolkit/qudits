@@ -18,21 +18,21 @@ class GellMann(Gate):
     """
 
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: list,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: list,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b, self.type_m = parameters
@@ -70,7 +70,7 @@ class GellMann(Gate):
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], str)
         assert (
-                0 <= parameter[0] < parameter[1]
+            0 <= parameter[0] < parameter[1]
         ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
         assert isinstance(parameter[2], str), "type parameter should be a string"
 

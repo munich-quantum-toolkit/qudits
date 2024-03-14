@@ -1,5 +1,4 @@
 import re
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -54,10 +53,9 @@ class QASM:
         try:
             expression = expression.replace("pi", str(np.pi))
             # Define a dictionary of allowed names
-            allowed_names = {'__builtins__': None, 'pi': np.pi}
+            allowed_names = {"__builtins__": None, "pi": np.pi}
             # Use eval with restricted names
-            result = eval(expression, allowed_names)
-            return result
+            return eval(expression, allowed_names)
         except (ValueError, SyntaxError) as e:
             print(f"Error evaluating expression: {e}")
             return None
@@ -104,7 +102,7 @@ class QASM:
 
             qudits_levels_list = []
             if ctl_levels is not None:
-                numbers = re.compile(r'\d+')
+                numbers = re.compile(r"\d+")
                 matches = numbers.findall(ctl_levels)
                 for level in matches:
                     qudits_levels_list.append(int(level))
@@ -126,7 +124,7 @@ class QASM:
             # certain operations we can just ignore and warn about
             (op,) = match.groups()
             if not warned.get(op, False):
-                #warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning, stacklevel=2)
+                # warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning, stacklevel=2)
                 warned[op] = True
             return True
         return False
@@ -138,19 +136,21 @@ class QASM:
         """
         # define regular expressions for parsing
         rgxs = {
-            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment":       re.compile(r"^//"),
+            "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment": re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end":   re.compile(r"\*/"),
-            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "comment_end": re.compile(r"\*/"),
+            "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\d+\s*\])\s*(\s*\w+\s*\[\d+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
-            "gate":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                                        r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                                        r"\s*;"),
-            "error":         re.compile(r"^(gate|if)"),
-            "ignore":        re.compile(r"^(creg|measure|barrier)"),
+            "gate": re.compile(
+                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                r"\s*;"
+            ),
+            "error": re.compile(r"^(gate|if)"),
+            "ignore": re.compile(r"^(creg|measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
@@ -186,10 +186,10 @@ class QASM:
             msg = f"{line}"
             raise SyntaxError(msg)
         self._program = {
-            "n":            len(sitemap),
-            "sitemap":      sitemap,
+            "n": len(sitemap),
+            "sitemap": sitemap,
             "instructions": gates,
-            "n_gates":      len(gates),
+            "n_gates": len(gates),
         }
         return self._program
 
@@ -198,4 +198,3 @@ class QASM:
         path = Path(fname)
         with path.open() as f:
             return self.parse_ditqasm2_str(f.read())
-

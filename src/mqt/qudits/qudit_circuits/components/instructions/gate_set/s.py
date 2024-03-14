@@ -59,8 +59,6 @@ class S(Gate):
     def validate_parameter(self, parameter=None):
         return True
 
-
-
     def __str__(self):
         # TODO
         pass

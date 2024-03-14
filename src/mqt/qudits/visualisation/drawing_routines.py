@@ -13,8 +13,17 @@ def draw_qudit_local(circuit):
                     print("--[VRz" + str(gate.lev_a) + "(" + str(round(gate.phi, 2)) + ")]--", end="")
 
                 elif isinstance(gate, R):
-                    print("--[R" + str(gate.lev_a) + str(gate.lev_b) + "(" + str(round(gate.theta, 2)) + "," + str(
-                            round(gate.phi, 2)) + ")]--", end="")
+                    print(
+                        "--[R"
+                        + str(gate.lev_a)
+                        + str(gate.lev_b)
+                        + "("
+                        + str(round(gate.theta, 2))
+                        + ","
+                        + str(round(gate.phi, 2))
+                        + ")]--",
+                        end="",
+                    )
 
                 elif isinstance(gate, CustomOne):
                     print("--[CuOne]--", end="")

@@ -15,13 +15,13 @@ class FakeIonTraps2Trits(TNSim):
         return 0
 
     def __init__(
-            self,
-            provider: Optional[Provider] = None,
-            name: Optional[str] = None,
-            description: Optional[str] = None,
-            online_date: Optional[datetime] = None,
-            backend_version: Optional[str] = None,
-            **fields,
+        self,
+        provider: Optional[Provider] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        online_date: Optional[datetime] = None,
+        backend_version: Optional[str] = None,
+        **fields,
     ):
         self._options = self._default_options()
         self._provider = provider
@@ -113,31 +113,19 @@ class FakeIonTraps2Trits(TNSim):
         :return: NoideModel
         """
         # Depolarizing quantum errors
-        local_error = Noise(
-                probability_depolarizing=0.001,
-                probability_dephasing=0.001)
-        local_error_rz = Noise(
-                probability_depolarizing=0.03,
-                probability_dephasing=0.03)
-        entangling_error = Noise(
-                probability_depolarizing=0.1,
-                probability_dephasing=0.001)
-        entangling_error_extra = Noise(
-                probability_depolarizing=0.1,
-                probability_dephasing=0.1)
-        entangling_error_on_target = Noise(
-                probability_depolarizing=0.1,
-                probability_dephasing=0.0)
-        entangling_error_on_control = Noise(
-                probability_depolarizing=0.01,
-                probability_dephasing=0.0)
+        local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
+        local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
+        entangling_error = Noise(probability_depolarizing=0.1, probability_dephasing=0.001)
+        entangling_error_extra = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        entangling_error_on_target = Noise(probability_depolarizing=0.1, probability_dephasing=0.0)
+        entangling_error_on_control = Noise(probability_depolarizing=0.01, probability_dephasing=0.0)
 
         # Add errors to noise_tools model
 
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate
-        noise_model.add_all_qudit_quantum_error(local_error, ['csum'])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ['csum'], [0])
+        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
+        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
@@ -159,7 +147,7 @@ class FakeIonTraps2Trits(TNSim):
         raise NotImplementedError
 
     def _default_options(self):
-        return {'shots': 1000, 'memory': False, "noise_model": self.__noise_model()}
+        return {"shots": 1000, "memory": False, "noise_model": self.__noise_model()}
 
     @property
     def dt(self) -> Union[float, None]:

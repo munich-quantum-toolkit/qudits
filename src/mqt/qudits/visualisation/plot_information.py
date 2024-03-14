@@ -1,4 +1,5 @@
 import itertools
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,7 +34,7 @@ class HistogramWithErrors:
 
 
 def state_labels(circuit):
-    dimensions = circuit.dimensions
+    dimensions = reversed(circuit.dimensions)
     logic = []
     lut = []
     for d in dimensions:
@@ -74,13 +75,11 @@ def plot_counts(result, circuit: QuantumCircuit) -> None:
     plt.bar(custom_labels, counts.values())
 
     # Add labels and title
-    plt.xlabel('States')
-    plt.ylabel('Counts')
-    plt.title('Simulation')
+    plt.xlabel("States")
+    plt.ylabel("Counts")
+    plt.title("Simulation")
 
     # Show the plot
     plt.show()
 
     return counts
-
-

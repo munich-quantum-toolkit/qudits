@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
 class RandU(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
             circuit=circuit,

@@ -15,21 +15,21 @@ if TYPE_CHECKING:
 
 class VirtRz(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: list | None,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: list | None,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.phi = parameters
@@ -40,7 +40,7 @@ class VirtRz(Gate):
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         dimension = self._dimensions
         theta = self.phi
-        matrix = np.identity(dimension, dtype='complex')
+        matrix = np.identity(dimension, dtype="complex")
         matrix[self.lev_a, self.lev_a] = np.exp(-1j * theta) * matrix[self.lev_a, self.lev_a]
 
         return matrix

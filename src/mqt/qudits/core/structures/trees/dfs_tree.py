@@ -2,8 +2,19 @@ from mqt.qudits.exceptions.compilerexception import NodeNotFoundException
 
 
 class Node:
-    def __init__(self, key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses,
-                 parent_key, childs=None):
+    def __init__(
+        self,
+        key,
+        rotation,
+        U_of_level,
+        graph_current,
+        current_cost,
+        current_decomp_cost,
+        max_cost,
+        pi_pulses,
+        parent_key,
+        childs=None,
+    ):
         self.key = key
         self.children = childs
         self.rotation = rotation
@@ -20,8 +31,17 @@ class Node:
     def add(self, new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses):
         # TODO refactor so that size is kept track also in the tree upper structure
 
-        new_node = Node(new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost,
-                        pi_pulses, self.key)
+        new_node = Node(
+            new_key,
+            rotation,
+            U_of_level,
+            graph_current,
+            current_cost,
+            current_decomp_cost,
+            max_cost,
+            pi_pulses,
+            self.key,
+        )
         if self.children is None:
             self.children = []
 
@@ -41,18 +61,39 @@ class NAryTree:
         self.size = 0
         self.global_id_counter = 0
 
-    def add(self, new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses,
-            parent_key=None):
+    def add(
+        self,
+        new_key,
+        rotation,
+        U_of_level,
+        graph_current,
+        current_cost,
+        current_decomp_cost,
+        max_cost,
+        pi_pulses,
+        parent_key=None,
+    ):
         if parent_key is None:
-            self.root = Node(new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost,
-                             pi_pulses, parent_key)
+            self.root = Node(
+                new_key,
+                rotation,
+                U_of_level,
+                graph_current,
+                current_cost,
+                current_decomp_cost,
+                max_cost,
+                pi_pulses,
+                parent_key,
+            )
             self.size = 1
         else:
             parent_node = self.find_node(self.root, parent_key)
             if not parent_node:
-                raise NodeNotFoundException('No element was found with the informed parent key.')
-            parent_node.add(new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost,
-                            pi_pulses)
+                msg = "No element was found with the informed parent key."
+                raise NodeNotFoundException(msg)
+            parent_node.add(
+                new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses
+            )
             self.size += 1
 
     def find_node(self, node, key):
@@ -70,7 +111,8 @@ class NAryTree:
         # GIVES DEPTH FROM THE KEY NODE to LEAVES
         node = self.find_node(self.root, key)
         if not (node):
-            raise NodeNotFoundException('No element was found with the informed parent key.')
+            msg = "No element was found with the informed parent key."
+            raise NodeNotFoundException(msg)
         return self.max_depth(node)
 
     def max_depth(self, node):
@@ -123,6 +165,7 @@ class NAryTree:
         if not node.finished:
             decomp_nodes = []
             from numpy import inf
+
             best_cost = inf
             final_graph = node.graph
         else:
@@ -139,20 +182,20 @@ class NAryTree:
         return self.size + 1
 
     def print_tree(self, node, str_aux):
-
-        if node is None: return "Empty tree"
+        if node is None:
+            return "Empty tree"
         f = ""
         if node.finished:
             f = "-Finished-"
         str_aux += "N" + str(node) + f + "("
-        if node.children != None:
+        if node.children is not None:
             str_aux += "\n\t"
             for i in range(len(node.children)):
                 child = node.children[i]
-                end = ',' if i < len(node.children) - 1 else ''
+                end = "," if i < len(node.children) - 1 else ""
                 str_aux = self.print_tree(child, str_aux) + end
 
-        str_aux += ')'
+        str_aux += ")"
         return str_aux
 
     def __str__(self):

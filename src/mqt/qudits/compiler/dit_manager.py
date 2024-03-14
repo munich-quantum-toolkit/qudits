@@ -4,7 +4,7 @@ from mqt.qudits.compiler.onedit.propagate_virtrz import ZPropagationPass
 from mqt.qudits.compiler.onedit.remove_phase_rotations import ZRemovalPass
 
 
-class QuditManager():
+class QuditManager:
     def __init__(self):
         pass
 

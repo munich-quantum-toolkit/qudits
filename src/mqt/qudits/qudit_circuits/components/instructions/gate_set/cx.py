@@ -9,7 +9,6 @@ from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.qudit_circuits.components.instructions.mini_tools.matrix_factory_tools import (
     from_dirac_to_basis,
-    insert_at,
 )
 
 if TYPE_CHECKING:
@@ -41,7 +40,7 @@ class CEx(Gate):
             self._params = parameters
         else:
             self.lev_a, self.lev_b, self.ctrl_lev, self.phi = None, None, None, None
-            self._params = None
+            self._params = [0, 1, 1, 0.]
         self.qasm_tag = "cx"
 
     def __array__(self, dtype: str = "complex") -> np.ndarray:
@@ -65,13 +64,13 @@ class CEx(Gate):
             )
 
             if i == ctrl_level:  # apply control on 1 rotation on levels 01
-                #opmat = np.array([[0, -1j * np.cos(ang) - np.sin(ang)], [-1j * np.cos(ang) + np.sin(ang), 0]])
+                # opmat = np.array([[0, -1j * np.cos(ang) - np.sin(ang)], [-1j * np.cos(ang) + np.sin(ang), 0]])
                 embedded_op = np.identity(dimension_target, dtype="complex")
                 embedded_op[levels_swap_low, levels_swap_low] = 0
                 embedded_op[levels_swap_low, levels_swap_high] = -1j * np.cos(ang) - np.sin(ang)
                 embedded_op[levels_swap_high, levels_swap_low] = -1j * np.cos(ang) + np.sin(ang)
                 embedded_op[levels_swap_high, levels_swap_high] = 0
-                #embedded_op = insert_at(embedded_op, (0, 0), opmat)
+                # embedded_op = insert_at(embedded_op, (0, 0), opmat)
             else:
                 embedded_op = np.identity(dimension_target, dtype="complex")
             if self._target_qudits[0] < self._target_qudits[1]:

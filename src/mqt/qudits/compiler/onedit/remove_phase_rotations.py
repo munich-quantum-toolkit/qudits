@@ -1,4 +1,5 @@
 import copy
+
 from mqt.qudits.compiler.compiler_pass import CompilerPass
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.rz import Rz
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
@@ -11,8 +12,7 @@ class ZRemovalPass(CompilerPass):
 
     def transpile(self, circuit):
         circuit = self.remove_initial_rz(circuit)
-        circuit = self.remove_trailing_rz_sequence(circuit)
-        return circuit
+        return self.remove_trailing_rz_sequence(circuit)
 
     def remove_rz_gates(self, original_circuit, reverse=False):
         indices_to_remove = []
@@ -48,4 +48,3 @@ class ZRemovalPass(CompilerPass):
 
     def remove_trailing_rz_sequence(self, original_circuit):
         return self.remove_rz_gates(original_circuit, reverse=True)
-

@@ -16,21 +16,21 @@ if TYPE_CHECKING:
 
 class R(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: list | None,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: list | None,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b, self.theta, self.phi = parameters
@@ -51,24 +51,24 @@ class R(Gate):
         cosine_matrix = matrix
 
         return cosine_matrix - 1j * np.sin(theta / 2) * (
-                np.sin(phi)
-                * GellMann(
+            np.sin(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_a",
                 self._target_qudits,
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
-        ).to_matrix()
-                + np.cos(phi)
-                * GellMann(
+            ).to_matrix()
+            + np.cos(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
                 self._target_qudits,
                 [self.lev_a, self.lev_b, "s"],
                 self._dimensions,
                 None,
-        ).to_matrix()
+            ).to_matrix()
         )
 
     def levels_setter(self, la, lb):
@@ -82,8 +82,10 @@ class R(Gate):
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], float)
         assert isinstance(parameter[3], float)
-        assert parameter[0] >= 0 and parameter[0] <= self._dimensions
-        assert parameter[1] >= 0 and parameter[1] <= self._dimensions
+        assert parameter[0] >= 0
+        assert parameter[0] <= self._dimensions
+        assert parameter[1] >= 0
+        assert parameter[1] <= self._dimensions
         assert parameter[0] != parameter[1]
         # Useful to remember direction of the rotation
         self.original_lev_a = parameter[0]

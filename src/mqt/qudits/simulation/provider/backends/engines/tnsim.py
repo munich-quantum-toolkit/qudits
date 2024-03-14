@@ -63,9 +63,10 @@ class TNSim(Backend):
 
         result = self.__contract_circuit(self.system_sizes, self.circ_operations)
 
+        result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))) )
+
         state_size = reduce(lambda x, y: x * y, self.system_sizes, 1)
-        result = result.tensor.reshape(1, state_size)
-        return result
+        return result.reshape(1, state_size)
 
     def __init__(self, **fields):
         self.system_sizes = None

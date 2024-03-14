@@ -2,8 +2,8 @@ import copy
 import os
 import time
 
-
 import numpy as np
+
 from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
@@ -18,7 +18,7 @@ class NoisyCircuitFactory:
 
     def generate_circuit(self):
         current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2 ** 32
+        seed = hash((os.getpid(), current_time)) % 2**32
         gen = np.random.Generator(np.random.PCG64(seed=seed))
 
         # num_qudits, dimensions_slice, numcl
@@ -32,7 +32,7 @@ class NoisyCircuitFactory:
             noisy_circuit.number_gates += 1
 
             # Append an error depening on the prob
-            if instruction.qasm_tag in self.noise_model.quantum_errors.keys():
+            if instruction.qasm_tag in self.noise_model.quantum_errors:
                 for mode, noise_info in self.noise_model.quantum_errors[instruction.qasm_tag].items():
                     x_prob = [(1 - noise_info.probability_depolarizing), noise_info.probability_depolarizing]
                     z_prob = [(1 - noise_info.probability_dephasing), noise_info.probability_dephasing]
@@ -40,7 +40,7 @@ class NoisyCircuitFactory:
                     z_choice = gen.choice(a=range(2), p=z_prob)
                     if x_choice == 1 or z_choice == 1:
                         qudits = None
-                        if isinstance(mode, list) or isinstance(mode, tuple):
+                        if isinstance(mode, (list, tuple)):
                             qudits = list(mode)
                         elif isinstance(mode, str):
                             if mode == "local":
@@ -48,7 +48,9 @@ class NoisyCircuitFactory:
                             elif mode == "all":
                                 qudits = list(range(instruction.parent_circuit.num_qudits))
                             elif mode == "nonlocal":
-                                assert instruction.gate_type == GateTypes.TWO or instruction.gate_type == GateTypes.MULTI
+                                assert (
+                                    instruction.gate_type == GateTypes.TWO or instruction.gate_type == GateTypes.MULTI
+                                )
                                 qudits = instruction.reference_lines
                             elif mode == "control":
                                 assert instruction.gate_type == GateTypes.TWO
@@ -60,7 +62,7 @@ class NoisyCircuitFactory:
                             pass
 
                         if x_choice == 1:
-                            if isinstance(instruction, R) or isinstance(instruction, Rz):
+                            if isinstance(instruction, (R, Rz)):
                                 for dit in qudits:
                                     noisy_circuit.r(dit, [instruction.lev_a, instruction.lev_b, np.pi, np.pi / 2])
                             else:
@@ -68,7 +70,7 @@ class NoisyCircuitFactory:
                                     noisy_circuit.x(dit)
                             noisy_circuit.number_gates += 1
                         if z_choice == 1:
-                            if isinstance(instruction, R) or isinstance(instruction, Rz):
+                            if isinstance(instruction, (R, Rz)):
                                 for dit in qudits:
                                     noisy_circuit.rz(dit, [instruction.lev_a, instruction.lev_b, np.pi])
                             else:

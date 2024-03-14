@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.abstract_custom import CustomUnitary
 
 if TYPE_CHECKING:
     from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
     from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
 
-class CustomMulti(CustomUnitary):
+class CustomMulti(Gate):
     def __init__(
         self,
         circuit: QuantumCircuit,
@@ -25,7 +25,6 @@ class CustomMulti(CustomUnitary):
         super().__init__(
             circuit=circuit,
             name=name,
-            parameters=parameters,
             gate_type=GateTypes.MULTI,
             target_qudits=target_qudits,
             dimensions=dimensions,
@@ -35,13 +34,12 @@ class CustomMulti(CustomUnitary):
             self.__array_storage = parameters
 
         self.qasm_tag = "cumulti"
+
     def __array__(self, dtype: str = "complex") -> np.ndarray:
         return self.__array_storage
 
     def validate_parameter(self, parameter=None):
         return isinstance(parameter, np.ndarray)
-
-
 
     def __str__(self):
         # TODO

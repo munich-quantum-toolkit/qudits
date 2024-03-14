@@ -1,9 +1,12 @@
 import networkx as nx
 import numpy as np
 
-from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import (pi_mod, new_mod,
-                                                                                         rotation_cost_calc,
-                                                                                         swap_elements)
+from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import (
+    new_mod,
+    pi_mod,
+    rotation_cost_calc,
+    swap_elements,
+)
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
 
 
@@ -11,9 +14,9 @@ def find_logic_from_phys(lev_a, lev_b, graph):
     # find node by physical level associated
     logic_nodes = [None, None]
     for node, node_data in graph.nodes(data=True):
-        if node_data['lpmap'] == lev_a:
+        if node_data["lpmap"] == lev_a:
             logic_nodes[0] = node
-        if node_data['lpmap'] == lev_b:
+        if node_data["lpmap"] == lev_b:
             logic_nodes[1] = node
 
     return logic_nodes
@@ -21,9 +24,8 @@ def find_logic_from_phys(lev_a, lev_b, graph):
 
 def graph_rule_update(gate, graph):
     if abs(abs(gate.theta) - 3.14) < 1e-2:
-
         inode = graph._1stInode
-        if 'phase_storage' not in graph.nodes[inode]:
+        if "phase_storage" not in graph.nodes[inode]:
             return
 
         g_lev_a = gate.lev_a
@@ -33,25 +35,24 @@ def graph_rule_update(gate, graph):
 
         # only pi pulses can update online the graph
         if logic_nodes[0] is not None and logic_nodes[1] is not None:
-
             # SWAPPING PHASES
             graph.swap_node_attr_simple(logic_nodes[0], logic_nodes[1])
 
             phase = pi_mod(gate.phi)
             if (gate.theta * phase) > 0:
-                graph.nodes[logic_nodes[1]]['phase_storage'] = graph.nodes[logic_nodes[1]]['phase_storage'] + np.pi
-                graph.nodes[logic_nodes[1]]['phase_storage'] = new_mod(graph.nodes[logic_nodes[1]]['phase_storage'])
+                graph.nodes[logic_nodes[1]]["phase_storage"] = graph.nodes[logic_nodes[1]]["phase_storage"] + np.pi
+                graph.nodes[logic_nodes[1]]["phase_storage"] = new_mod(graph.nodes[logic_nodes[1]]["phase_storage"])
 
             elif (gate.theta * phase) < 0:
-                graph.nodes[logic_nodes[0]]['phase_storage'] = graph.nodes[logic_nodes[0]]['phase_storage'] + np.pi
-                graph.nodes[logic_nodes[0]]['phase_storage'] = new_mod(graph.nodes[logic_nodes[0]]['phase_storage'])
+                graph.nodes[logic_nodes[0]]["phase_storage"] = graph.nodes[logic_nodes[0]]["phase_storage"] + np.pi
+                graph.nodes[logic_nodes[0]]["phase_storage"] = new_mod(graph.nodes[logic_nodes[0]]["phase_storage"])
 
     return
 
 
 def graph_rule_ongate(gate, graph):
     inode = graph._1stInode
-    if 'phase_storage' not in graph.nodes[inode]:
+    if "phase_storage" not in graph.nodes[inode]:
         return gate
 
     g_lev_a = gate.lev_a
@@ -62,12 +63,13 @@ def graph_rule_ongate(gate, graph):
 
     # MINUS source PLUS target according to pi pulse back
     if logic_nodes[0] is not None:
-        new_g_phi = new_g_phi - graph.nodes[logic_nodes[0]]['phase_storage']
+        new_g_phi = new_g_phi - graph.nodes[logic_nodes[0]]["phase_storage"]
     if logic_nodes[1] is not None:
-        new_g_phi = new_g_phi + graph.nodes[logic_nodes[1]]['phase_storage']
+        new_g_phi = new_g_phi + graph.nodes[logic_nodes[1]]["phase_storage"]
 
-    return R(gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi],
-             gate._dimensions)  # R(gate.theta, new_g_phi, g_lev_a, g_lev_b, gate.dimension)
+    return R(
+        gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
+    )  # R(gate.theta, new_g_phi, g_lev_a, g_lev_b, gate.dimension)
 
 
 def gate_chain_condition(previous_gates, current):
@@ -102,8 +104,13 @@ def gate_chain_condition(previous_gates, current):
     elif new_target == last_source:
         pass
 
-    return R(current.parent_circuit, "R", current._target_qudits, [current.lev_a, current.lev_b, theta, phi],
-             current._dimensions)  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
+    return R(
+        current.parent_circuit,
+        "R",
+        current._target_qudits,
+        [current.lev_a, current.lev_b, theta, phi],
+        current._dimensions,
+    )  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
 
 
 def route_states2rotate_basic(gate, orig_placement):
@@ -121,19 +128,24 @@ def route_states2rotate_basic(gate, orig_placement):
     i = len(path) - 2
 
     while i > 0:
-        phy_n_i = placement.nodes[path[i]]['lpmap']
-        phy_n_ip1 = placement.nodes[path[i + 1]]['lpmap']
+        phy_n_i = placement.nodes[path[i]]["lpmap"]
+        phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
-        pi_gate_phy = R(gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2],
-                        dimension)  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
+        pi_gate_phy = R(
+            gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+        )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)
         pi_gate_phy = graph_rule_ongate(pi_gate_phy, placement)
 
         # -- COSTING based only on the position of the pi pulse and angle phase is neglected ----------------
-        pi_gate_logic = R(gate.parent_circuit, "R", gate._target_qudits,
-                          [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
-                          dimension)  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)
+        pi_gate_logic = R(
+            gate.parent_circuit,
+            "R",
+            gate._target_qudits,
+            [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
+            dimension,
+        )  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)
         cost_of_pi_pulses += rotation_cost_calc(pi_gate_logic, placement)
         # -----------------------------------------------------------------------------------------------------
         placement = placement.swap_nodes(path[i + 1], path[i])

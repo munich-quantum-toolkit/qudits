@@ -4,7 +4,6 @@ import copy
 import warnings
 from typing import TYPE_CHECKING
 
-from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.csum import CSum
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.custom_multi import CustomMulti
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.custom_one import CustomOne
@@ -28,6 +27,7 @@ from mqt.qudits.qudit_circuits.qasm_interface.qasm import QASM
 if TYPE_CHECKING:
     import numpy as np
 
+    from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
     from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
 
@@ -59,7 +59,7 @@ class QuantumCircuit:
         "virtrz":  "virtrz",
         "s":       "s",
         "x":       "x",
-        "z":       "z"
+        "z":       "z",
     }
 
     def __init__(self, *args):
@@ -241,7 +241,7 @@ class QuantumCircuit:
         return Z(self, "Z" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     def replace_gate(self, gate_index: int, sequence: list[Gate]):
-        self.instructions[gate_index:gate_index + 1] = sequence
+        self.instructions[gate_index: gate_index + 1] = sequence
         self.number_gates = (self.number_gates - 1) + len(sequence)
 
     def set_instructions(self, sequence: list[Gate]):
@@ -279,7 +279,6 @@ class QuantumCircuit:
                         qudits_call = [t[0] for t in list(tuples_qudits)]
                     if op["params"]:
                         if op["controls"]:
-
                             function(qudits_call, op["params"], op["controls"])
                         else:
                             function(qudits_call, op["params"])
@@ -310,6 +309,50 @@ class QuantumCircuit:
 
         return text
 
+    def save_to_file(self, file_name, file_path="/"):
+        """
+        Save qasm into a file with the specified name and path.
+
+        Args:
+            text (str): The text to be saved into the file.
+            file_name (str): The name of the file.
+            file_path (str, optional): The path where the file will be saved. Defaults to "." (current directory).
+
+        Returns:
+            str: The full path of the saved file.
+        """
+        # Combine the file path and name to get the full file path
+        full_file_path = f"{file_path}/{file_name}.qasm"
+
+        # Write the text to the file
+        with open(full_file_path, "w+") as file:
+            file.write(self.to_qasm())
+
+        return full_file_path
+
+    def load_from_file(self, file_path):
+        """
+        Load text from a file.
+
+        Args:
+            file_path (str): The path of the file to load.
+
+        Returns:
+            str: The text loaded from the file.
+        """
+        try:
+            with open(file_path, "r") as file:
+                text = file.read()
+            return self.from_qasm(text)
+        except FileNotFoundError:
+            print(f"File '{file_path}' not found.")
+            return None
+
     def draw(self):
         # TODO
         pass
+
+    @property
+    def gate_set(self):
+        for key in self.qasm_to_gate_set_dict.keys():
+            print(key)

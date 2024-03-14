@@ -36,14 +36,12 @@ def regulate_theta(angle):
 def phi_cost(theta):
     theta_on_units = theta / np.pi
 
-    Err = abs(theta_on_units) * 1e-04
-    return Err
+    return abs(theta_on_units) * 1e-04
 
 
 def theta_cost(theta):
     theta_on_units = theta / np.pi
-    Err = (4 * abs(theta_on_units) + abs(np.mod(abs(theta_on_units) + 0.25, 0.5) - 0.25)) * 1e-04
-    return Err
+    return (4 * abs(theta_on_units) + abs(np.mod(abs(theta_on_units) + 0.25, 0.5) - 0.25)) * 1e-04
 
 
 def rotation_cost_calc(gate, placement):
@@ -53,8 +51,13 @@ def rotation_cost_calc(gate, placement):
     gate_cost = gate.cost
 
     if placement.is_irnode(source) or placement.is_irnode(target):
-        sp_penalty = min(placement.distance_nodes(placement._1stInode, source),
-                         placement.distance_nodes(placement._1stInode, target)) + 1
+        sp_penalty = (
+            min(
+                placement.distance_nodes(placement._1stInode, source),
+                placement.distance_nodes(placement._1stInode, target),
+            )
+            + 1
+        )
 
         gate_cost = sp_penalty * theta_cost(gate.theta)
 

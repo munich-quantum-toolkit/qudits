@@ -16,21 +16,21 @@ if TYPE_CHECKING:
 
 class Rz(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: list | None,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: list | None,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ):
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b, self.phi = parameters
@@ -44,13 +44,13 @@ class Rz(Gate):
         phi = self.phi
 
         pi_there = R(
-                self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
+            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
         ).to_matrix()
         rotate = R(
-                self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
+            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
         ).to_matrix()
         pi_back = R(
-                self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
+            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
         ).to_matrix()
 
         return pi_back @ rotate @ pi_there
@@ -66,8 +66,10 @@ class Rz(Gate):
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], float)
 
-        assert parameter[0] >= 0 and parameter[0] <= self._dimensions
-        assert parameter[1] >= 0 and parameter[1] <= self._dimensions
+        assert parameter[0] >= 0
+        assert parameter[0] <= self._dimensions
+        assert parameter[1] >= 0
+        assert parameter[1] <= self._dimensions
         assert parameter[0] != parameter[1]
         # Useful to remember direction of the rotation
         self.original_lev_a = parameter[0]

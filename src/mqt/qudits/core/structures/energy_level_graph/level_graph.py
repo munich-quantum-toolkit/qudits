@@ -7,9 +7,8 @@ from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import V
 
 
 class LevelGraph(nx.Graph):
-
     def __init__(self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None):
-        super(LevelGraph, self).__init__()
+        super().__init__()
         self.logic_nodes = nodes
         self.add_nodes_from(self.logic_nodes)
 
@@ -25,8 +24,8 @@ class LevelGraph(nx.Graph):
     def phase_storing_setup(self):
         for node in self.nodes:
             node_dict = self.nodes[node]
-            if 'phase_storage' not in node_dict:
-                node_dict['phase_storage'] = 0
+            if "phase_storage" not in node_dict:
+                node_dict["phase_storage"] = 0
 
     def distance_nodes(self, source, target):
         path = nx.shortest_path(self, source, target)
@@ -37,27 +36,25 @@ class LevelGraph(nx.Graph):
         negs = 0
         pos = 0
         for n in path:
-            if (n >= 0):
+            if n >= 0:
                 pos += 1
             else:
                 negs += 1
-        pulses = (2 * negs) - 1 + (pos) - 1
-
-        return pulses
+        return (2 * negs) - 1 + (pos) - 1
 
     def logic_physical_map(self, physical_nodes):
-        logic_phy_map = {nl: np for nl, np in zip(self.logic_nodes, physical_nodes)}
-        nx.set_node_attributes(self, logic_phy_map, 'lpmap')
+        logic_phy_map = dict(zip(self.logic_nodes, physical_nodes))
+        nx.set_node_attributes(self, logic_phy_map, "lpmap")
 
     def define__states(self, initialization_nodes, inreach_nodes):
         inreach_dictionary = dict.fromkeys(inreach_nodes, "r")
         initialization_dictionary = dict.fromkeys(initialization_nodes, "i")
 
-        for n in inreach_dictionary:
-            nx.set_node_attributes(self, inreach_dictionary, name='level')
+        for _n in inreach_dictionary:
+            nx.set_node_attributes(self, inreach_dictionary, name="level")
 
-        for n in initialization_dictionary:
-            nx.set_node_attributes(self, initialization_dictionary, name='level')
+        for _n in initialization_dictionary:
+            nx.set_node_attributes(self, initialization_dictionary, name="level")
 
     def update_list(self, lst_, num_a, num_b):
         new_lst = []
@@ -65,14 +62,14 @@ class LevelGraph(nx.Graph):
         mod_index = []
         for i, t in enumerate(lst_):
             tupla = [0, 0]
-            if (t[0] == num_a):
+            if t[0] == num_a:
                 tupla[0] = 1
-            elif (t[0] == num_b):
+            elif t[0] == num_b:
                 tupla[0] = 2
 
-            if (t[1] == num_a):
+            if t[1] == num_a:
                 tupla[1] = 1
-            elif (t[1] == num_b):
+            elif t[1] == num_b:
                 tupla[1] = 2
 
             mod_index.append(tupla)
@@ -80,14 +77,14 @@ class LevelGraph(nx.Graph):
         for i, t in enumerate(lst_):
             substituter = list(t)
 
-            if (mod_index[i][0] == 1):
+            if mod_index[i][0] == 1:
                 substituter[0] = num_b
-            elif (mod_index[i][0] == 2):
+            elif mod_index[i][0] == 2:
                 substituter[0] = num_a
 
-            if (mod_index[i][1] == 1):
+            if mod_index[i][1] == 1:
                 substituter[1] = num_b
-            elif (mod_index[i][1] == 2):
+            elif mod_index[i][1] == 2:
                 substituter[1] = num_a
 
             new_lst.append(tuple(substituter))
@@ -104,12 +101,11 @@ class LevelGraph(nx.Graph):
 
     def index(self, lev_graph, node):
         for i in range(len(lev_graph)):
-            if (lev_graph[i][0] == node):
+            if lev_graph[i][0] == node:
                 return i
         return None
 
     def swap_node_attributes(self, node_a, node_b):
-
         nodelistcopy = self.deep_copy_func(list(self.nodes(data=True)))
         node_a = self.index(nodelistcopy, node_a)
         node_b = self.index(nodelistcopy, node_b)
@@ -124,13 +120,12 @@ class LevelGraph(nx.Graph):
         return nodelistcopy
 
     def swap_node_attr_simple(self, node_a, node_b):
-
         res_list = [x[0] for x in self.nodes(data=True)]
         node_a = res_list.index(node_a)
         node_b = res_list.index(node_b)
 
         inode = self._1stInode
-        if 'phase_storage' in self.nodes[inode]:
+        if "phase_storage" in self.nodes[inode]:
             phi_a = self.nodes[node_a]["phase_storage"]
             phi_b = self.nodes[node_b]["phase_storage"]
             self.nodes[node_a]["phase_storage"] = phi_b
@@ -161,17 +156,17 @@ class LevelGraph(nx.Graph):
         matrices = []
         for node in self.nodes:
             node_dict = self.nodes[node]
-            if 'phase_storage' in node_dict:
-                if node_dict['phase_storage'] > 1e-3 or np.mod(node_dict['phase_storage'], 2 * np.pi) > 1e-3:
-                    phy_n_i = self.nodes[node]['lpmap']
+            if "phase_storage" in node_dict:
+                if node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3:
+                    phy_n_i = self.nodes[node]["lpmap"]
 
-                    phase_gate = VirtRz(node_dict['phase_storage'], phy_n_i, len(list(self.nodes)))
+                    phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
                     matrices.append(phase_gate)
 
         return matrices
 
     def get_node_sensitivity_cost(self, node):
-        neighbs = [n for n in self.neighbors(node)]
+        neighbs = list(self.neighbors(node))
 
         total_sensibility = 0
         for i in range(len(neighbs)):
@@ -184,23 +179,21 @@ class LevelGraph(nx.Graph):
 
     @property
     def _1stRnode(self):
-        r_node = [x for x, y in self.nodes(data=True) if y['level'] == "r"]
+        r_node = [x for x, y in self.nodes(data=True) if y["level"] == "r"]
         return r_node[0]
 
     @property
     def _1stInode(self):
-        Inode = [x for x, y in self.nodes(data=True) if y['level'] == "i"]
+        Inode = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
         return Inode[0]
 
     def is_irnode(self, node):
-        irnodes = [x for x, y in self.nodes(data=True) if y['level'] == "r"]
-        r = (node in irnodes)
-        return r
+        irnodes = [x for x, y in self.nodes(data=True) if y["level"] == "r"]
+        return node in irnodes
 
     def is_Inode(self, node):
-        Inodes = [x for x, y in self.nodes(data=True) if y['level'] == "i"]
-        r = (node in Inodes)
-        return r
+        Inodes = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
+        return node in Inodes
 
     @property
     def log_phy_map(self):
@@ -209,11 +202,9 @@ class LevelGraph(nx.Graph):
 
         for key in nodes:
             for N in self.nodes(data=True):
-                if (N[0] == key):
+                if N[0] == key:
                     map_as_list.append(N[1]["lpmap"])
         return map_as_list
 
     def __str__(self):
-        description = str(self.nodes(data=True)) + "\n" + str(self.edges(data=True))
-
-        return description
+        return str(self.nodes(data=True)) + "\n" + str(self.edges(data=True))
