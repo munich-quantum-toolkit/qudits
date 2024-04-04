@@ -43,9 +43,10 @@ class MatrixFactory:
     def apply_identites_and_controls(
         cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
     ):
-        #dimensions = list(reversed(dimensions))
+        # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
         qudits_applied = [qudits_applied] if isinstance(qudits_applied, int) else qudits_applied
+        qudits_applied.sort()
         dimensions = [dimensions] if isinstance(dimensions, int) else dimensions
         if len(dimensions) == 0:
             msg = "Dimensions cannot be an empty list"
@@ -128,7 +129,7 @@ class MatrixFactory:
     @classmethod
     def wrap_in_identities(cls, matrix, indices, sizes):
         sizes = sizes.copy()
-        #sizes.reverse()
+        # sizes.reverse()
         if any(index >= len(sizes) for index in indices):
             msg = "Index out of range"
             raise ValueError(msg)
