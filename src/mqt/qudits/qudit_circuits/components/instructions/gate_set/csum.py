@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.x import X

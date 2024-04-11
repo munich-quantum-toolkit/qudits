@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import regulate_theta
 from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes

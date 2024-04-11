@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Iterable, List, Union
 
 import numpy as np
@@ -8,7 +9,6 @@ from mqt.qudits.simulation.provider.backends.backendv2 import Backend
 from mqt.qudits.simulation.provider.backends.stocastic_components.stocastic_sim import stocastic_simulation_misim
 from mqt.qudits.simulation.provider.jobs.job import Job
 from mqt.qudits.simulation.provider.jobs.job_result.job_result import JobResult
-
 from mqt.qudits.simulation.provider.noise_tools.noise import NoiseModel
 
 
@@ -49,7 +49,9 @@ class MISim(Backend):
 
         if self.noise_model is not None:
             assert self.shots >= 1000, "Number of shots should be above 1000"
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stocastic_simulation_misim(self, circuit)))
+            job.set_result(
+                JobResult(state_vector=self.execute(circuit), counts=stocastic_simulation_misim(self, circuit))
+            )
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))
 
@@ -62,11 +64,10 @@ class MISim(Backend):
             noise_model = NoiseModel()
         result = misim.state_vector_simulation(circuit, noise_model)
         state = np.array(result)
-        state = state.reshape(1, -1)
-        return state
+        state_size = reduce(lambda x, y: x * y, self.system_sizes, 1)
+        return state.reshape(1, state_size)
 
     def __init__(self, **fields):
         self.system_sizes = None
         self.circ_operations = None
         super().__init__(**fields)
-

@@ -3,7 +3,6 @@ import os
 import time
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R

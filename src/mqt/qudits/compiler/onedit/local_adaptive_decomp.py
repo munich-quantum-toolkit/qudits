@@ -1,7 +1,6 @@
 import gc
 
 import numpy as np
-
 from mqt.qudits.compiler.compiler_pass import CompilerPass
 from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import (
     cost_calculator,

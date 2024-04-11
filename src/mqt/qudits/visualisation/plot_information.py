@@ -2,7 +2,6 @@ import itertools
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 
 
@@ -79,7 +78,8 @@ def plot_counts(result, circuit: QuantumCircuit) -> None:
     plt.ylabel("Counts")
     plt.title("Simulation")
 
-    # Show the plot
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
     plt.show()
 
     return counts

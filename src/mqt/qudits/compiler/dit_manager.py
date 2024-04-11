@@ -1,5 +1,5 @@
-from mqt.qudits.compiler.onedit.local_adaptive_decomp import LocAdaPass
 from mqt.qudits.compiler.onedit.local_qr_decomp import LocQRPass
+from mqt.qudits.compiler.onedit.local_adaptive_decomp import LocAdaPass
 from mqt.qudits.compiler.onedit.propagate_virtrz import ZPropagationPass
 from mqt.qudits.compiler.onedit.remove_phase_rotations import ZRemovalPass
 

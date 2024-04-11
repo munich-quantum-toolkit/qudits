@@ -2,7 +2,6 @@ import copy
 
 import networkx as nx
 import numpy as np
-
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
 
 

@@ -2,7 +2,6 @@ import re
 from pathlib import Path
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
 

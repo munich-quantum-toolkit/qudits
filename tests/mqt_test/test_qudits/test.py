@@ -3,15 +3,13 @@ from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.qudit_circuits.components.registers.quantum_register import QuantumRegister
 from mqt.qudits.simulation.provider.noise_tools.noise import Noise, NoiseModel
 
-import numpy as np
-
 qreg_example = QuantumRegister("reg", 2, [2, 3])
 circ = QuantumCircuit(qreg_example)
 h = circ.h(0)
 csum = circ.csum([0, 1])
-#x = circ.x(1).control([0], [1])
-#r = circ.r(0, [0, 1, np.pi/3, -np.pi / 2])
-#r2 = circ.r(0, [0, 1, np.pi, np.pi / 2]).control([1], [1])
+# x = circ.x(1).control([0], [1])
+# r = circ.r(0, [0, 1, np.pi/3, -np.pi / 2])
+# r2 = circ.r(0, [0, 1, np.pi, np.pi / 2]).control([1], [1])
 
 # Depolarizing quantum errors
 local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)

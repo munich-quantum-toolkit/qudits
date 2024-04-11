@@ -11,9 +11,10 @@ from mqt.qudits.qudit_circuits.components.instructions.instruction import Instru
 
 if TYPE_CHECKING:
     import enum
+
     import numpy as np
-    from numpy import ndarray
     from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+    from numpy import ndarray
 
 
 class Gate(Instruction, ABC):
