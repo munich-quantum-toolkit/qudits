@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import getpass
 import os
 import uuid
@@ -6,7 +8,7 @@ import h5py
 import numpy as np
 
 
-def save_full_states(list_of_vectors, file_path=None, file_name=None):
+def save_full_states(list_of_vectors, file_path=None, file_name=None) -> None:
     if file_name is None:
         file_name = "experiment_states.h5"
 
@@ -35,7 +37,7 @@ def save_full_states(list_of_vectors, file_path=None, file_name=None):
         hdf_file.create_dataset("vectors", data=table_data)
 
 
-def save_shots(shots, file_path=None, file_name=None):
+def save_shots(shots, file_path=None, file_name=None) -> None:
     if file_name is None:
         file_name = "experiment_shots.h5"
 

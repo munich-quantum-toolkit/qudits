@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 
 """def calculate_q0_q1(lev, dim):
