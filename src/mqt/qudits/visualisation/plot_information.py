@@ -1,18 +1,23 @@
+from __future__ import annotations
+
 import itertools
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+
+if TYPE_CHECKING:
+    from ..quantum_circuit import QuantumCircuit
 
 
 class HistogramWithErrors:
-    def __init__(self, labels, counts, errors, title="Simulation"):
+    def __init__(self, labels, counts, errors, title="Simulation") -> None:
         self.labels = labels
         self.counts = counts
         self.errors = errors
         self.title = title
 
-    def generate_histogram(self):
+    def generate_histogram(self) -> None:
         plt.bar(self.labels, self.counts, yerr=self.errors, capsize=5, color="b", alpha=0.7, align="center")
         plt.xlabel("States")
         plt.ylabel("Pr")
@@ -21,7 +26,7 @@ class HistogramWithErrors:
         plt.tight_layout()
         plt.show()
 
-    def save_to_png(self, filename):
+    def save_to_png(self, filename) -> None:
         plt.bar(self.labels, self.counts, yerr=self.errors, capsize=5, color="b", alpha=0.7, align="center")
         plt.xlabel("States")
         plt.ylabel("Pr")

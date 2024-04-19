@@ -1,13 +1,13 @@
+from __future__ import annotations
+
 import copy
 
-from mqt.qudits.compiler.compiler_pass import CompilerPass
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.rz import Rz
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.z import Z
+from ....quantum_circuit import gates
+from ... import CompilerPass
 
 
 class ZRemovalPass(CompilerPass):
-    def __init__(self, backend):
+    def __init__(self, backend) -> None:
         super().__init__(backend)
 
     def transpile(self, circuit):
@@ -34,11 +34,10 @@ class ZRemovalPass(CompilerPass):
                 # continue to the next iteration because we work only with single gates
                 seen_target_qudits.update(target_qudits)
                 continue
+            if target_qudits not in seen_target_qudits and isinstance(instruction, (gates.Rz, gates.VirtRz, gates.Z)):
+                indices_to_remove.append(i)
             else:
-                if target_qudits not in seen_target_qudits and isinstance(instruction, (Rz, VirtRz, Z)):
-                    indices_to_remove.append(i)
-                else:
-                    seen_target_qudits.add(target_qudits)
+                seen_target_qudits.add(target_qudits)
 
         new_instructions = [op for index, op in enumerate(new_instructions) if index not in indices_to_remove]
         return circuit.set_instructions(new_instructions)

@@ -1,18 +1,18 @@
-from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.custom_one import CustomOne
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+from __future__ import annotations
+
+from ..quantum_circuit import QuantumCircuit, gates
+from ..quantum_circuit.gate import GateTypes
 
 
-def draw_qudit_local(circuit):
+def draw_qudit_local(circuit: QuantumCircuit) -> None:
     for line in range(circuit.num_qudits):
         print("|0>---", end="")
         for gate in circuit.instructions:
             if gate.gate_type == GateTypes.SINGLE and line == gate._target_qudits:
-                if isinstance(gate, VirtRz):
+                if isinstance(gate, gates.VirtRz):
                     print("--[VRz" + str(gate.lev_a) + "(" + str(round(gate.phi, 2)) + ")]--", end="")
 
-                elif isinstance(gate, R):
+                elif isinstance(gate, gates.R):
                     print(
                         "--[R"
                         + str(gate.lev_a)
@@ -25,7 +25,7 @@ def draw_qudit_local(circuit):
                         end="",
                     )
 
-                elif isinstance(gate, CustomOne):
+                elif isinstance(gate, gates.CustomOne):
                     print("--[CuOne]--", end="")
 
                 else:

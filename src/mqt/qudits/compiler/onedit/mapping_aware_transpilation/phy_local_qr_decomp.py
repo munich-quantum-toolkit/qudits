@@ -1,16 +1,18 @@
+from __future__ import annotations
+
 import gc
 
 import numpy as np
-from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import new_mod
-from mqt.qudits.compiler.compiler_pass import CompilerPass
-from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import cost_calculator, gate_chain_condition
-from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+
+from ....quantum_circuit import gates
+from ....quantum_circuit.gate import GateTypes
+from ... import CompilerPass
+from ...compilation_minitools import new_mod
+from ..local_operation_swap import cost_calculator, gate_chain_condition
 
 
 class PhyLocQRPass(CompilerPass):
-    def __init__(self, backend):
+    def __init__(self, backend) -> None:
         super().__init__(backend)
 
     def transpile(self, circuit):
@@ -18,11 +20,11 @@ class PhyLocQRPass(CompilerPass):
         instructions = circuit.instructions
         new_instructions = []
 
-        for _i, gate in enumerate(instructions):
+        for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
                 energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
                 QR = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
-                decomp, algorithmic_cost, total_cost = QR.execute()
+                decomp, _algorithmic_cost, _total_cost = QR.execute()
                 new_instructions += decomp
                 gc.collect()
             else:
@@ -32,7 +34,7 @@ class PhyLocQRPass(CompilerPass):
 
 
 class PhyQrDecomp:
-    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True):
+    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True) -> None:
         self.gate = gate
         self.circuit = gate.parent_circuit
         self.dimension = gate._dimensions
@@ -58,7 +60,7 @@ class PhyQrDecomp:
                 for i in range(len(list(self.graph.nodes))):
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
-                        phase_gate = VirtRz(
+                        phase_gate = gates.VirtRz(
                             self.gate.parent_circuit,
                             "VRz",
                             self.gate._target_qudits,
@@ -70,7 +72,6 @@ class PhyQrDecomp:
 
                     # reset the node
                     self.graph.nodes[i]["phase_storage"] = 0
-        #
 
         l = list(range(self.U.shape[0]))
         l.reverse()
@@ -84,7 +85,7 @@ class PhyQrDecomp:
 
                     phi = -(np.pi / 2 + np.angle(U_[r - 1, c]) - np.angle(U_[r, c]))
 
-                    rotation_involved = R(
+                    rotation_involved = gates.R(
                         self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
                     )  # R(theta, phi, r - 1, r, dimension)
 
@@ -101,7 +102,7 @@ class PhyQrDecomp:
                     if temp_placement.nodes[r - 1]["lpmap"] > temp_placement.nodes[r]["lpmap"]:
                         phi = phi * -1
 
-                    physical_rotation = R(
+                    physical_rotation = gates.R(
                         self.circuit,
                         "R",
                         self.qudit_index,
@@ -115,7 +116,7 @@ class PhyQrDecomp:
 
                     for pi_g in reversed(pi_pulses_routing):
                         decomp.append(
-                            R(
+                            gates.R(
                                 self.circuit,
                                 "R",
                                 self.qudit_index,
@@ -134,7 +135,7 @@ class PhyQrDecomp:
             if abs(np.angle(diag_U[i])) > 1.0e-4:
                 phy_n_i = self.graph.nodes[i]["lpmap"]
 
-                phase_gate = VirtRz(
+                phase_gate = gates.VirtRz(
                     self.gate.parent_circuit,
                     "VRz",
                     self.gate._target_qudits,

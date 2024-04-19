@@ -1,27 +1,28 @@
+from __future__ import annotations
+
 import gc
 
 import numpy as np
-from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import new_mod
-from mqt.qudits.compiler.compiler_pass import CompilerPass
-from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import (
+
+from ....core import NAryTree
+from ....exceptions import SequenceFoundException
+from ....quantum_circuit import gates
+from ....quantum_circuit.gate import GateTypes
+from ... import CompilerPass
+from ...compilation_minitools import new_mod
+from ..local_operation_swap import (
     cost_calculator,
     gate_chain_condition,
     graph_rule_ongate,
     graph_rule_update,
 )
-from mqt.qudits.compiler.onedit.mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
-from mqt.qudits.core.structures.trees.dfs_tree import NAryTree
-from mqt.qudits.exceptions.compilerexception import SequenceFoundException
-from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.custom_one import CustomOne
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+from ..mapping_aware_transpilation import PhyQrDecomp
 
 np.seterr(all="ignore")
 
 
 class LogLocAdaPass(CompilerPass):
-    def __init__(self, backend):
+    def __init__(self, backend) -> None:
         super().__init__(backend)
 
     def transpile(self, circuit):
@@ -29,13 +30,13 @@ class LogLocAdaPass(CompilerPass):
         instructions = circuit.instructions
         new_instructions = []
 
-        for _i, gate in enumerate(instructions):
+        for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
                 energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
 
                 QR = PhyQrDecomp(gate, energy_graph_i)
 
-                decomp, algorithmic_cost, total_cost = QR.execute()
+                _decomp, algorithmic_cost, total_cost = QR.execute()
 
                 Adaptive = LogAdaptiveDecomposition(
                     gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
@@ -43,7 +44,7 @@ class LogLocAdaPass(CompilerPass):
 
                 (
                     matrices_decomposed,
-                    best_cost,
+                    _best_cost,
                     self.backend.energy_level_graphs[gate._target_qudits],
                 ) = Adaptive.execute()
 
@@ -57,7 +58,7 @@ class LogLocAdaPass(CompilerPass):
 
 
 class LogAdaptiveDecomposition:
-    def __init__(self, gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False):
+    def __init__(self, gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False) -> None:
         self.circuit = gate.parent_circuit
         self.U = gate.to_matrix(identities=0)
         self.qudit_index = gate._target_qudits
@@ -71,7 +72,7 @@ class LogAdaptiveDecomposition:
     def execute(self):
         self.TREE.add(
             0,
-            CustomOne(
+            gates.CustomOne(
                 self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
             ),
             self.U,
@@ -94,7 +95,7 @@ class LogAdaptiveDecomposition:
             #            matrices_decomposed, final_graph, self.phase_propagation
             #   )
             else:
-                print("couldn't decompose\n")
+                pass
 
             self.TREE.print_tree(self.TREE.root, "TREE: ")
 
@@ -123,54 +124,51 @@ class LogAdaptiveDecomposition:
         not_diag = filtered_Ucopy.any()
 
         if not_diag or not valid_diag:  # if is diagonal enough then somehow signal end of algorithm
-            msg = "Matrix isnt close to diagonal!"
+            msg = "Matrix isn't close to diagonal!"
             raise Exception(msg)
-        else:
-            diag_U = np.diag(U_)
-            dimension = U_.shape[0]
+        diag_U = np.diag(U_)
+        dimension = U_.shape[0]
 
-            for i in range(dimension):
-                if abs(np.angle(diag_U[i])) > 1.0e-4:
-                    if phase_propagation:
-                        inode = placement._1stInode
-                        if "phase_storage" in placement.nodes[inode]:
-                            placement.nodes[i]["phase_storage"] = placement.nodes[i]["phase_storage"] + np.angle(
-                                diag_U[i]
-                            )
-                            placement.nodes[i]["phase_storage"] = new_mod(placement.nodes[i]["phase_storage"])
-                    else:
-                        n_i = placement.nodes[i]  # ["lpmap"]
+        for i in range(dimension):
+            if abs(np.angle(diag_U[i])) > 1.0e-4:
+                if phase_propagation:
+                    inode = placement._1stInode
+                    if "phase_storage" in placement.nodes[inode]:
+                        placement.nodes[i]["phase_storage"] = placement.nodes[i]["phase_storage"] + np.angle(diag_U[i])
+                        placement.nodes[i]["phase_storage"] = new_mod(placement.nodes[i]["phase_storage"])
+                else:
+                    n_i = placement.nodes[i]  # ["lpmap"]
 
-                        phase_gate = VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [n_i, np.angle(diag_U[i])], self.dimension
-                        )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
+                    phase_gate = gates.VirtRz(
+                        self.circuit, "VRz", self.qudit_index, [n_i, np.angle(diag_U[i])], self.dimension
+                    )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
+                    # dimension)
+
+                    U_ = phase_gate.to_matrix(identities=0) @ U_  # matmul(phase_gate.to_matrix(identities=0), U_)
+
+                    matrices.append(phase_gate)
+
+        if not phase_propagation:
+            inode = placement._1stInode
+            if "phase_storage" in placement.nodes[inode]:
+                for i in range(len(list(placement.nodes))):
+                    thetaZ = new_mod(placement.nodes[i]["phase_storage"])
+                    if abs(thetaZ) > 1.0e-4:
+                        phase_gate = gates.VirtRz(
+                            self.circuit,
+                            "VRz",
+                            self.qudit_index,
+                            [placement.nodes[i], thetaZ],
+                            self.dimension,
+                        )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'], # [placement.nodes[i]["lpmap"], thetaZ],
                         # dimension)
-
-                        U_ = phase_gate.to_matrix(identities=0) @ U_  # matmul(phase_gate.to_matrix(identities=0), U_)
-
                         matrices.append(phase_gate)
+                    # reset the node
+                    placement.nodes[i]["phase_storage"] = 0
 
-            if not phase_propagation:
-                inode = placement._1stInode
-                if "phase_storage" in placement.nodes[inode]:
-                    for i in range(len(list(placement.nodes))):
-                        thetaZ = new_mod(placement.nodes[i]["phase_storage"])
-                        if abs(thetaZ) > 1.0e-4:
-                            phase_gate = VirtRz(
-                                self.circuit,
-                                "VRz",
-                                self.qudit_index,
-                                [placement.nodes[i], thetaZ],
-                                self.dimension,
-                            )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'], # [placement.nodes[i]["lpmap"], thetaZ],
-                            # dimension)
-                            matrices.append(phase_gate)
-                        # reset the node
-                        placement.nodes[i]["phase_storage"] = 0
+        return matrices, placement
 
-            return matrices, placement
-
-    def DFS(self, current_root, level=0):
+    def DFS(self, current_root, level=0) -> None:
         # check if close to diagonal
         Ucopy = current_root.U_of_level.copy()
 
@@ -209,7 +207,7 @@ class LogAdaptiveDecomposition:
 
                         phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
 
-                        rotation_involved = R(
+                        rotation_involved = gates.R(
                             self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
@@ -238,8 +236,7 @@ class LogAdaptiveDecomposition:
 
                             if new_placement.nodes[r]["lpmap"] > new_placement.nodes[r2]["lpmap"]:
                                 phi = phi * -1
-                            #
-                            physical_rotation = R(
+                            physical_rotation = gates.R(
                                 self.circuit,
                                 "R",
                                 self.qudit_index,
@@ -249,15 +246,13 @@ class LogAdaptiveDecomposition:
                             # R(theta, phi, new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'], dimension)
                             #
                             physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
-                            #
                             physical_rotation = graph_rule_ongate(physical_rotation, new_placement)
-                            #
 
                             # take care of phases accumulated by not pi-pulsing back
                             p_backs = []
                             for ppulse in pi_pulses_routing:
                                 p_backs.append(
-                                    R(
+                                    gates.R(
                                         self.circuit,
                                         "R",
                                         self.qudit_index,

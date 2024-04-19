@@ -1,10 +1,7 @@
-from mqt.qudits.compiler.onedit.mapping_aware_transpilation.phy_local_adaptive_decomp import PhyLocAdaPass
-from mqt.qudits.compiler.onedit.mapping_aware_transpilation.phy_local_qr_decomp import PhyLocQRPass
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp import LogLocAdaPass
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import LogLocQRPass
-from mqt.qudits.compiler.twodit.mapping_un_aware_transpilation.entanglement_qr.cex_decomposition.log_ent_qr_cex_decomp import (
-    LogEntQRCEXPass,
-)
+from __future__ import annotations
+
+from .onedit import LogLocAdaPass, LogLocQRPass, PhyLocAdaPass, PhyLocQRPass
+from .twodit import LogEntQRCEXPass
 
 
 class QuditCompiler:
@@ -18,7 +15,7 @@ class QuditCompiler:
         "LogEntQRCEXPass": LogEntQRCEXPass,
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def compile(self, backend, circuit, passes_names):

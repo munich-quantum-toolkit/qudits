@@ -1,13 +1,14 @@
+from __future__ import annotations
+
 import copy
 
-from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import pi_mod
-from mqt.qudits.compiler.compiler_pass import CompilerPass
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+from ....quantum_circuit import gates
+from ... import CompilerPass
+from ...compilation_minitools import pi_mod
 
 
 class ZPropagationPass(CompilerPass):
-    def __init__(self, backend, back=True):
+    def __init__(self, backend, back=True) -> None:
         super().__init__(backend)
         self.back = back
 
@@ -41,7 +42,7 @@ class ZPropagationPass(CompilerPass):
                     )
 
                 list_of_XYrots.append(
-                    R(
+                    gates.R(
                         circuit,
                         "R",
                         qudit_index,
@@ -62,7 +63,7 @@ class ZPropagationPass(CompilerPass):
 
         Zseq = []
         for e_lev in list(Z_angles):
-            Zseq.append(VirtRz(circuit, "VRz", qudit_index, [e_lev, Z_angles[e_lev]], dimension))
+            Zseq.append(gates.VirtRz(circuit, "VRz", qudit_index, [e_lev, Z_angles[e_lev]], dimension))
             # Zseq.append(Rz(Z_angles[e_lev], e_lev, QC.dimension))
 
         return list_of_XYrots, Zseq

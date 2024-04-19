@@ -1,12 +1,17 @@
+from __future__ import annotations
+
+import math
+
 import networkx as nx
 import numpy as np
-from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import (
+
+from ....quantum_circuit.gates.r import R
+from ...compilation_minitools import (
     new_mod,
     pi_mod,
     rotation_cost_calc,
     swap_elements,
 )
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
 
 
 def find_logic_from_phys(lev_a, lev_b, graph):
@@ -21,8 +26,8 @@ def find_logic_from_phys(lev_a, lev_b, graph):
     return logic_nodes
 
 
-def graph_rule_update(gate, graph):
-    if abs(abs(gate.theta) - 3.14) < 1e-2:
+def graph_rule_update(gate, graph) -> None:
+    if abs(abs(gate.theta) - math.pi) < 1e-2:
         inode = graph._1stInode
         if "phase_storage" not in graph.nodes[inode]:
             return
@@ -86,15 +91,11 @@ def gate_chain_condition(previous_gates, current):
 
     # all phi flips are removed because already applied
     if new_source == last_source:
-        if new_target > last_target:  # changed lower one with lower one
-            pass
-        elif new_target < last_target:  # changed higher one one with lower
+        if new_target > last_target or new_target < last_target:  # changed lower one with lower one
             pass
 
     elif new_target == last_target:
-        if new_source < last_source:
-            theta = theta * -1
-        elif new_source > last_source:
+        if new_source < last_source or new_source > last_source:
             theta = theta * -1
 
     elif new_source == last_target:
@@ -120,7 +121,7 @@ def route_states2rotate_basic(gate, orig_placement):
     pi_pulses_routing = []
 
     source = gate.original_lev_a  # Original code requires to know the direction of rotations
-    target = gate.original_lev_b  #
+    target = gate.original_lev_b
 
     path = nx.shortest_path(placement, source, target)
 
