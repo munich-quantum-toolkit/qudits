@@ -110,8 +110,8 @@ git-only = [
 ]
 
 [tool.scikit-build.cmake.define]
-BUILD_MQT_MISIM_TESTS = "OFF"
-BUILD_MQT_MISIM_BINDINGS = "ON"
+BUILD_MQT_QUDITS_TESTS = "OFF"
+BUILD_MQT_QUDITS_BINDINGS = "ON"
 
 
 [tool.setuptools_scm]
