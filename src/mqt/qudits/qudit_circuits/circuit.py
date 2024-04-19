@@ -16,6 +16,7 @@ from mqt.qudits.qudit_circuits.components.instructions.gate_set.ms import MS
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.perm import Perm
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.randu import RandU
+from mqt.qudits.qudit_circuits.components.instructions.gate_set.rh import Rh
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.rz import Rz
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.s import S
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
@@ -53,6 +54,7 @@ class QuantumCircuit:
         "ms": "ms",
         "pm": "pm",
         "rxy": "r",
+        "rh": "rh",
         "rdu": "randu",
         "rz": "rz",
         "virtrz": "virtrz",
@@ -177,6 +179,10 @@ class QuantumCircuit:
         return H(self, "H" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     @add_gate_decorator
+    def rh(self, qudit: int, controls: ControlData | None = None):
+        return Rh(self, "Rh" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
     def ls(self, qudits: list[int], parameters: list | None = None):
         return LS(
             self,
@@ -286,7 +292,7 @@ class QuantumCircuit:
                         else:
                             function(qudits_call)
                 else:
-                    msg = "the required gate is not available anymore."
+                    msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
 
     def to_qasm(self):

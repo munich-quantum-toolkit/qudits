@@ -60,7 +60,7 @@ class QASM:
             return None
 
     def parse_gate(self, line, rgxs, sitemap, gates):
-        match = rgxs["gate"].search(line)
+        match = rgxs["gate_matrix"].search(line)
         if match:
             label = match.group(1)
             params = match.group(2)
@@ -130,7 +130,7 @@ class QASM:
 
     def parse_ditqasm2_str(self, contents):
         """Parse the string contents of an OpenQASM 2.0 file. This parser only
-        supports basic gate definitions, and is not guaranteed to check the full
+        supports basic gate_matrix definitions, and is not guaranteed to check the full
         openqasm grammar.
         """
         # define regular expressions for parsing
@@ -140,15 +140,15 @@ class QASM:
             "comment_start": re.compile(r"/\*"),
             "comment_end": re.compile(r"\*/"),
             "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\d+\s*\])\s*(\s*\w+\s*\[\d+\])*\s*"),
+            # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
-            # "gate":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*;"),
-            "gate": re.compile(
+            # "gate_matrix":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
+            "gate_matrix": re.compile(
                 r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
                 r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
                 r"\s*;"
             ),
-            "error": re.compile(r"^(gate|if)"),
+            "error": re.compile(r"^(gate_matrix|if)"),
             "ignore": re.compile(r"^(creg|measure|barrier)"),
         }
 
@@ -178,14 +178,14 @@ class QASM:
 
             if rgxs["error"].match(line):
                 # raise hard error for custom tate defns etc
-                msg = f"Custom gate definitions are not supported: {line}"
+                msg = f"Custom gate_matrix definitions are not supported: {line}"
                 raise NotImplementedError(msg)
 
             # if not covered by previous checks, simply raise
             msg = f"{line}"
             raise SyntaxError(msg)
         self._program = {
-            "n": len(sitemap),
+            "circuits_size": len(sitemap),
             "sitemap": sitemap,
             "instructions": gates,
             "n_gates": len(gates),

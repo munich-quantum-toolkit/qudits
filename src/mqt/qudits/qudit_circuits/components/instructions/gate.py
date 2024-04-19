@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class Gate(Instruction, ABC):
-    """Unitary gate."""
+    """Unitary gate_matrix."""
 
     def __init__(
         self,
@@ -71,7 +71,7 @@ class Gate(Instruction, ABC):
         return self
 
     def to_matrix(self, identities=0) -> Callable[[str], ndarray]:
-        """Return a np.ndarray for the gate unitary parameters.
+        """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:
             np.ndarray: if the Gate subclass has a parameters definition.
