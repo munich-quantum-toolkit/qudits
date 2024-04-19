@@ -10,7 +10,7 @@ class NodeNotFoundException(Exception):
 
 
 class SequenceFoundException(Exception):
-    def __init__(self, node_key=-1) -> None:
+    def __init__(self, node_key: int = -1) -> None:
         self.last_node_id = node_key
 
     def __str__(self) -> str:
@@ -26,5 +26,5 @@ class RoutingException(Exception):
 
 
 class FidelityReachException(Exception):
-    def __init__(self, message="") -> None:
+    def __init__(self, message: str = "") -> None:
         self.message = message

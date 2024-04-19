@@ -1,11 +1,11 @@
+"""FROM An alternative quantum fidelity for mixed states of qudits Xiaoguang Wang, 1, 2, * Chang-Shui Yu, 3 and x. x.
+Yi 3"""
+
 from __future__ import annotations
 
 import typing
 
 import numpy as np
-
-"""FROM An alternative quantum fidelity for mixed states of qudits Xiaoguang Wang, 1, 2, * Chang-Shui Yu, 3 and x. x.
-Yi 3 """
 
 
 def size_check(a: np.ndarray, b: np.ndarray) -> bool:

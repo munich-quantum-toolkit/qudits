@@ -7,13 +7,6 @@ from .....quantum_circuit.matrix_factory import from_dirac_to_basis
 
 CUSTOM_PRIMITIVE = None  # numpy array
 
-"""
-def params_splitter(params, dim):
-    n = (-1 + dim ** 2)
-    ret = [params[i:i + n] for i in range(0, len(params), n)]
-    return ret
-"""
-
 
 def params_splitter(params, dims):
     ret = []
@@ -24,17 +17,6 @@ def params_splitter(params, dims):
         if i + n < len(params):
             ret.append(params[i + n : i + n + m])
     return ret
-
-
-"""
-def params_splitter(params, dims):
-    ret = []
-    n = -1 + dims[0] ** 2
-    m = -1 + dims[1] ** 2
-    for i in range(max(len(params) // (n + m) + 1, 1)):
-        ret.append(params[i * (n + m):(i + 1) * (n + m)])
-    return ret
-"""
 
 
 def reindex(ir, jc, num_col):

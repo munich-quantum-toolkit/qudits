@@ -2,10 +2,10 @@ from __future__ import annotations
 
 
 class JobError(Exception):
-    def __init_(self, message) -> None:
+    def __init__(self, message: str) -> None:
         print(message)
 
 
 class JobTimeoutError:
-    def __init_(self, message) -> None:
+    def __init__(self, message: str) -> None:
         print(message)
