@@ -765,5 +765,5 @@ py::list stateVectorSimulation(py::object& circ, py::object& noiseModel) {
 PYBIND11_MODULE(_qudits, m) {
   auto misim = m.def_submodule("misim");
   misim.def("state_vector_simulation", &stateVectorSimulation, "circuit"_a,
-        "noise_model"_a);
+            "noise_model"_a);
 }
