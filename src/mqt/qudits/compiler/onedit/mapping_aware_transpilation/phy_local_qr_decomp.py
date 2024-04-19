@@ -1,16 +1,15 @@
 import gc
 
 import numpy as np
-
+from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import new_mod
 from mqt.qudits.compiler.compiler_pass import CompilerPass
 from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import cost_calculator, gate_chain_condition
-from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import new_mod
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
 
 
-class LocQRPass(CompilerPass):
+class PhyLocQRPass(CompilerPass):
     def __init__(self, backend):
         super().__init__(backend)
 
@@ -22,7 +21,7 @@ class LocQRPass(CompilerPass):
         for _i, gate in enumerate(instructions):
             if gate.gate_type == GateTypes.SINGLE:
                 energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
-                QR = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
+                QR = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
                 decomp, algorithmic_cost, total_cost = QR.execute()
                 new_instructions += decomp
                 gc.collect()
@@ -32,7 +31,7 @@ class LocQRPass(CompilerPass):
         return transpiled_circuit.set_instructions(new_instructions)
 
 
-class QrDecomp:
+class PhyQrDecomp:
     def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True):
         self.gate = gate
         self.circuit = gate.parent_circuit

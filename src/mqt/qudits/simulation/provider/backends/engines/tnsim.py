@@ -3,7 +3,6 @@ from typing import Iterable, List, Union
 
 import numpy as np
 import tensornetwork as tn
-
 from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
@@ -63,7 +62,7 @@ class TNSim(Backend):
 
         result = self.__contract_circuit(self.system_sizes, self.circ_operations)
 
-        result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))) )
+        result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))))
 
         state_size = reduce(lambda x, y: x * y, self.system_sizes, 1)
         return result.reshape(1, state_size)
@@ -100,8 +99,7 @@ class TNSim(Backend):
 
                 elif op.gate_type == GateTypes.TWO and not op.is_long_range:
                     op_matrix = op_matrix.reshape(
-                            (system_sizes[lines[0]], system_sizes[lines[1]], system_sizes[lines[0]],
-                             system_sizes[lines[1]])
+                        (system_sizes[lines[0]], system_sizes[lines[1]], system_sizes[lines[0]], system_sizes[lines[1]])
                     )
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:

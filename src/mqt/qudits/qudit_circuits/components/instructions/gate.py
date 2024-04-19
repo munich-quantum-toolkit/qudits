@@ -11,13 +11,14 @@ from mqt.qudits.qudit_circuits.components.instructions.instruction import Instru
 
 if TYPE_CHECKING:
     import enum
+
     import numpy as np
-    from numpy import ndarray
     from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+    from numpy import ndarray
 
 
 class Gate(Instruction, ABC):
-    """Unitary gate."""
+    """Unitary gate_matrix."""
 
     def __init__(
         self,
@@ -70,7 +71,7 @@ class Gate(Instruction, ABC):
         return self
 
     def to_matrix(self, identities=0) -> Callable[[str], ndarray]:
-        """Return a np.ndarray for the gate unitary parameters.
+        """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:
             np.ndarray: if the Gate subclass has a parameters definition.

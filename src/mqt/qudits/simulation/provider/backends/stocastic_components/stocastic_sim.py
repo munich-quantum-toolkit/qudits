@@ -3,7 +3,6 @@ import os
 import time
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.simulation.data_log.save_info import save_full_states, save_shots
 from mqt.qudits.simulation.provider.backends.backendv2 import Backend
@@ -39,7 +38,7 @@ def stocastic_execution(args):
 
     if not backend.full_state_memory:
         current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2 ** 32
+        seed = hash((os.getpid(), current_time)) % 2**32
         gen = np.random.Generator(np.random.PCG64(seed=seed))
         vector_data = np.ravel(vector_data)
         probabilities = [abs(x) ** 2 for x in vector_data]
@@ -77,7 +76,7 @@ def stocastic_execution_misim(args):
 
     if not backend.full_state_memory:
         current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2 ** 32
+        seed = hash((os.getpid(), current_time)) % 2**32
         gen = np.random.Generator(np.random.PCG64(seed=seed))
         vector_data = np.ravel(vector_data)
         probabilities = [abs(x) ** 2 for x in vector_data]

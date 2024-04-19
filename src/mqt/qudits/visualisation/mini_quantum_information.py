@@ -3,7 +3,6 @@ from collections import Counter
 from functools import reduce
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.components.instructions.mini_tools.matrix_factory_tools import from_dirac_to_basis
 from mqt.qudits.visualisation.plot_information import state_labels
 

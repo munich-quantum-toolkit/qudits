@@ -4,7 +4,6 @@ from functools import reduce
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
 from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
 

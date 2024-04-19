@@ -1,7 +1,6 @@
 import networkx as nx
 import numpy as np
-
-from mqt.qudits.compiler.onedit.local_rotation_tools.local_compilation_minitools import (
+from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import (
     new_mod,
     pi_mod,
     rotation_cost_calc,
@@ -57,7 +56,7 @@ def graph_rule_ongate(gate, graph):
 
     g_lev_a = gate.lev_a
     g_lev_b = gate.lev_b
-    new_g_phi = gate.phi  # old phase still inside the gate
+    new_g_phi = gate.phi  # old phase still inside the gate_matrix
 
     logic_nodes = find_logic_from_phys(g_lev_a, g_lev_b, graph)
 
@@ -69,7 +68,7 @@ def graph_rule_ongate(gate, graph):
 
     return R(
         gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
-    )  # R(gate.theta, new_g_phi, g_lev_a, g_lev_b, gate.dimension)
+    )  # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
 
 def gate_chain_condition(previous_gates, current):

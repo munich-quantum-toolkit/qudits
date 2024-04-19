@@ -3,15 +3,13 @@ from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
 from mqt.qudits.qudit_circuits.components.registers.quantum_register import QuantumRegister
 from mqt.qudits.simulation.provider.noise_tools.noise import Noise, NoiseModel
 
-import numpy as np
-
 qreg_example = QuantumRegister("reg", 2, [2, 3])
 circ = QuantumCircuit(qreg_example)
 h = circ.h(0)
 csum = circ.csum([0, 1])
-#x = circ.x(1).control([0], [1])
-#r = circ.r(0, [0, 1, np.pi/3, -np.pi / 2])
-#r2 = circ.r(0, [0, 1, np.pi, np.pi / 2]).control([1], [1])
+# x = circ.x(1).control([0], [1])
+# r = circ.r(0, [0, 1, np.pi/3, -np.pi / 2])
+# r2 = circ.r(0, [0, 1, np.pi, np.pi / 2]).control([1], [1])
 
 # Depolarizing quantum errors
 local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
@@ -24,7 +22,7 @@ entangling_error_on_control = Noise(probability_depolarizing=0.01, probability_d
 # Add errors to noise_tools model
 
 noise_model = NoiseModel()  # We know that the architecture is only two qudits
-# Very noisy gate
+# Very noisy gate_matrix
 noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
 noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
 # Entangling gates

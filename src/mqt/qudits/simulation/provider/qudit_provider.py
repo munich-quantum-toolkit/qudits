@@ -3,16 +3,18 @@ from typing import ClassVar, List, Optional
 
 from mqt.qudits.simulation.provider.backends.engines.misim import MISim
 from mqt.qudits.simulation.provider.backends.engines.tnsim import TNSim
-from mqt.qudits.simulation.provider.backends.fake_backends.fake_traps2three import FakeIonTraps2Trits
 from mqt.qudits.simulation.provider.backends.fake_backends.fake_traps2six import FakeIonTraps2Six
+from mqt.qudits.simulation.provider.backends.fake_backends.fake_traps2three import FakeIonTraps2Trits
 from mqt.qudits.simulation.provider.provider import Provider
 
 
 class MQTQuditProvider(Provider):
-    __backends: ClassVar[dict] = {"tnsim":           TNSim,
-                                  "misim":           MISim,
-                                  "faketraps2trits": FakeIonTraps2Trits,
-                                  "faketraps2six": FakeIonTraps2Six }
+    __backends: ClassVar[dict] = {
+        "tnsim": TNSim,
+        "misim": MISim,
+        "faketraps2trits": FakeIonTraps2Trits,
+        "faketraps2six": FakeIonTraps2Six,
+    }
 
     def get_backend(self, name: Optional[str] = None, **kwargs) -> "Backend":
         keys_with_pattern = None

@@ -20,3 +20,8 @@ class RoutingException(Exception):
 
     def __str__(self):
         return repr(self.message)
+
+
+class FidelityReachException(Exception):
+    def __init__(self, message=""):
+        self.message = message

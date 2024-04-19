@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def from_dirac_to_basis(vec, d):  # |00> -> [1,0,...,0] -> len() == d**2
+def from_dirac_to_basis(vec, d):  # |00> -> [1,0,...,0] -> len() == other_size**2
     if isinstance(d, int):
         d = [d] * len(vec)
 

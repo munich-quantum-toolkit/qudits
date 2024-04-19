@@ -16,6 +16,7 @@ from mqt.qudits.qudit_circuits.components.instructions.gate_set.ms import MS
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.perm import Perm
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.randu import RandU
+from mqt.qudits.qudit_circuits.components.instructions.gate_set.rh import Rh
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.rz import Rz
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.s import S
 from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
@@ -26,7 +27,6 @@ from mqt.qudits.qudit_circuits.qasm_interface.qasm import QASM
 
 if TYPE_CHECKING:
     import numpy as np
-
     from mqt.qudits.qudit_circuits.components.instructions.gate import Gate
     from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.controls import ControlData
 
@@ -43,23 +43,24 @@ def add_gate_decorator(func):
 
 class QuantumCircuit:
     qasm_to_gate_set_dict = {
-        "csum":    "csum",
-        "cuone":   "cu_one",
-        "cutwo":   "cu_two",
+        "csum": "csum",
+        "cuone": "cu_one",
+        "cutwo": "cu_two",
         "cumulti": "cu_multi",
-        "cx":      "cx",
-        "gell":    "gellmann",
-        "h":       "h",
-        "ls":      "ls",
-        "ms":      "ms",
-        "pm":      "pm",
-        "rxy":     "r",
-        "rdu":     "randu",
-        "rz":      "rz",
-        "virtrz":  "virtrz",
-        "s":       "s",
-        "x":       "x",
-        "z":       "z",
+        "cx": "cx",
+        "gell": "gellmann",
+        "h": "h",
+        "ls": "ls",
+        "ms": "ms",
+        "pm": "pm",
+        "rxy": "r",
+        "rh": "rh",
+        "rdu": "randu",
+        "rz": "rz",
+        "virtrz": "virtrz",
+        "s": "s",
+        "x": "x",
+        "z": "z",
     }
 
     def __init__(self, *args):
@@ -126,47 +127,46 @@ class QuantumCircuit:
     @add_gate_decorator
     def csum(self, qudits: list[int]):
         return CSum(
-                self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits],
-                None
+            self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits], None
         )
 
     @add_gate_decorator
     def cu_one(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
         return CustomOne(
-                self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
+            self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
         )
 
     @add_gate_decorator
     def cu_two(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
         return CustomTwo(
-                self,
-                "CUt" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                controls,
+            self,
+            "CUt" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            controls,
         )
 
     @add_gate_decorator
     def cu_multi(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
         return CustomMulti(
-                self,
-                "CUm" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                controls,
+            self,
+            "CUm" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            controls,
         )
 
     @add_gate_decorator
     def cx(self, qudits: list[int], parameters: list | None = None):
         return CEx(
-                self,
-                "CEx" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "CEx" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
@@ -179,36 +179,40 @@ class QuantumCircuit:
         return H(self, "H" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     @add_gate_decorator
+    def rh(self, qudit: int, controls: ControlData | None = None):
+        return Rh(self, "Rh" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
     def ls(self, qudits: list[int], parameters: list | None = None):
         return LS(
-                self,
-                "LS" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "LS" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
     def ms(self, qudits: list[int], parameters: list | None = None):
         return MS(
-                self,
-                "MS" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "MS" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
     def pm(self, qudits: list[int], parameters: list):
         return Perm(
-                self,
-                "Pm" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "Pm" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
@@ -218,7 +222,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def randu(self, qudits: list[int]):
         return RandU(
-                self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
+            self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
         )
 
     @add_gate_decorator
@@ -241,7 +245,7 @@ class QuantumCircuit:
         return Z(self, "Z" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     def replace_gate(self, gate_index: int, sequence: list[Gate]):
-        self.instructions[gate_index: gate_index + 1] = sequence
+        self.instructions[gate_index : gate_index + 1] = sequence
         self.number_gates = (self.number_gates - 1) + len(sequence)
 
     def set_instructions(self, sequence: list[Gate]):
@@ -288,7 +292,7 @@ class QuantumCircuit:
                         else:
                             function(qudits_call)
                 else:
-                    msg = "the required gate is not available anymore."
+                    msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
 
     def to_qasm(self):
@@ -341,7 +345,7 @@ class QuantumCircuit:
             str: The text loaded from the file.
         """
         try:
-            with open(file_path, "r") as file:
+            with open(file_path) as file:
                 text = file.read()
             return self.from_qasm(text)
         except FileNotFoundError:
@@ -354,5 +358,5 @@ class QuantumCircuit:
 
     @property
     def gate_set(self):
-        for key in self.qasm_to_gate_set_dict.keys():
-            print(key)
+        for _, item in self.qasm_to_gate_set_dict.items():
+            print(item)
