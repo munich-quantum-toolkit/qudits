@@ -10,28 +10,43 @@
 ci:
   autoupdate_commit_msg: "⬆️🪝 update pre-commit hooks"
   autofix_commit_msg: "🎨 pre-commit fixes"
+  skip: [mypy]
 
 repos:
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-merge-conflict
+      - id: check-symlinks
       - id: check-toml
       - id: check-yaml
       - id: debug-statements
       - id: end-of-file-fixer
       - id: mixed-line-ending
+      - id: requirements-txt-fixer
       - id: trailing-whitespace
 
   # Clean jupyter notebooks
   - repo: https://github.com/srstevenson/nb-clean
-    rev: "2.4.0"
+    rev: 3.2.0
     hooks:
       - id: nb-clean
+        args:
+          - --remove-empty-cells
+          - --preserve-cell-metadata
+          - raw_mimetype
+          - --
+
+  # Handling unwanted unicode characters
+  - repo: https://github.com/sirosen/texthooks
+    rev: 0.6.6
+    hooks:
+      - id: fix-ligatures
+      - id: fix-smartquotes
 
   # Check for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -41,43 +56,76 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
 
-  # Handling unwanted unicode characters
-  - repo: https://github.com/sirosen/texthooks
-    rev: 0.5.0
-    hooks:
-      - id: fix-ligatures
-      - id: fix-smartquotes
-
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.275
+  # Python linting using ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
     hooks:
       - id: ruff
-        args: ["--fix"]
+        args: ["--fix", "--show-fixes"]
+        types_or: [python, pyi, jupyter]
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
 
-  # Run code formatting with Black
-  - repo: https://github.com/psf/black
-    rev: 23.3.0 # Keep in sync with blacken-docs
+  # Static type checking using mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
     hooks:
-      - id: black-jupyter
+      - id: mypy
+        files: ^(src/mqt|test/python)
+        args: []
+        additional_dependencies:
+          - pytest
+          - pandas-stubs
 
   # Also run Black on examples in the documentation
-  - repo: https://github.com/asottile/blacken-docs
-    rev: 1.14.0
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
-        additional_dependencies:
-          - black==23.3.0 # qudits2keep in sync with black hook
+        additional_dependencies: [black==23.*]
+
+  # Clang-format the C++ part of the code base automatically
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.3
+    hooks:
+      - id: clang-format
+        types_or: [c++, c, cuda]
+
+  # CMake format and lint the CMakeLists.txt files
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+      - id: cmake-format
+        additional_dependencies: [pyyaml]
+        types: [file]
+        files: (\.cmake|CMakeLists.txt)(.in)?$
 
   # Format configuration files with prettier
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.0.0-alpha.9-for-vscode"
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   # Check for spelling
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
-        args: ["-L", "wille,braket,coo", "--skip", "*.ipynb"]
+        args: ["-L", "wille,linz", "--skip", "*.ipynb"]
+
+  # Catch common capitalization mistakes
+  - repo: local
+    hooks:
+      - id: disallow-caps
+        name: Disallow improper capitalization
+        language: pygrep
+        entry: PyBind|Numpy|Cmake|CCache|Github|PyTest|Mqt|Tum
+        exclude: .pre-commit-config.yaml
+
+  # Check best practices for scientific Python code
+  - repo: https://github.com/scientific-python/cookie
+    rev: 2024.03.10
+    hooks:
+      - id: sp-repo-review
+        additional_dependencies: ["repo-review[cli]"]
