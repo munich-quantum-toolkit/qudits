@@ -39,7 +39,7 @@ dependencies = [
     "numpy>=1.24",
     "networkx>=3.0",
     "scipy>=1.10",
-    "h5py>=3.3",
+    "h5py>=3.7",
     "tensornetwork>=0.4",
     "matplotlib>=3.7",
 ]
