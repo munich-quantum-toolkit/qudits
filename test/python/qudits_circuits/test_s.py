@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 import numpy as np
-from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+
+from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 def omega_d(d):

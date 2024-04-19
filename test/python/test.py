@@ -1,7 +1,8 @@
-import mqt.misim.pymisim as misim
-from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
-from mqt.qudits.qudit_circuits.components.registers.quantum_register import QuantumRegister
-from mqt.qudits.simulation.provider.noise_tools.noise import Noise, NoiseModel
+from __future__ import annotations
+
+from mqt.qudits._qudits.misim import state_vector_simulation
+from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 qreg_example = QuantumRegister("reg", 2, [2, 3])
 circ = QuantumCircuit(qreg_example)
@@ -38,4 +39,4 @@ noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
 print("HELLOO")
 
 # num_qudits, dimensions, props = qcread.get_quantum_circuit_properties(circ)
-print(misim.state_vector_simulation(circ, NoiseModel()))
+print(state_vector_simulation(circ, NoiseModel()))

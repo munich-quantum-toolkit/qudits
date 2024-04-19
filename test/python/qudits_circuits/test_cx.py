@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 import numpy as np
-from mqt.qudits.qudit_circuits.circuit import QuantumCircuit
+
+from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestCEx(TestCase):
@@ -16,29 +19,25 @@ class TestCEx(TestCase):
         matrix_23_10 = cx_23_10.to_matrix(identities=0)
 
         assert np.allclose(
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, -1j, 0],
-                    [0, 0, 0, -1j, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
+            np.array([
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, -1j, 0],
+                [0, 0, 0, -1j, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+            ]),
             matrix_23_01,
         )
         assert np.allclose(
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
+            np.array([
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ]),
             matrix_23_10,
         )
 
