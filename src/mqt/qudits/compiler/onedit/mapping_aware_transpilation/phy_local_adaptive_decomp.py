@@ -16,7 +16,7 @@ from ..local_operation_swap import (
     graph_rule_ongate,
     graph_rule_update,
 )
-from ..mapping_aware_transpilation import PhyQrDecomp
+from ..mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
 
 np.seterr(all="ignore")
 

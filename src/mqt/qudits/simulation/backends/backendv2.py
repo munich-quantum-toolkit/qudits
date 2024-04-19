@@ -55,10 +55,8 @@ class Backend(ABC):
     def operation_names(self) -> list[str]:
         return list(self.target.operation_names)
 
-    @property
-    @abstractmethod
-    def target(self):
-        pass
+    # todo: this has to be defined properly
+    target = Any
 
     @property
     def num_qudits(self) -> int:
