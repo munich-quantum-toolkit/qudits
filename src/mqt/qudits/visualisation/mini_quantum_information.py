@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import operator
 from collections import Counter
 from functools import reduce
 
 import numpy as np
-from mqt.qudits.qudit_circuits.components.instructions.mini_tools.matrix_factory_tools import from_dirac_to_basis
-from mqt.qudits.visualisation.plot_information import state_labels
+
+from ..quantum_circuit.matrix_factory import from_dirac_to_basis
+from .plot_information import state_labels
 
 
 def get_density_matrix_from_counts(results, circuit):

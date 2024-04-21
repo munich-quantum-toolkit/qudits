@@ -1,16 +1,20 @@
+from __future__ import annotations
+
 import gc
 
 import numpy as np
-from mqt.qudits.compiler.compilation_minitools.local_compilation_minitools import new_mod
-from mqt.qudits.compiler.compiler_pass import CompilerPass
-from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import cost_calculator
-from mqt.qudits.qudit_circuits.components.instructions.gate_extensions.gate_types import GateTypes
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.r import R
-from mqt.qudits.qudit_circuits.components.instructions.gate_set.virt_rz import VirtRz
+
+from ....quantum_circuit import gates
+from ....quantum_circuit.gate import GateTypes
+from ... import CompilerPass
+from ...compilation_minitools import new_mod
+from ..local_operation_swap import (
+    cost_calculator,
+)
 
 
 class LogLocQRPass(CompilerPass):
-    def __init__(self, backend):
+    def __init__(self, backend) -> None:
         super().__init__(backend)
 
     def transpile(self, circuit):
@@ -18,11 +22,11 @@ class LogLocQRPass(CompilerPass):
         instructions = circuit.instructions
         new_instructions = []
 
-        for _i, gate in enumerate(instructions):
+        for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
                 energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
                 QR = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
-                decomp, algorithmic_cost, total_cost = QR.execute()
+                decomp, _algorithmic_cost, _total_cost = QR.execute()
                 new_instructions += decomp
                 gc.collect()
             else:
@@ -32,7 +36,7 @@ class LogLocQRPass(CompilerPass):
 
 
 class QrDecomp:
-    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True):
+    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True) -> None:
         self.gate = gate
         self.circuit = gate.parent_circuit
         self.dimension = gate._dimensions
@@ -58,7 +62,7 @@ class QrDecomp:
                 for i in range(len(list(self.graph.nodes))):
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
-                        phase_gate = VirtRz(
+                        phase_gate = gates.VirtRz(
                             self.gate.parent_circuit,
                             "VRz",
                             self.gate._target_qudits,
@@ -70,7 +74,6 @@ class QrDecomp:
 
                     # reset the node
                     self.graph.nodes[i]["phase_storage"] = 0
-        #
 
         l = list(range(self.U.shape[0]))
         l.reverse()
@@ -84,7 +87,7 @@ class QrDecomp:
 
                     phi = -(np.pi / 2 + np.angle(U_[r - 1, c]) - np.angle(U_[r, c]))
 
-                    rotation_involved = R(
+                    rotation_involved = gates.R(
                         self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
                     )  # R(theta, phi, r - 1, r, dimension)
 
@@ -92,7 +95,7 @@ class QrDecomp:
 
                     non_zeros = np.count_nonzero(abs(U_) > 1.0e-4)
 
-                    estimated_cost, pi_pulses_routing, temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
+                    estimated_cost, _pi_pulses_routing, _temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
                         rotation_involved, self.graph, non_zeros
                     )
                     """
@@ -136,7 +139,7 @@ class QrDecomp:
             if abs(np.angle(diag_U[i])) > 1.0e-4:
                 n_i = self.graph.nodes[i]  # self.graph.nodes[i]["lpmap"]
 
-                phase_gate = VirtRz(
+                phase_gate = gates.VirtRz(
                     self.gate.parent_circuit,
                     "VRz",
                     self.gate._target_qudits,

@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class BackendNotFoundError(Exception):
-    def __init_(self, message):
+    def __init__(self, message: str) -> None:
         print(message)

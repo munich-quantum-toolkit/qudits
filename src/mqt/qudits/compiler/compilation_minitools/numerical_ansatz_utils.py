@@ -1,9 +1,6 @@
-import numpy as np
+from __future__ import annotations
 
-"""def calculate_q0_q1(lev, dim):
-    q1 = lev % dim  # Calculate the remainder
-    q0 = (lev - q1) // dim  # Calculate the quotient
-    return q0, q1"""
+import numpy as np
 
 
 def on1(gate, other_size):

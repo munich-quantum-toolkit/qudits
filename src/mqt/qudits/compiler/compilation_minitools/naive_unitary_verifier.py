@@ -1,7 +1,9 @@
+from __future__ import annotations
+
+import operator
 from functools import reduce
 
 import numpy as np
-from numpy.linalg import inv
 
 
 class UnitaryVerifier:
@@ -14,10 +16,10 @@ class UnitaryVerifier:
     final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation
     """
 
-    def __init__(self, sequence, target, dimensions, nodes=None, initial_map=None, final_map=None):
+    def __init__(self, sequence, target, dimensions, nodes=None, initial_map=None, final_map=None) -> None:
         self.decomposition = sequence
         self.target = target.copy()
-        self.dimension = reduce(lambda x, y: x * y, dimensions)
+        self.dimension = reduce(operator.mul, dimensions)
 
         if nodes is not None and initial_map is not None and final_map is not None:
             self.permutation_matrix_initial = self.get_perm_matrix(nodes, initial_map)
@@ -49,7 +51,7 @@ class UnitaryVerifier:
             target = rotation @ target
 
         if self.permutation_matrix_final is not None:
-            target = inv(self.permutation_matrix_final) @ target
+            target = np.linalg.inv(self.permutation_matrix_final) @ target
 
         target = target / target[0][0]
 
