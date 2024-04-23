@@ -5,7 +5,7 @@ import math
 import networkx as nx
 import numpy as np
 
-from ....quantum_circuit.gates.r import R
+from ....quantum_circuit import gates
 from ...compilation_minitools import (
     new_mod,
     pi_mod,
@@ -44,11 +44,11 @@ def graph_rule_update(gate, graph) -> None:
 
             phase = pi_mod(gate.phi)
             if (gate.theta * phase) > 0:
-                graph.nodes[logic_nodes[1]]["phase_storage"] = graph.nodes[logic_nodes[1]]["phase_storage"] + np.pi
+                graph.nodes[logic_nodes[1]]["phase_storage"] += np.pi
                 graph.nodes[logic_nodes[1]]["phase_storage"] = new_mod(graph.nodes[logic_nodes[1]]["phase_storage"])
 
             elif (gate.theta * phase) < 0:
-                graph.nodes[logic_nodes[0]]["phase_storage"] = graph.nodes[logic_nodes[0]]["phase_storage"] + np.pi
+                graph.nodes[logic_nodes[0]]["phase_storage"] += np.pi
                 graph.nodes[logic_nodes[0]]["phase_storage"] = new_mod(graph.nodes[logic_nodes[0]]["phase_storage"])
 
     return
@@ -67,9 +67,9 @@ def graph_rule_ongate(gate, graph):
 
     # MINUS source PLUS target according to pi pulse back
     if logic_nodes[0] is not None:
-        new_g_phi = new_g_phi - graph.nodes[logic_nodes[0]]["phase_storage"]
+        new_g_phi -= graph.nodes[logic_nodes[0]]["phase_storage"]
     if logic_nodes[1] is not None:
-        new_g_phi = new_g_phi + graph.nodes[logic_nodes[1]]["phase_storage"]
+        new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return R(
         gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
@@ -96,15 +96,15 @@ def gate_chain_condition(previous_gates, current):
 
     elif new_target == last_target:
         if new_source < last_source or new_source > last_source:
-            theta = theta * -1
+            theta *= -1
 
     elif new_source == last_target:
-        theta = theta * -1
+        theta *= -1
 
     elif new_target == last_source:
         pass
 
-    return R(
+    return gates.R(
         current.parent_circuit,
         "R",
         current._target_qudits,
@@ -131,7 +131,7 @@ def route_states2rotate_basic(gate, orig_placement):
         phy_n_i = placement.nodes[path[i]]["lpmap"]
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
-        pi_gate_phy = R(
+        pi_gate_phy = gates.R(
             gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
@@ -139,7 +139,7 @@ def route_states2rotate_basic(gate, orig_placement):
         pi_gate_phy = graph_rule_ongate(pi_gate_phy, placement)
 
         # -- COSTING based only on the position of the pi pulse and angle phase is neglected ----------------
-        pi_gate_logic = R(
+        pi_gate_logic = gates.R(
             gate.parent_circuit,
             "R",
             gate._target_qudits,
