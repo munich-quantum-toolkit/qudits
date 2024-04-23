@@ -77,7 +77,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         compose.append(h_0)  # (on0(h_, d))
 
@@ -93,7 +93,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         zth_1 = gates.Rz(self.circuit, "Rz-th_1", index_target, [0, 1, teta / 2], dim_target)
         compose.append(zth_1)  # (on1(ZditR(teta / 2, 0, 1, d).matrix, d))
@@ -101,7 +101,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         zth_back_1 = gates.Rz(self.circuit, "Rz-thback_1", index_target, [0, 1, -teta / 2], dim_target)
         compose.append(zth_back_1)
@@ -122,7 +122,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         compose.append(h_0)  # (on0(h_, d))
 

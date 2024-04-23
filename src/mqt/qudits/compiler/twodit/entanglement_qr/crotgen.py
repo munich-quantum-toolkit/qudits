@@ -49,14 +49,14 @@ class CRotGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose = compose + cex
+            compose += cex
 
         compose.append(tplus)
 

@@ -49,9 +49,9 @@ class CSum(Gate):
             Xmat_i = np.linalg.matrix_power(Xmat, i)
 
             if self._target_qudits[0] < self._target_qudits[1]:
-                matrix = matrix + (np.kron(mapmat, Xmat_i))
+                matrix += np.kron(mapmat, Xmat_i)
             else:
-                matrix = matrix + (np.kron(Xmat_i, mapmat))
+                matrix += np.kron(Xmat_i, mapmat)
 
         return matrix
 

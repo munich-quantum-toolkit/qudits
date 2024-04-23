@@ -89,7 +89,7 @@ class EntangledQRCEX:
                     for r___ in sequence_rotation_involved:
                         u_ = r___.to_matrix() @ u_
 
-                    decomp = decomp + sequence_rotation_involved
+                    decomp += sequence_rotation_involved
 
         diag_u = np.diag(u_)
         args_of_diag = []
@@ -132,7 +132,7 @@ class EntangledQRCEX:
                     u_ = r___.to_matrix() @ u_
                 #######################
 
-                decomp = decomp + sequence_rotation_involved
+                decomp += sequence_rotation_involved
 
         self.decomposition = decomp
         return decomp, crot_counter, pswap_counter

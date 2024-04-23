@@ -15,9 +15,9 @@ def prepare_ansatz(u, params, dims):
     for i in range(len(params)):
         if counter == 2:
             counter = 0
-            unitary = unitary @ u
+            unitary @= u
 
-        unitary = unitary @ gate_expand_to_circuit(
+        unitary @= gate_expand_to_circuit(
             generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
         )
         counter += 1

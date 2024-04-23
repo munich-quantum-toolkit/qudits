@@ -132,7 +132,7 @@ class PhyAdaptiveDecomposition:
 
         for d in decomposition[1:]:
             # exclude the identity matrix coming from the root of the tree of solutions which is just for correctness
-            matrices = matrices + d.PI_PULSES
+            matrices += d.PI_PULSES
             matrices = [*matrices, d.rotation]
 
         U_ = decomposition[-1].U_of_level  # take U of last elaboration which should be the diagonal matrix found
@@ -160,7 +160,7 @@ class PhyAdaptiveDecomposition:
                 if phase_propagation:
                     inode = placement._1stInode
                     if "phase_storage" in placement.nodes[inode]:
-                        placement.nodes[i]["phase_storage"] = placement.nodes[i]["phase_storage"] + np.angle(diag_U[i])
+                        placement.nodes[i]["phase_storage"] += np.angle(diag_U[i])
                         placement.nodes[i]["phase_storage"] = new_mod(placement.nodes[i]["phase_storage"])
                 else:
                     phy_n_i = placement.nodes[i]["lpmap"]
@@ -260,11 +260,11 @@ class PhyAdaptiveDecomposition:
                         if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
                             # if cost is better can be only candidate otherwise try them all
 
-                            self.TREE.global_id_counter = self.TREE.global_id_counter + 1
+                            self.TREE.global_id_counter += 1
                             new_key = self.TREE.global_id_counter
 
                             if new_placement.nodes[r]["lpmap"] > new_placement.nodes[r2]["lpmap"]:
-                                phi = phi * -1
+                                phi *= -1
                             physical_rotation = gates.R(
                                 self.circuit,
                                 "R",

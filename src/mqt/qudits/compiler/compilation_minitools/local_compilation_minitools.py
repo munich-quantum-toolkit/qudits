@@ -19,7 +19,7 @@ def new_mod(a, b=2 * np.pi):
 def pi_mod(a):
     a = new_mod(a)
     if a > 0 and a > np.pi:
-        a = a - 2 * np.pi
+        a -= 2 * np.pi
     elif a < 0 and abs(a) > np.pi:
         a = 2 * np.pi + a
     return a
@@ -28,7 +28,7 @@ def pi_mod(a):
 def regulate_theta(angle):
     theta_in_units_of_pi = np.mod(abs(angle / np.pi), 4)
     if angle < 0:
-        theta_in_units_of_pi = theta_in_units_of_pi * -1
+        theta_in_units_of_pi *= -1
     if abs(theta_in_units_of_pi) < 0.2:
         theta_in_units_of_pi += 4.0
 

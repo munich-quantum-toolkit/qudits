@@ -86,7 +86,7 @@ class Gate(Instruction):
         pass
 
     def dag(self):
-        self._name = self._name + "_dag"
+        self._name += "_dag"
         self.dagger = True
         return self
 

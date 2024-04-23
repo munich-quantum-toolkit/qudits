@@ -51,7 +51,7 @@ class H(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix_array = matrix_array + result
+            matrix_array += result
             matrix = (1 / np.sqrt(self._dimensions)) * matrix_array
 
         return matrix

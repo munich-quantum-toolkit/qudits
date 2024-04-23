@@ -50,7 +50,7 @@ class S(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

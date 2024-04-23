@@ -50,7 +50,7 @@ class Z(Gate):
             proj = np.outer(array1, array2)
             result = omega * proj
 
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

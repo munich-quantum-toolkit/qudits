@@ -132,7 +132,7 @@ class NAryTree:
             return 0
         children_size = len(node.children)
         for child in node.children:
-            children_size = children_size + self.size_refresh(child)
+            children_size += self.size_refresh(child)
 
         return children_size
 

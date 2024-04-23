@@ -100,7 +100,7 @@ class PhyQrDecomp:
                     decomp += pi_pulses_routing
 
                     if temp_placement.nodes[r - 1]["lpmap"] > temp_placement.nodes[r]["lpmap"]:
-                        phi = phi * -1
+                        phi *= -1
 
                     physical_rotation = gates.R(
                         self.circuit,

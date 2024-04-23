@@ -46,7 +46,7 @@ class X(Gate):
             array2 = np.array(l2, dtype="complex")
 
             result = np.outer(array2, array1)
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

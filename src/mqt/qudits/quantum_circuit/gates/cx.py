@@ -70,9 +70,9 @@ class CEx(Gate):
             else:
                 embedded_op = np.identity(dimension_target, dtype="complex")
             if self._target_qudits[0] < self._target_qudits[1]:
-                result = result + np.kron(mapmat, embedded_op)
+                result += np.kron(mapmat, embedded_op)
             else:
-                result = result + np.kron(embedded_op, mapmat)
+                result += np.kron(embedded_op, mapmat)
 
         return result
 

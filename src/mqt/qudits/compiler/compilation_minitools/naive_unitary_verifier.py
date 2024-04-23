@@ -40,7 +40,7 @@ class UnitaryVerifier:
             b[mapping[i]] = 1
             narr = np.array(a)
             marr = np.array(b)
-            perm = perm + np.outer(marr, narr)
+            perm += np.outer(marr, narr)
 
         return perm
 
@@ -53,6 +53,6 @@ class UnitaryVerifier:
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target
 
-        target = target / target[0][0]
+        target /= target[0][0]
 
         return (abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all()
