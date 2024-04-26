@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -39,7 +39,7 @@ class S(Gate):
 
         for lev in levels_list:
             omega = np.e ** (2 * np.pi * 1j / dimension)
-            omega = omega ** (np.mod(lev * (lev + 1) / 2, dimension))
+            omega **= np.mod(lev * (lev + 1) / 2, dimension)
 
             l1 = [0 for _ in range(dimension)]
             l2 = [0 for _ in range(dimension)]
@@ -51,7 +51,7 @@ class S(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

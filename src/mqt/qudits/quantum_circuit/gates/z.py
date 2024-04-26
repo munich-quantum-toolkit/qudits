@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -14,20 +14,20 @@ if TYPE_CHECKING:
 
 class Z(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         self.qasm_tag = "z"
 
@@ -40,7 +40,7 @@ class Z(Gate):
         for level in levels_list:
             omega = np.mod(2 * level / dimension, 2)
             omega = omega * np.pi * 1j
-            omega = np.e ** omega
+            omega = np.e**omega
 
             l1 = [0 for _ in range(dimension)]
             l2 = [0 for _ in range(dimension)]
@@ -52,7 +52,7 @@ class Z(Gate):
             proj = np.outer(array1, array2)
             result = omega * proj
 
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

@@ -6,8 +6,8 @@ import numpy as np
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -47,9 +47,9 @@ class LS(Gate):
         exp_matrix = np.zeros((dimension_0 * dimension_1, dimension_0 * dimension_1), dtype="complex")
         d_min = min(dimension_0, dimension_1)
         for i in range(d_min):
-            exp_matrix = exp_matrix + np.outer(
-                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
-                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
+            exp_matrix += np.outer(
+                np.array(from_dirac_to_basis([i, i], self._dimensions)),
+                np.array(from_dirac_to_basis([i, i], self._dimensions)),
             )
 
         return expm(-1j * self.theta * exp_matrix)

@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ...compiler.compilation_minitools.local_compilation_minitools import regulate_theta, theta_cost
-from .gellmann import GellMann
-
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
+from .gellmann import GellMann
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -62,9 +61,9 @@ class R(Gate):
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
-        ).to_matrix()
-                + np.cos(phi)
-                * GellMann(
+            ).to_matrix()
+            + np.cos(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
                 self._target_qudits,

@@ -13,8 +13,9 @@ if TYPE_CHECKING:
 
 
 class LevelGraph(nx.Graph):
-    def __init__(self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None, qudit_index=None,
-                 og_circuit=None) -> None:
+    def __init__(
+        self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None, qudit_index=None, og_circuit=None
+    ) -> None:
         super().__init__()
         self.og_circuit = og_circuit
         self.qudit_index = qudit_index
@@ -170,10 +171,13 @@ class LevelGraph(nx.Graph):
                     phy_n_i = self.nodes[node]["lpmap"]
 
                     # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
-                    phase_gate = VirtRz(self.og_circuit, "VirtRz_egraph",
-                                        self.qudit_index,
-                                        [phy_n_i, node_dict["phase_storage"]],
-                                        self.og_circuit.dimensions[self.qudit_index])
+                    phase_gate = VirtRz(
+                        self.og_circuit,
+                        "VirtRz_egraph",
+                        self.qudit_index,
+                        [phy_n_i, node_dict["phase_storage"]],
+                        self.og_circuit.dimensions[self.qudit_index],
+                    )
                     matrices.append(phase_gate)
 
         return matrices

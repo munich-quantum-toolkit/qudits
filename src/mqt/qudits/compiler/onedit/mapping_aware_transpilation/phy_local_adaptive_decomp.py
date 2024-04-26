@@ -7,7 +7,7 @@ import numpy as np
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
-
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import (
@@ -17,7 +17,6 @@ from ..local_operation_swap import (
     graph_rule_update,
 )
 from ..mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
-from ....quantum_circuit.components.extensions.gate_types import GateTypes
 
 np.seterr(all="ignore")
 

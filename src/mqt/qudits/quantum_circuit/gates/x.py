@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
+
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
-
-
 
 
 class X(Gate):
@@ -48,7 +48,7 @@ class X(Gate):
             array2 = np.array(l2, dtype="complex")
 
             result = np.outer(array1, array2)
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 

@@ -45,9 +45,7 @@ class TNSim(Backend):
         result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))))
 
         state_size = reduce(operator.mul, self.system_sizes, 1)
-        state = result.reshape(1, state_size)
-
-        return state
+        return result.reshape(1, state_size)
 
     def __init__(self, **fields) -> None:
         self.system_sizes = None

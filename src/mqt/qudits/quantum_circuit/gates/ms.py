@@ -5,11 +5,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.linalg import expm
 
-
-from .gellmann import GellMann
-
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
+from .gellmann import GellMann
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit

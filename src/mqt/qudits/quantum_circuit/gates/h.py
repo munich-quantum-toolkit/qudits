@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -53,7 +53,7 @@ class H(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix_array = matrix_array + result
+            matrix_array += result
             matrix = (1 / np.sqrt(self._dimensions)) * matrix_array
 
         return matrix

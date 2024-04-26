@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.core import LevelGraph, NAryTree, Node
@@ -6,15 +8,16 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 class TestNode(TestCase):
     def setUp(self) -> None:
-        test_sample_edges = [(0, 5, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (0, 2, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 5, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 2, {"delta_m": 1, "sensitivity": 3})
-                             ]
+        test_sample_edges = [
+            (0, 5, {"delta_m": 0, "sensitivity": 1}),
+            (0, 4, {"delta_m": 0, "sensitivity": 1}),
+            (0, 3, {"delta_m": 1, "sensitivity": 3}),
+            (0, 2, {"delta_m": 1, "sensitivity": 3}),
+            (1, 5, {"delta_m": 0, "sensitivity": 1}),
+            (1, 4, {"delta_m": 0, "sensitivity": 1}),
+            (1, 3, {"delta_m": 1, "sensitivity": 3}),
+            (1, 2, {"delta_m": 1, "sensitivity": 3}),
+        ]
         test_sample_nodes = [0, 1, 2, 3, 4, 5]
         test_sample_nodes_map = [0, 2, 5, 4, 1, 3]
 
@@ -27,9 +30,9 @@ class TestNode(TestCase):
 
     def test_add(self):
         self.root.add(1, None, self.U, self.graph_1, 0, 10e-4, 1, [])
-        self.assertEqual(self.root.size, 1)
-        self.assertEqual(self.root.children[0].key, 1)
-        self.assertEqual(self.root.children[0].current_cost, 0)
+        assert self.root.size == 1
+        assert self.root.children[0].key == 1
+        assert self.root.children[0].current_cost == 0
 
     def test_print(self):
         self.root.add(1, None, self.U, self.graph_1, 0, 10e-4, 1, [])
@@ -38,15 +41,16 @@ class TestNode(TestCase):
 
 class TestNAryTree(TestCase):
     def setUp(self) -> None:
-        test_sample_edges = [(0, 5, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (0, 2, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 5, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 2, {"delta_m": 1, "sensitivity": 3})
-                             ]
+        test_sample_edges = [
+            (0, 5, {"delta_m": 0, "sensitivity": 1}),
+            (0, 4, {"delta_m": 0, "sensitivity": 1}),
+            (0, 3, {"delta_m": 1, "sensitivity": 3}),
+            (0, 2, {"delta_m": 1, "sensitivity": 3}),
+            (1, 5, {"delta_m": 0, "sensitivity": 1}),
+            (1, 4, {"delta_m": 0, "sensitivity": 1}),
+            (1, 3, {"delta_m": 1, "sensitivity": 3}),
+            (1, 2, {"delta_m": 1, "sensitivity": 3}),
+        ]
         test_sample_nodes = [0, 1, 2, 3, 4, 5]
         test_sample_nodes_map = [0, 2, 5, 4, 1, 3]
 
@@ -63,15 +67,15 @@ class TestNAryTree(TestCase):
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
         self.T.add(3, None, None, None, 0, 0, 0, [], 0)
 
-        self.assertEqual(self.T.root.children[0].key, 2)
-        self.assertEqual(self.T.root.children[1].key, 3)
+        assert self.T.root.children[0].key == 2
+        assert self.T.root.children[1].key == 3
 
     def test_find_node(self):
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
 
         node = self.T.find_node(self.T.root, 2)
-        self.assertEqual(node.parent_key, 0)
-        self.assertEqual(node.key, 2)
+        assert node.parent_key == 0
+        assert node.key == 2
 
     def test_depth(self):
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
@@ -79,8 +83,8 @@ class TestNAryTree(TestCase):
 
         d0 = self.T.depth(0)
         d2 = self.T.depth(2)
-        self.assertEqual(d0, 2)
-        self.assertEqual(d2, 1)
+        assert d0 == 2
+        assert d2 == 1
 
     def test_max_depth(self):
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
@@ -90,12 +94,12 @@ class TestNAryTree(TestCase):
         node = self.T.find_node(self.T.root, 2)
 
         d2 = self.T.max_depth(node)
-        self.assertEqual(d2, 2)
+        assert d2 == 2
 
     def test_size_refresh(self):
         size = self.T.size_refresh(self.T.root)
 
-        self.assertEqual(size, 0)
+        assert size == 0
 
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
         self.T.add(3, None, None, None, 0, 0, 0, [], 2)
@@ -104,7 +108,7 @@ class TestNAryTree(TestCase):
 
         size = self.T.size_refresh(self.T.root)
 
-        self.assertEqual(size, 4)
+        assert size == 4
 
     def test_found_checker(self):
         self.T.add(2, None, None, None, 0.1, 0.1, 10, [], 0)
@@ -116,13 +120,13 @@ class TestNAryTree(TestCase):
         self.T.root.children[0].children[0].finished = False
         self.T.root.children[0].children[1].finished = True
 
-        self.assertTrue(self.T.found_checker(self.T.root))
+        assert self.T.found_checker(self.T.root)
         self.T.root.finished = False
         self.T.root.children[0].finished = False
         self.T.root.children[0].children[0].finished = False
         self.T.root.children[0].children[1].finished = False
 
-        self.assertFalse(self.T.found_checker(self.T.root))
+        assert not self.T.found_checker(self.T.root)
 
     def test_min_cost_decomp(self):
         self.T.add(2, None, None, None, 0.1, 0.1, 10, [], 0)
@@ -135,12 +139,12 @@ class TestNAryTree(TestCase):
         self.T.root.children[0].children[1].finished = True
 
         node_seq, best_cost, final_graph = self.T.min_cost_decomp(self.T.root)
-        self.assertEqual(best_cost[0], 0.01)
-        self.assertEqual(best_cost[1], 0.01)
-        self.assertEqual(final_graph, None)
-        self.assertEqual(node_seq[0].key, 0)
-        self.assertEqual(node_seq[1].key, 2)
-        self.assertEqual(node_seq[2].key, 4)
+        assert best_cost[0] == 0.01
+        assert best_cost[1] == 0.01
+        assert final_graph is None
+        assert node_seq[0].key == 0
+        assert node_seq[1].key == 2
+        assert node_seq[2].key == 4
 
     def test_retrieve_decomposition(self):
         self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
@@ -154,27 +158,27 @@ class TestNAryTree(TestCase):
 
         decomp_nodes, best_cost, graph = self.T.retrieve_decomposition(self.T.root)
 
-        self.assertEqual(best_cost[0], 0.01)
-        self.assertEqual(best_cost[1], 0.01)
-        self.assertEqual(graph, self.graph_1)
-        self.assertEqual(decomp_nodes[0].key, 0)
-        self.assertEqual(decomp_nodes[1].key, 2)
-        self.assertEqual(decomp_nodes[2].key, 4)
+        assert best_cost[0] == 0.01
+        assert best_cost[1] == 0.01
+        assert graph == self.graph_1
+        assert decomp_nodes[0].key == 0
+        assert decomp_nodes[1].key == 2
+        assert decomp_nodes[2].key == 4
 
     def test_is_empty(self):
         self.T = NAryTree()
-        self.assertTrue(self.T.is_empty())
+        assert self.T.is_empty()
 
         self.T.add(0, None, None, self.graph_1, 0.0, 0.0, 10, [])
-        self.assertFalse(self.T.is_empty())
+        assert not self.T.is_empty()
 
         self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
-        self.assertFalse(self.T.is_empty())
+        assert not self.T.is_empty()
 
     def test_total_size(self):
         size = self.T.total_size
 
-        self.assertEqual(size, 1)
+        assert size == 1
 
         self.T.add(2, None, None, None, 0, 0, 0, [], 0)
         self.T.add(3, None, None, None, 0, 0, 0, [], 2)
@@ -183,7 +187,7 @@ class TestNAryTree(TestCase):
 
         size = self.T.total_size
 
-        self.assertEqual(size, 5)
+        assert size == 5
 
     def test_print_tree(self):
         self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
@@ -192,4 +196,4 @@ class TestNAryTree(TestCase):
 
         tree_string = self.T.print_tree(self.T.root, "")
 
-        self.assertEqual(tree_string, "N0(\n\tN2(\n\tN3(),N4()))")
+        assert tree_string == "N0(\n\tN2(\n\tN3(),N4()))"

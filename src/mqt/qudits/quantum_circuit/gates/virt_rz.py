@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ...compiler.compilation_minitools.local_compilation_minitools import phi_cost, regulate_theta
-from ..gate import Gate
 from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
@@ -15,21 +15,21 @@ if TYPE_CHECKING:
 
 class VirtRz(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: list | None,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: list | None,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.phi = parameters

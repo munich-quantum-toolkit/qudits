@@ -1,9 +1,9 @@
-from typing import List
+from __future__ import annotations
 
 
 class QuantumRegister:
     @classmethod
-    def from_map(cls, sitemap: dict) -> List['QuantumRegister']:
+    def from_map(cls, sitemap: dict) -> list[QuantumRegister]:
         registers_map = {}
 
         for qreg_with_index, line_info in sitemap.items():

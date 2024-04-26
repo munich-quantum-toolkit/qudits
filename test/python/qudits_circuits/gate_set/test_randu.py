@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 import numpy as np
@@ -16,9 +18,9 @@ class TestRandU(TestCase):
         circuit = QuantumCircuit(2, [3, 7], 0)
         ru1 = circuit.randu([0, 1])
         ru2 = circuit.randu([0, 1])
-        self.assertTrue(self.is_unitary(ru1.to_matrix()))
-        self.assertTrue(self.is_unitary(ru2.to_matrix()))
-        self.assertFalse(np.allclose(ru1.to_matrix(), ru2.to_matrix()))
+        assert self.is_unitary(ru1.to_matrix())
+        assert self.is_unitary(ru2.to_matrix())
+        assert not np.allclose(ru1.to_matrix(), ru2.to_matrix())
 
     def test_validate_parameter(self):
         circuit = QuantumCircuit(1, [3], 0)

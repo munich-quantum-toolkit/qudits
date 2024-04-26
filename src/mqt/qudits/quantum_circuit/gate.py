@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import enum
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from .components.extensions.controls import ControlData
-from .components.extensions.gate_types import GateTypes
-from ..exceptions import CircuitError
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
 
+from ..exceptions import CircuitError
+from .components.extensions.controls import ControlData
+from .components.extensions.gate_types import GateTypes
+
 if TYPE_CHECKING:
+    import enum
+
     import numpy as np
+
     from .circuit import QuantumCircuit
 
 
@@ -24,17 +27,17 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            gate_type: enum,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            params: list | None = None,
-            control_set=None,
-            label: str | None = None,
-            duration=None,
-            unit="dt",
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        gate_type: enum,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        params: list | None = None,
+        control_set=None,
+        label: str | None = None,
+        duration=None,
+        unit="dt",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -93,7 +96,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-                idx >= self.parent_circuit.num_qudits for idx in indices
+            idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -178,8 +181,8 @@ class Gate(Instruction):
     @property
     def control_info(self):
         return {
-            "target":           self._target_qudits,
+            "target": self._target_qudits,
             "dimensions_slice": self._dimensions,
-            "params":           self._params,
-            "controls":         self._controls_data,
+            "params": self._params,
+            "controls": self._controls_data,
         }

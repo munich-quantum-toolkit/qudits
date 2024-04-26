@@ -34,21 +34,21 @@ class ZPropagationPass(CompilerPass):
                 # object is R
                 if back:
                     new_phi = pi_mod(
-                            line[gate_index].phi + Z_angles[line[gate_index].lev_a] - Z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi + Z_angles[line[gate_index].lev_a] - Z_angles[line[gate_index].lev_b]
                     )
                 else:
                     new_phi = pi_mod(
-                            line[gate_index].phi - Z_angles[line[gate_index].lev_a] + Z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi - Z_angles[line[gate_index].lev_a] + Z_angles[line[gate_index].lev_b]
                     )
 
                 list_of_XYrots.append(
-                        gates.R(
-                                circuit,
-                                "R",
-                                qudit_index,
-                                [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
-                                dimension,
-                        )
+                    gates.R(
+                        circuit,
+                        "R",
+                        qudit_index,
+                        [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
+                        dimension,
+                    )
                 )
                 # list_of_XYrots.append(R(line[gate_index].theta, new_phi,
                 # line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
@@ -100,11 +100,11 @@ class ZPropagationPass(CompilerPass):
 
         for interval in intervals:
             if len(interval) > 1:
-                sequence = circuit.instructions[interval[0]: interval[-1] + 1]
+                sequence = circuit.instructions[interval[0] : interval[-1] + 1]
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)
                 if back:
-                    new_instructions[interval[0]: interval[-1] + 1] = z_tail + fixed_seq
+                    new_instructions[interval[0] : interval[-1] + 1] = z_tail + fixed_seq
                 else:
-                    new_instructions[interval[0]: interval[-1] + 1] = fixed_seq + z_tail
+                    new_instructions[interval[0] : interval[-1] + 1] = fixed_seq + z_tail
 
         return circuit.set_instructions(new_instructions)
