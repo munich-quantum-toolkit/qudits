@@ -37,8 +37,6 @@ If you have any questions, feel free to create a [discussion](https://github.com
 The tool is presently in its Alpha release version. Within the repository and documentation, users can initiate their exploration of the library via a Jupyter notebook, showcasing its primary functionalities.
 [Jupyter Notebook](https://github.com/cda-tum/mqt-qudits/blob/main/MQT%20Tutorial/MQT%20Qudits%20Tutorial.ipynb)
 
-
-
 ## System Requirements
 
 The implementation is compatible with any C++17 compiler, a minimum CMake version of 3.19, and Python 3.8+.
@@ -64,7 +62,7 @@ MQT Qudits has been developed based on methods proposed in the following papers:
 
 ## Acknowledgements
 
-Funded by the European Union under Horizon Europe Programme - Grant Agreement 101080086--NeQST. 
+Funded by the European Union under Horizon Europe Programme - Grant Agreement 101080086--NeQST.
 Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or European Climate, Infrastructure and Environment Executive Agency (CINEA). Neither the European Union nor the granting authority can be held responsible for them.
 
 The Munich Quantum Toolkit has been supported by the European
