@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class GellMann(Gate):
@@ -37,7 +39,7 @@ class GellMann(Gate):
             self._params = parameters
         self.qasm_tag = "gell"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         d = self._dimensions
         matrix = np.zeros((d, d), dtype=complex)
 
@@ -68,7 +70,7 @@ class GellMann(Gate):
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], str)
         assert (
-            0 <= parameter[0] < parameter[1]
+                0 <= parameter[0] < parameter[1]
         ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
         assert isinstance(parameter[2], str), "type parameter should be a string"
 

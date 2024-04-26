@@ -5,11 +5,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ...compiler.compilation_minitools.local_compilation_minitools import regulate_theta, theta_cost
-from ..gate import ControlData, Gate, GateTypes
-from .gellman import GellMann
+from .gellmann import GellMann
+
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class R(Gate):
@@ -30,6 +33,8 @@ class R(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.original_lev_b = None
+        self.original_lev_a = None
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b, self.theta, self.phi = parameters
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
@@ -37,7 +42,7 @@ class R(Gate):
             self._params = parameters
         self.qasm_tag = "rxy"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension = self._dimensions
         theta = self.theta
         phi = self.phi
@@ -57,9 +62,9 @@ class R(Gate):
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
-            ).to_matrix()
-            + np.cos(phi)
-            * GellMann(
+        ).to_matrix()
+                + np.cos(phi)
+                * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
                 self._target_qudits,
@@ -80,9 +85,9 @@ class R(Gate):
         assert isinstance(parameter[2], float)
         assert isinstance(parameter[3], float)
         assert parameter[0] >= 0
-        assert parameter[0] <= self._dimensions
+        assert parameter[0] < self._dimensions
         assert parameter[1] >= 0
-        assert parameter[1] <= self._dimensions
+        assert parameter[1] < self._dimensions
         assert parameter[0] != parameter[1]
         # Useful to remember direction of the rotation
         self.original_lev_a = parameter[0]

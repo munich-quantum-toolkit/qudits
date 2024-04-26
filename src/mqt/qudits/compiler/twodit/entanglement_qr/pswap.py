@@ -5,7 +5,7 @@ from math import floor
 import numpy as np
 
 from ....quantum_circuit import gates
-from .crotgen import CEX_SEQUENCE
+from .crot import CEX_SEQUENCE
 
 
 class PSwapGen:
@@ -48,7 +48,7 @@ class PSwapGen:
         else:
             cex = CEX_SEQUENCE
 
-        ph1 = -1 * np.identity(d, dtype="complex")
+        ph1 = -1 * np.identity(self.circuit.dimensions[index_ctrl], dtype="complex")
         ph1[0][0] = 1
         ph1[1][1] = 1
         ph1 = gates.CustomOne(

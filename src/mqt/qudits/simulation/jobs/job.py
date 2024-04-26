@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import os
 import time
-from typing import Callable, NoReturn
+from typing import TYPE_CHECKING, Callable, NoReturn
 
 from ...exceptions import JobError, JobTimeoutError
 from .jobstatus import JobStatus
+
+if TYPE_CHECKING:
+    from ..backends.backendv2 import Backend
 
 
 class Job:

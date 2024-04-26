@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .gate import ControlData
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
 
 
 class QASM:
@@ -137,21 +139,22 @@ class QASM:
         """
         # define regular expressions for parsing
         rgxs = {
-            "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment": re.compile(r"^//"),
+            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment":       re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end": re.compile(r"\*/"),
-            "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "comment_end":   re.compile(r"\*/"),
+            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
-            # "gate_matrix":          re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
-            "gate_matrix": re.compile(
-                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                r"\s*;"
+            # "gate_matrix":
+            # re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
+            "gate_matrix":   re.compile(
+                    r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                    r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                    r"\s*;"
             ),
-            "error": re.compile(r"^(gate_matrix|if)"),
-            "ignore": re.compile(r"^(creg|measure|barrier)"),
+            "error":         re.compile(r"^(gate_matrix|if)"),
+            "ignore":        re.compile(r"^(creg|measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
@@ -188,9 +191,9 @@ class QASM:
             raise SyntaxError(msg)
         self._program = {
             "circuits_size": len(sitemap),
-            "sitemap": sitemap,
-            "instructions": gates,
-            "n_gates": len(gates),
+            "sitemap":       sitemap,
+            "instructions":  gates,
+            "n_gates":       len(gates),
         }
         return self._program
 

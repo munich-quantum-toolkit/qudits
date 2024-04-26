@@ -3,11 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-
-from ..gate import ControlData, Gate, GateTypes
-
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
+
+
 
 
 class X(Gate):
@@ -29,7 +31,7 @@ class X(Gate):
         )
         self.qasm_tag = "x"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         basis_states_list = list(range(self._dimensions))
 
         matrix = np.outer([0 for x in range(self._dimensions)], [0 for x in range(self._dimensions)])
@@ -45,8 +47,8 @@ class X(Gate):
             array1 = np.array(l1, dtype="complex")
             array2 = np.array(l2, dtype="complex")
 
-            result = np.outer(array2, array1)
-            matrix += result
+            result = np.outer(array1, array2)
+            matrix = matrix + result
 
         return matrix
 

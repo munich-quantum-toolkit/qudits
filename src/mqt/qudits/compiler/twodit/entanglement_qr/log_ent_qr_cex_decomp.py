@@ -4,10 +4,10 @@ import gc
 
 import numpy as np
 
-from ....quantum_circuit.gate import GateTypes
+from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from ...compilation_minitools import pi_mod
 from ...compiler_pass import CompilerPass
-from .crotgen import CRotGen
+from .crot import CRotGen
 from .pswap import PSwapGen
 
 

@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class H(Gate):
@@ -30,7 +32,7 @@ class H(Gate):
         )
         self.qasm_tag = "h"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         basis_states_projectors = [list(range(self._dimensions)), list(range(self._dimensions))]
 
         matrix_array = np.outer([0 for x in range(self._dimensions)], [0 for x in range(self._dimensions)])
@@ -51,7 +53,7 @@ class H(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix_array += result
+            matrix_array = matrix_array + result
             matrix = (1 / np.sqrt(self._dimensions)) * matrix_array
 
         return matrix

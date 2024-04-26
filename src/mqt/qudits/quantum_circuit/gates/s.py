@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class S(Gate):
@@ -29,16 +31,15 @@ class S(Gate):
         )
         self.qasm_tag = "s"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension = self._dimensions
         levels_list = list(range(dimension))
 
         matrix = np.outer([0 for x in range(dimension)], [0 for x in range(dimension)])
 
         for lev in levels_list:
-            omega = np.mod(2 / dimension * lev * (lev + 1) / 2, 2)
-            omega = omega * np.pi * 1j
-            omega = np.e**omega
+            omega = np.e ** (2 * np.pi * 1j / dimension)
+            omega = omega ** (np.mod(lev * (lev + 1) / 2, dimension))
 
             l1 = [0 for _ in range(dimension)]
             l2 = [0 for _ in range(dimension)]
@@ -50,11 +51,14 @@ class S(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix += result
+            matrix = matrix + result
 
         return matrix
 
     def validate_parameter(self, parameter=None) -> bool:
+        if np.mod(self._dimensions, 2) == 0 and self._dimensions > 2:
+            msg = "S can be applied to prime dimensional qudits"
+            raise Exception(msg)
         return True
 
     def __str__(self) -> str:

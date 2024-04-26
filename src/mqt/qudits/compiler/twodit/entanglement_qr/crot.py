@@ -31,12 +31,12 @@ class CRotGen:
 
         if CEX_SEQUENCE is None:
             cex = gates.CEx(
-                self.circuit,
-                "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                self.indices,
-                None,
-                [self.circuit.dimensions[i] for i in self.indices],
-                None,
+                    self.circuit,
+                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                    self.indices,
+                    None,
+                    [self.circuit.dimensions[i] for i in self.indices],
+                    None,
             )
             # Cex().cex_101(d, 0)
         else:

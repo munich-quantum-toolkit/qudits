@@ -45,7 +45,9 @@ class TNSim(Backend):
         result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))))
 
         state_size = reduce(operator.mul, self.system_sizes, 1)
-        return result.reshape(1, state_size)
+        state = result.reshape(1, state_size)
+
+        return state
 
     def __init__(self, **fields) -> None:
         self.system_sizes = None
@@ -75,7 +77,8 @@ class TNSim(Backend):
                 lines = op.reference_lines
 
                 if op.gate_type == GateTypes.SINGLE:
-                    op_matrix = op_matrix.reshape((system_sizes[lines[0]], system_sizes[lines[0]]))
+                    op_matrix = op_matrix.T  # np.conj(op_matrix.T)
+                    # op_matrix = op_matrix.reshape((system_sizes[lines[0]], system_sizes[lines[0]]))
 
                 elif op.gate_type == GateTypes.TWO and not op.is_long_range:
                     op_matrix = op_matrix.reshape((
@@ -84,6 +87,7 @@ class TNSim(Backend):
                         system_sizes[lines[0]],
                         system_sizes[lines[1]],
                     ))
+                    # op_matrix = np.transpose(op_matrix, [0, 2, 1, 3])
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
                     minimum_line, maximum_line = min(lines), max(lines)

@@ -5,11 +5,15 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.linalg import expm
 
-from ..gate import ControlData, Gate, GateTypes
-from .gellman import GellMann
+
+from .gellmann import GellMann
+
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class MS(Gate):
@@ -35,7 +39,7 @@ class MS(Gate):
             self._params = parameters
         self.qasm_tag = "ms"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         theta = self.theta
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]

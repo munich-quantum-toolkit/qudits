@@ -7,7 +7,6 @@ import numpy as np
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
-from ....quantum_circuit.gate import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import (
@@ -17,6 +16,7 @@ from ..local_operation_swap import (
     graph_rule_update,
 )
 from ..mapping_aware_transpilation import PhyQrDecomp
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 
 np.seterr(all="ignore")
 
@@ -39,7 +39,7 @@ class LogLocAdaPass(CompilerPass):
                 _decomp, algorithmic_cost, total_cost = QR.execute()
 
                 Adaptive = LogAdaptiveDecomposition(
-                    gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
+                        gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
                 )
 
                 (
@@ -52,7 +52,7 @@ class LogLocAdaPass(CompilerPass):
 
                 gc.collect()
             else:
-                new_instructions.append(gate)  # TODO REENCODING
+                new_instructions.append(gate)
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)
 
@@ -71,16 +71,16 @@ class LogAdaptiveDecomposition:
 
     def execute(self):
         self.TREE.add(
-            0,
-            gates.CustomOne(
-                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
-            ),
-            self.U,
-            self.graph,
-            0,
-            0,
-            self.cost_limit,
-            [],
+                0,
+                gates.CustomOne(
+                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+                ),
+                self.U,
+                self.graph,
+                0,
+                0,
+                self.cost_limit,
+                [],
         )
         try:
             self.DFS(self.TREE.root)
@@ -101,7 +101,7 @@ class LogAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def Z_extraction(self, decomposition, placement, phase_propagation):
+    def z_extraction(self, decomposition, placement, phase_propagation):
         matrices = []
 
         for d in decomposition[1:]:
@@ -140,7 +140,7 @@ class LogAdaptiveDecomposition:
                     n_i = placement.nodes[i]  # ["lpmap"]
 
                     phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [n_i, np.angle(diag_U[i])], self.dimension
+                            self.circuit, "VRz", self.qudit_index, [n_i, np.angle(diag_U[i])], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                     # dimension)
 
@@ -155,11 +155,11 @@ class LogAdaptiveDecomposition:
                     thetaZ = new_mod(placement.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                            self.circuit,
-                            "VRz",
-                            self.qudit_index,
-                            [placement.nodes[i], thetaZ],
-                            self.dimension,
+                                self.circuit,
+                                "VRz",
+                                self.qudit_index,
+                                [i, thetaZ],
+                                self.dimension,
                         )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'], # [placement.nodes[i]["lpmap"], thetaZ],
                         # dimension)
                         matrices.append(phase_gate)
@@ -208,7 +208,7 @@ class LogAdaptiveDecomposition:
                         phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
 
                         rotation_involved = gates.R(
-                            self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                                self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
                         U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -243,7 +243,8 @@ class LogAdaptiveDecomposition:
                                 [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
                                 self.dimension,
                             )
-                            # R(theta, phi, new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'], dimension)
+                            # R(theta, phi, new_placement.nodes[r]['lpmap'],
+                            # new_placement.nodes[r2]['lpmap'], dimension)
                             #
                             physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
                             physical_rotation = graph_rule_ongate(physical_rotation, new_placement)

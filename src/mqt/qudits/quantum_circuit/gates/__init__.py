@@ -7,7 +7,7 @@ from .custom_multi import CustomMulti
 from .custom_one import CustomOne
 from .custom_two import CustomTwo
 from .cx import CEx
-from .gellman import GellMann
+from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
@@ -20,6 +20,8 @@ from .s import S
 from .virt_rz import VirtRz
 from .x import X
 from .z import Z
+from ..components.extensions.controls import ControlData
+from ..components.extensions.gate_types import GateTypes
 
 __all__ = [
     "LS",
@@ -40,4 +42,8 @@ __all__ = [
     "VirtRz",
     "X",
     "Z",
+    "ControlData",
+    "GateTypes"
 ]
+
+

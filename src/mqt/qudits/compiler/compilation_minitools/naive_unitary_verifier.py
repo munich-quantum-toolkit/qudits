@@ -12,13 +12,14 @@ class UnitaryVerifier:
     sequence is a list of numpy arrays
     target is a numpy array
     dimensions is list of ints, equals to the dimensions of the qudits involved in the target operation
-    initial_map is a list representing the mapping of the logic states to the physical ones at the beginning of the computation
+    initial_map is a list representing the mapping of the logic states
+    to the physical ones at the beginning of the computation
     final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation
     """
 
     def __init__(self, sequence, target, dimensions, nodes=None, initial_map=None, final_map=None) -> None:
         self.decomposition = sequence
-        self.target = target.copy()
+        self.target = target.to_matrix().copy()
         self.dimension = reduce(operator.mul, dimensions)
 
         if nodes is not None and initial_map is not None and final_map is not None:
@@ -48,7 +49,7 @@ class UnitaryVerifier:
         target = self.target.copy()
 
         for rotation in self.decomposition:
-            target = rotation @ target
+            target = rotation.to_matrix(identities=0) @ target
 
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target

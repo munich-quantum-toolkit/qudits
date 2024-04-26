@@ -4,32 +4,34 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class Z(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.SINGLE,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.SINGLE,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         self.qasm_tag = "z"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension = self._dimensions
         levels_list = list(range(dimension))
 
@@ -38,7 +40,7 @@ class Z(Gate):
         for level in levels_list:
             omega = np.mod(2 * level / dimension, 2)
             omega = omega * np.pi * 1j
-            omega = np.e**omega
+            omega = np.e ** omega
 
             l1 = [0 for _ in range(dimension)]
             l2 = [0 for _ in range(dimension)]
@@ -50,7 +52,7 @@ class Z(Gate):
             proj = np.outer(array1, array2)
             result = omega * proj
 
-            matrix += result
+            matrix = matrix + result
 
         return matrix
 

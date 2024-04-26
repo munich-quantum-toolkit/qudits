@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class CustomTwo(Gate):
@@ -33,7 +35,7 @@ class CustomTwo(Gate):
 
         self.qasm_tag = "cutwo"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         return self.__array_storage
 
     def validate_parameter(self, parameter=None):

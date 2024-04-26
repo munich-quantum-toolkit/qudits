@@ -4,11 +4,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
-from ..matrix_factory import from_dirac_to_basis
+from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
+
+from ..gate import Gate
+from ..components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 from scipy.linalg import expm
@@ -37,16 +40,16 @@ class LS(Gate):
             self._params = parameters
         self.qasm_tag = "ls"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]
 
         exp_matrix = np.zeros((dimension_0 * dimension_1, dimension_0 * dimension_1), dtype="complex")
         d_min = min(dimension_0, dimension_1)
         for i in range(d_min):
-            exp_matrix += np.outer(
-                np.array(from_dirac_to_basis([i, i], self._dimensions)),
-                np.array(from_dirac_to_basis([i, i], self._dimensions)),
+            exp_matrix = exp_matrix + np.outer(
+                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
+                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
             )
 
         return expm(-1j * self.theta * exp_matrix)

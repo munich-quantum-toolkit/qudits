@@ -5,10 +5,10 @@ import gc
 import numpy as np
 
 from ....quantum_circuit import gates
-from ....quantum_circuit.gate import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import cost_calculator, gate_chain_condition
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 
 
 class PhyLocQRPass(CompilerPass):
