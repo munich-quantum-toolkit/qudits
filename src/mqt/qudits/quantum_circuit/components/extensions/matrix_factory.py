@@ -13,10 +13,10 @@ class MatrixFactory:
         self.ids = identities_flag
 
     def generate_matrix(self):
-        lines = self.gate.reference_lines
+        lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
-        dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
+        dimensions_slice = circuit.dimensions[min(lines): max(lines) + 1]
         matrix = self.gate.__array__()
         if self.gate.dagger:
             matrix = matrix.conj().T
@@ -29,11 +29,11 @@ class MatrixFactory:
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
             matrix = MatrixFactory.apply_identites_and_controls(
-                matrix, self.gate._target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
+                    matrix, self.gate._target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
         elif self.ids > 0:
             matrix = MatrixFactory.apply_identites_and_controls(
-                matrix, self.gate._target_qudits, dimensions_slice, ref_slice
+                    matrix, self.gate._target_qudits, dimensions_slice, ref_slice
             )
 
         if self.ids >= 2:
@@ -43,11 +43,12 @@ class MatrixFactory:
 
     @classmethod
     def apply_identites_and_controls(
-        cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
+            cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
     ):
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
         qudits_applied = [qudits_applied] if isinstance(qudits_applied, int) else qudits_applied
+        qudits_applied = qudits_applied.copy()
         qudits_applied.sort()
         dimensions = [dimensions] if isinstance(dimensions, int) else dimensions
         if len(dimensions) == 0:
@@ -94,10 +95,10 @@ class MatrixFactory:
                     if isinstance(extract_r, int):
                         extract_r = [extract_r]
                         extract_c = [extract_c]
-                    if extract_r == controls_levels and extract_r == extract_c:
+                    if list(extract_r) == controls_levels and extract_r == extract_c:
                         rest_of_indices = set(ref_lines) - set(qudits_applied) - set(controls)
                         if not rest_of_indices or operator.itemgetter(*rest_of_indices)(
-                            global_index_to_state[r]
+                                global_index_to_state[r]
                         ) == operator.itemgetter(*rest_of_indices)(global_index_to_state[c]):
                             og_row_key = operator.itemgetter(*qudits_applied)(global_index_to_state[r])
                             og_col_key = operator.itemgetter(*qudits_applied)(global_index_to_state[c])
@@ -113,7 +114,7 @@ class MatrixFactory:
                 else:
                     rest_of_indices = set(ref_lines) - set(qudits_applied)
                     if not rest_of_indices or operator.itemgetter(*rest_of_indices)(
-                        global_index_to_state[r]
+                            global_index_to_state[r]
                     ) == operator.itemgetter(*rest_of_indices)(global_index_to_state[c]):
                         og_row_key = operator.itemgetter(*qudits_applied)(global_index_to_state[r])
                         og_col_key = operator.itemgetter(*qudits_applied)(global_index_to_state[c])
@@ -130,8 +131,7 @@ class MatrixFactory:
 
     @classmethod
     def wrap_in_identities(cls, matrix, indices, sizes):
-        sizes = sizes.copy()
-        # sizes.reverse()
+        indices.sort()
         if any(index >= len(sizes) for index in indices):
             msg = "Index out of range"
             raise ValueError(msg)
@@ -140,9 +140,12 @@ class MatrixFactory:
         result = np.identity(sizes[i])
         while i < len(sizes):
             if i == indices[0]:
-                result = matrix if i == 0 else np.kron(matrix, result)
-            elif i > indices[-1]:
-                result = np.kron(np.identity(sizes[i]), result)
+                if i == 0:
+                    result = matrix
+                else:
+                    result = np.kron(result, matrix)
+            elif i < indices[0] and i != 0 or i > indices[-1]:
+                result = np.kron(result, np.identity(sizes[i]))
 
             i += 1
 

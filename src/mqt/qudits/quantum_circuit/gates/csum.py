@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
 class CSum(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -52,9 +52,9 @@ class CSum(Gate):
             Xmat_i = np.linalg.matrix_power(Xmat, i)
 
             if self._target_qudits[0] < self._target_qudits[1]:
-                matrix += np.kron(mapmat, Xmat_i)
+                matrix = matrix + np.kron(mapmat, Xmat_i)
             else:
-                matrix += np.kron(Xmat_i, mapmat)
+                matrix = matrix + np.kron(Xmat_i, mapmat)
 
         return matrix
 

@@ -38,7 +38,8 @@ class HistogramWithErrors:
 
 
 def state_labels(circuit):
-    dimensions = reversed(circuit.dimensions)
+    dimensions = circuit.dimensions  # reversed(circuit.dimensions)
+    # it was in the order of the DD simulation now it is in circuit order
     logic = []
     lut = []
     for d in dimensions:

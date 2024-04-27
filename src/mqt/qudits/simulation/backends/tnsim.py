@@ -42,7 +42,7 @@ class TNSim(Backend):
 
         result = self.__contract_circuit(self.system_sizes, self.circ_operations)
 
-        result = np.transpose(result.tensor, list(reversed(range(len(self.system_sizes)))))
+        result = np.transpose(result.tensor, list((range(len(self.system_sizes)))))
 
         state_size = reduce(operator.mul, self.system_sizes, 1)
         return result.reshape(1, state_size)
@@ -79,15 +79,16 @@ class TNSim(Backend):
                     # op_matrix = op_matrix.reshape((system_sizes[lines[0]], system_sizes[lines[0]]))
 
                 elif op.gate_type == GateTypes.TWO and not op.is_long_range:
+                    op_matrix = op_matrix.T
                     op_matrix = op_matrix.reshape((
                         system_sizes[lines[0]],
                         system_sizes[lines[1]],
                         system_sizes[lines[0]],
                         system_sizes[lines[1]],
                     ))
-                    # op_matrix = np.transpose(op_matrix, [0, 2, 1, 3])
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
+                    op_matrix = op_matrix.T
                     minimum_line, maximum_line = min(lines), max(lines)
                     interested_lines = list(range(minimum_line, maximum_line + 1))
                     inputs_outputs_legs = []

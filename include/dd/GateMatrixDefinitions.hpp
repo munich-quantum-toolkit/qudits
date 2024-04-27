@@ -127,11 +127,20 @@ inline GateMatrix H() {
 inline GateMatrix RXY(fp theta, fp phi) {
   GateMatrix rotation = {
       dd::ComplexValue{std::cos(theta / 2.), 0.},
-      dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
-                       -std::sin(theta / 2.) * std::cos(phi)},
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)},
+      dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
+                       -std::sin(theta / 2.) * std::cos(phi)},
       dd::ComplexValue{std::cos(theta / 2.), 0.}};
+  return rotation;
+}
+
+inline GateMatrix RH() {
+  GateMatrix rotation = {
+      COMPLEX_ISQRT2_2,
+      COMPLEX_ISQRT2_2,
+      COMPLEX_ISQRT2_2,
+      COMPLEX_MISQRT2_2};
   return rotation;
 }
 
@@ -151,8 +160,8 @@ inline GateMatrix VirtRZ(fp phi, size_t i) {
 inline GateMatrix embX2(fp phi) {
   GateMatrix identity = {COMPLEX_ONE, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(0) = COMPLEX_ZERO;
-  identity.at(2) = dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
-  identity.at(1) = dd::ComplexValue{std::sin(phi), -std::cos(phi)};
+  identity.at(1) = dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(2) = dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(3) = COMPLEX_ZERO;
   return identity;
 }
@@ -234,15 +243,30 @@ inline TritMatrix RXY3(fp theta, fp phi, size_t leva, size_t levb) {
                          COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO,
                          COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(3 * leva + leva) = dd::ComplexValue{std::cos(theta / 2.), 0.};
-  identity.at(3 * levb + leva) =
+  identity.at(3 * leva + levb) =
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
-  identity.at(3 * leva + levb) =
+  identity.at(3 * levb + leva) =
       dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
   identity.at(3 * levb + levb) = dd::ComplexValue{std::cos(theta / 2.), 0.};
   return identity;
 }
+
+inline TritMatrix RH3(size_t leva, size_t levb) {
+  if (leva > levb or leva > 2 or levb > 2) {
+    throw std::invalid_argument("LEV A cannot be higher than  LEV B");
+  }
+  TritMatrix identity = {COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
+                         COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO,
+                         COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
+  identity.at(3 * leva + leva) = COMPLEX_ISQRT2_2;
+  identity.at(3 * leva + levb) = COMPLEX_ISQRT2_2;
+  identity.at(3 * levb + leva) = COMPLEX_ISQRT2_2;
+  identity.at(3 * levb + levb) = COMPLEX_MISQRT2_2;
+  return identity;
+}
+
 inline TritMatrix RZ3(fp phi, size_t leva, size_t levb) {
   if (leva > levb or leva > 2 or levb > 2) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
@@ -297,9 +321,9 @@ inline TritMatrix embX3(fp phi, size_t leva, size_t levb) {
                          COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(3 * leva + leva) = COMPLEX_ZERO;
   identity.at(3 * leva + levb) =
-      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
-  identity.at(3 * levb + leva) =
       dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(3 * levb + leva) =
+      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(3 * levb + levb) = COMPLEX_ZERO;
   return identity;
 }
@@ -366,13 +390,32 @@ inline QuartMatrix RXY4(fp theta, fp phi, size_t leva, size_t levb) {
 
       COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(4 * leva + leva) = dd::ComplexValue{std::cos(theta / 2.), 0.};
-  identity.at(4 * levb + leva) =
+  identity.at(4 * leva + levb) =
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
-  identity.at(4 * leva + levb) =
+  identity.at(4 * levb + leva) =
       dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
   identity.at(4 * levb + levb) = dd::ComplexValue{std::cos(theta / 2.), 0.};
+  return identity;
+}
+
+inline QuartMatrix RH4(size_t leva, size_t levb) {
+  if (leva > levb or leva > 3 or levb > 3) {
+    throw std::invalid_argument("LEV A cannot be higher than  LEV B");
+  }
+  QuartMatrix identity = {
+      COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
+  identity.at(4 * leva + leva) = COMPLEX_ISQRT2_2;
+  identity.at(4 * leva + levb) = COMPLEX_ISQRT2_2;
+  identity.at(4 * levb + leva) = COMPLEX_ISQRT2_2;
+  identity.at(4 * levb + levb) = COMPLEX_MISQRT2_2;
   return identity;
 }
 constexpr QuartMatrix X4dag{
@@ -454,9 +497,9 @@ inline QuartMatrix embX4(fp phi, size_t leva, size_t levb) {
       COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(4 * leva + leva) = COMPLEX_ZERO;
   identity.at(4 * leva + levb) =
-      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
-  identity.at(4 * levb + leva) =
       dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(4 * levb + leva) =
+      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(4 * levb + levb) = COMPLEX_ZERO;
   return identity;
 }
@@ -545,13 +588,34 @@ inline QuintMatrix RXY5(fp theta, fp phi, size_t leva, size_t levb) {
 
       COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(5 * leva + leva) = dd::ComplexValue{std::cos(theta / 2.), 0.};
-  identity.at(5 * levb + leva) =
+  identity.at(5 * leva + levb) =
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
-  identity.at(5 * leva + levb) =
+  identity.at(5 * levb + leva) =
       dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
   identity.at(5 * levb + levb) = dd::ComplexValue{std::cos(theta / 2.), 0.};
+  return identity;
+}
+
+inline QuintMatrix RH5(size_t leva, size_t levb) {
+  if (leva > levb or leva > 4 or levb > 4) {
+    throw std::invalid_argument("LEV A cannot be higher than  LEV B");
+  }
+  QuintMatrix identity = {
+      COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO,
+
+      COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
+  identity.at(5 * leva + leva) = COMPLEX_ISQRT2_2;
+  identity.at(5 * leva + levb) = COMPLEX_ISQRT2_2;
+  identity.at(5 * levb + leva) = COMPLEX_ISQRT2_2;
+  identity.at(5 * levb + levb) = COMPLEX_MISQRT2_2;
   return identity;
 }
 
@@ -643,9 +707,9 @@ inline QuintMatrix embX5(fp phi, size_t leva, size_t levb) {
       COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE};
   identity.at(5 * leva + leva) = COMPLEX_ZERO;
   identity.at(5 * leva + levb) =
-      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
-  identity.at(5 * levb + leva) =
       dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(5 * levb + leva) =
+      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(5 * levb + levb) = COMPLEX_ZERO;
   return identity;
 }
@@ -751,13 +815,25 @@ inline SextMatrix RXY6(fp theta, fp phi, size_t leva, size_t levb) {
   }
   SextMatrix identity = I6;
   identity.at(6 * leva + leva) = dd::ComplexValue{std::cos(theta / 2.), 0.};
-  identity.at(6 * levb + leva) =
+  identity.at(6 * leva + levb) =
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
-  identity.at(6 * leva + levb) =
+  identity.at(6 * levb + leva) =
       dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
   identity.at(6 * levb + levb) = dd::ComplexValue{std::cos(theta / 2.), 0.};
+  return identity;
+}
+
+inline SextMatrix RH6(size_t leva, size_t levb) {
+  if (leva > levb or leva > 5 or levb > 5) {
+    throw std::invalid_argument("LEV A cannot be higher than  LEV B");
+  }
+  SextMatrix identity = I6;
+  identity.at(6 * leva + leva) = COMPLEX_ISQRT2_2;
+  identity.at(6 * leva + levb) = COMPLEX_ISQRT2_2;
+  identity.at(6 * levb + leva) = COMPLEX_ISQRT2_2;
+  identity.at(6 * levb + levb) = COMPLEX_MISQRT2_2;
   return identity;
 }
 
@@ -833,9 +909,9 @@ inline SextMatrix embX6(fp phi, size_t leva, size_t levb) {
   SextMatrix identity = I6;
   identity.at(6 * leva + leva) = COMPLEX_ZERO;
   identity.at(6 * leva + levb) =
-      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
-  identity.at(6 * levb + leva) =
       dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(6 * levb + leva) =
+      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(6 * levb + levb) = COMPLEX_ZERO;
   return identity;
 }
@@ -968,13 +1044,25 @@ inline SeptMatrix RXY7(fp theta, fp phi, size_t leva, size_t levb) {
   }
   SeptMatrix identity = I7;
   identity.at(7 * leva + leva) = dd::ComplexValue{std::cos(theta / 2.), 0.};
-  identity.at(7 * levb + leva) =
+  identity.at(7 * leva + levb) =
       dd::ComplexValue{-std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
-  identity.at(7 * leva + levb) =
+  identity.at(7 * levb + leva) =
       dd::ComplexValue{std::sin(theta / 2.) * std::sin(phi),
                        -std::sin(theta / 2.) * std::cos(phi)};
   identity.at(7 * levb + levb) = dd::ComplexValue{std::cos(theta / 2.), 0.};
+  return identity;
+}
+
+inline SeptMatrix RH7(size_t leva, size_t levb) {
+  if (leva > levb or leva > 6 or levb > 6) {
+    throw std::invalid_argument("LEV A cannot be higher than  LEV B");
+  }
+  SeptMatrix identity = I7;
+  identity.at(7 * leva + leva) = COMPLEX_ISQRT2_2;
+  identity.at(7 * leva + levb) = COMPLEX_ISQRT2_2;
+  identity.at(7 * levb + leva) = COMPLEX_ISQRT2_2;
+  identity.at(7 * levb + levb) = COMPLEX_MISQRT2_2;
   return identity;
 }
 
@@ -1056,9 +1144,9 @@ inline SeptMatrix embX7(fp phi, size_t leva, size_t levb) {
   SeptMatrix identity = I7;
   identity.at(7 * leva + leva) = COMPLEX_ZERO;
   identity.at(7 * leva + levb) =
-      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
-  identity.at(7 * levb + leva) =
       dd::ComplexValue{-std::sin(phi), -std::cos(phi)};
+  identity.at(7 * levb + leva) =
+      dd::ComplexValue{std::sin(phi), -std::cos(phi)};
   identity.at(7 * levb + levb) = COMPLEX_ZERO;
   return identity;
 }

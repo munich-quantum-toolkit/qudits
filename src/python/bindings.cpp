@@ -558,8 +558,38 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       dd::SeptMatrix matrix = dd::RZ7(phi, leva, levb);
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
+    }
+    else if (tag == "rh") {
 
-  } else if (tag == "virtrz") {
+    auto pl = params.cast<py::list>();
+    auto leva = pl[0].cast<size_t>();
+    auto levb = pl[1].cast<size_t>();
+
+    if (checkDim(dims, 2)) {
+      dd::GateMatrix matrix = dd::RH();
+      gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
+
+    } else if (checkDim(dims, 3)) {
+      dd::TritMatrix matrix = dd::RH3(leva, levb);
+      gate = dd->makeGateDD<dd::TritMatrix>(matrix, numberRegs, controlSet, tq);
+
+    } else if (checkDim(dims, 4)) {
+      dd::QuartMatrix matrix = dd::RH4( leva, levb);
+      gate = dd->makeGateDD<dd::QuartMatrix>(matrix, numberRegs, controlSet, tq);
+
+    } else if (checkDim(dims, 5)) {
+      dd::QuintMatrix matrix = dd::RH5( leva, levb);
+      gate =
+          dd->makeGateDD<dd::QuintMatrix>(matrix, numberRegs, controlSet, tq);
+    } else if (checkDim(dims, 6)) {
+      dd::SextMatrix matrix = dd::RH6(leva, levb);
+      gate = dd->makeGateDD<dd::SextMatrix>(matrix, numberRegs, controlSet, tq);
+    } else if (checkDim(dims, 7)) {
+      dd::SeptMatrix matrix = dd::RH7(leva, levb);
+      gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
+    }
+    }
+  else if (tag == "virtrz") {
     auto pl = params.cast<py::list>();
 
     auto leva = pl[0].cast<size_t>();

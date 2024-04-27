@@ -164,15 +164,15 @@ class QuantumCircuit:
     @add_gate_decorator
     def cx(self, qudits: list[int], parameters: list | None = None):
         return CEx(
-            self,
-            "CEx" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "CEx" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
-    @add_gate_decorator
+    # @add_gate_decorator # decide to make it usable for computations but only for constructions
     def gellmann(self, qudit: int, parameters: list | None = None, controls: ControlData | None = None):
         # warnings.warn("Using this matrix in a circuit will not allow simulation.", UserWarning)
         return GellMann(self, "Gell" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
@@ -188,12 +188,12 @@ class QuantumCircuit:
     @add_gate_decorator
     def ls(self, qudits: list[int], parameters: list | None = None):
         return LS(
-            self,
-            "LS" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "LS" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
     @add_gate_decorator
@@ -210,12 +210,12 @@ class QuantumCircuit:
     @add_gate_decorator
     def pm(self, qudits: list[int], parameters: list):
         return Perm(
-            self,
-            "Pm" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "Pm" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
     @add_gate_decorator
@@ -225,7 +225,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def randu(self, qudits: list[int]):
         return RandU(
-            self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
+                self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
         )
 
     @add_gate_decorator
@@ -361,4 +361,4 @@ class QuantumCircuit:
     @property
     def gate_set(self) -> None:
         for _item in self.qasm_to_gate_set_dict.values():
-            pass
+            print(_item)
