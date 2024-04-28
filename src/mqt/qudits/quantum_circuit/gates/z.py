@@ -32,27 +32,15 @@ class Z(Gate):
         self.qasm_tag = "z"
 
     def __array__(self) -> np.ndarray:
-        dimension = self._dimensions
-        levels_list = list(range(dimension))
-
-        matrix = np.outer([0 for x in range(dimension)], [0 for x in range(dimension)])
-
-        for level in levels_list:
-            omega = np.mod(2 * level / dimension, 2)
+        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
+        for i in range(self._dimensions):
+            omega = np.mod(2 * i / self._dimensions, 2)
             omega = omega * np.pi * 1j
             omega = np.e**omega
-
-            l1 = [0 for _ in range(dimension)]
-            l2 = [0 for _ in range(dimension)]
-            l1[level] = 1
-            l2[level] = 1
-
-            array1 = np.array(l1, dtype="complex")
-            array2 = np.array(l2, dtype="complex")
-            proj = np.outer(array1, array2)
-            result = omega * proj
-
-            matrix = matrix + result
+            array = np.zeros(self._dimensions, dtype="complex")
+            array[i] = 1
+            result = omega * np.outer(array, array)
+            matrix += result
 
         return matrix
 

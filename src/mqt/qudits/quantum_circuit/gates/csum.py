@@ -38,24 +38,17 @@ class CSum(Gate):
         ctrl_size = self.parent_circuit.dimensions[self._target_qudits[0]]
         target_size = self.parent_circuit.dimensions[self._target_qudits[1]]
 
-        matrix = np.zeros(ctrl_size * target_size, dtype="complex")
-
-        x_gate = X(self.parent_circuit, None, self._target_qudits[1], target_size, None)
-
+        x_gate = X(self.parent_circuit, "x", self._target_qudits[1], target_size, None)
+        x_mat = x_gate.to_matrix(identities=0)
+        matrix = np.zeros((ctrl_size * target_size, ctrl_size * target_size), dtype="complex")
         for i in range(ctrl_size):
-            temp = np.zeros(ctrl_size, dtype="complex")
-            mapmat = temp + np.outer(
-                np.array(from_dirac_to_basis([i], ctrl_size)), np.array(from_dirac_to_basis([i], ctrl_size))
-            )
-
-            Xmat = x_gate.to_matrix(identities=0)
-            Xmat_i = np.linalg.matrix_power(Xmat, i)
-
+            basis = np.array(from_dirac_to_basis([i], ctrl_size), dtype="complex")
+            mapmat = np.outer(basis, basis)
+            x_mat_i = np.linalg.matrix_power(x_mat, i)
             if self._target_qudits[0] < self._target_qudits[1]:
-                matrix = matrix + np.kron(mapmat, Xmat_i)
+                matrix += np.kron(mapmat, x_mat_i)
             else:
-                matrix = matrix + np.kron(Xmat_i, mapmat)
-
+                matrix += np.kron(x_mat_i, mapmat)
         return matrix
 
     def validate_parameter(self, parameter=None) -> bool:

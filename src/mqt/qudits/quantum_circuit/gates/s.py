@@ -32,28 +32,16 @@ class S(Gate):
         self.qasm_tag = "s"
 
     def __array__(self) -> np.ndarray:
-        dimension = self._dimensions
-        levels_list = list(range(dimension))
-        if dimension == 2:
+        if self._dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
-        matrix = np.outer([0 for x in range(dimension)], [0 for x in range(dimension)])
-
-        for lev in levels_list:
-            omega = np.e ** (2 * np.pi * 1j / dimension)
-            omega **= np.mod(lev * (lev + 1) / 2, dimension)
-
-            l1 = [0 for _ in range(dimension)]
-            l2 = [0 for _ in range(dimension)]
-            l1[lev] = 1
-            l2[lev] = 1
-
-            array1 = np.array(l1, dtype="complex")
-            array2 = np.array(l2, dtype="complex")
-
-            result = omega * np.outer(array1, array2)
-
-            matrix = matrix + result
-
+        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
+        for i in range(self._dimensions):
+            omega = np.e ** (2 * np.pi * 1j / self._dimensions)
+            omega **= np.mod(i * (i + 1) / 2, self._dimensions)
+            array = np.zeros(self._dimensions, dtype="complex")
+            array[i] = 1
+            result = omega * np.outer(array, array)
+            matrix += result
         return matrix
 
     def validate_parameter(self, parameter=None) -> bool:
