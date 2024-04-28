@@ -38,7 +38,7 @@ If you have any questions, feel free to create a [discussion](https://github.com
 > [!NOTE]
 > **The tool is in an experimental stage, which is subject to frequent changes, and has limited documentation.**
 > We are working on improving that.
-> In the meantime, users can explore how to use the framework via a [Jupyter Notebook](https://github.com/cda-tum/mqt-qudits/blob/main/MQT%20Tutorial/MQT%20Qudits%20Tutorial.ipynb), showcasing its main functionality.
+> In the meantime, users can explore how to use the framework via a [Tutorial](https://mqt.readthedocs.io/projects/qudits/tutorial), showcasing its main functionality.
 >
 > Furthermore, [this video](https://www.youtube.com/watch?v=due_CX7H85A) briefly illustrates some of the functionalities of MQT Qudits.
 
