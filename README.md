@@ -35,7 +35,8 @@ If you have any questions, feel free to create a [discussion](https://github.com
 (.venv) $ pip install mqt.qudits
 ```
 
-> [!NOTE] > **The tool is in an experimental stage, which is subject to frequent changes, and has limited documentation.**
+> [!NOTE] <!-- prettier-ignore -->
+> **The tool is in an experimental stage, which is subject to frequent changes, and has limited documentation.**
 > We are working on improving that.
 > In the meantime, users can explore how to use the framework via a [Tutorial](https://mqt.readthedocs.io/projects/qudits/tutorial), showcasing its main functionality.
 >
