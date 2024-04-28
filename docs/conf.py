@@ -58,8 +58,8 @@ extensions = [
     "sphinx_inline_tabs",
     "sphinxext.opengraph",
     "sphinx.ext.viewcode",
-    "sphinx.ext.imgconverter",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.inkscapeconverter",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -176,8 +176,10 @@ latex_documents = [
     (
         master_doc,
         "mqt_qudits.tex",
-        r"MQT Qudits\\{\Large A quantum computing software framework tailored for working with mixed-dimensional quantum circuits}",
-        r"Chair for Design Automation\\Technical University of Munich",
+        r"MQT Qudits\\{\Large A Framework For Mixed-Dimensional Qudit Quantum Computing}",
+        r"""\IEEEauthorblockN{Chair for Design Automation}\\
+        \IEEEauthorblockA{Technical University of Munich, Germany}\\
+        \IEEEauthorblockA{\href{mailto:quantum.cda@xcit.tum.de}{quantum.cda@xcit.tum.de}}\\""",
         "howto",
         False,
     ),
