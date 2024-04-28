@@ -46,27 +46,27 @@ class TestNoisyCircuitFactory(TestCase):
         circ = QuantumCircuit(qreg_example)
         choice = rand_0_5()
         x = circ.x(choice)
-        x = x.control([int(np.mod(choice + 1, 5))], [2])
-        rz = circ.rz(rand_0_5(), [0, 2, np.pi / 13])
-        cx = circ.cx([3, 4], [0, 3, 0, np.pi / 12])
-        x = circ.x(rand_0_5()).dag()
-        s = circ.s(rand_0_5())
-        z = circ.z(rand_0_5())
-        csum = circ.csum([5, 1])
-        vrz = circ.virtrz(rand_0_5(), [0, np.pi / 13]).dag()
-        vrz = circ.virtrz(rand_0_5(), [1, -np.pi / 8])
-        csum = circ.csum([2, 5]).dag()
-        x = circ.x(rand_0_5()).dag()
-        z = circ.z(rand_0_5()).dag()
-        h = circ.h(rand_0_5())
-        rz = circ.rz(rand_0_5(), [3, 4, np.pi / 13]).dag()
-        h = circ.h(rand_0_5()).dag()
-        r = circ.r(rand_0_5(), [0, 1, np.pi / 5 + np.pi, np.pi / 7])
-        rh = circ.rh(rand_0_5(), [1, 3])
-        r = circ.r(rand_0_5(), [0, 4, np.pi, np.pi / 2]).dag()
-        r2 = circ.r(rand_0_5(), [0, 3, np.pi / 5, np.pi / 7])
-        cx = circ.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
-        csum = circ.csum([0, 1])
+        x.control([int(np.mod(choice + 1, 5))], [2])
+        circ.rz(rand_0_5(), [0, 2, np.pi / 13])
+        circ.cx([3, 4], [0, 3, 0, np.pi / 12])
+        circ.x(rand_0_5()).dag()
+        circ.s(rand_0_5())
+        circ.z(rand_0_5())
+        circ.csum([5, 1])
+        circ.virtrz(rand_0_5(), [0, np.pi / 13]).dag()
+        circ.virtrz(rand_0_5(), [1, -np.pi / 8])
+        circ.csum([2, 5]).dag()
+        circ.x(rand_0_5()).dag()
+        circ.z(rand_0_5()).dag()
+        circ.h(rand_0_5())
+        circ.rz(rand_0_5(), [3, 4, np.pi / 13]).dag()
+        circ.h(rand_0_5()).dag()
+        circ.r(rand_0_5(), [0, 1, np.pi / 5 + np.pi, np.pi / 7])
+        circ.rh(rand_0_5(), [1, 3])
+        circ.r(rand_0_5(), [0, 4, np.pi, np.pi / 2]).dag()
+        circ.r(rand_0_5(), [0, 3, np.pi / 5, np.pi / 7])
+        circ.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
+        circ.csum([0, 1])
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
@@ -85,21 +85,20 @@ class TestNoisyCircuitFactory(TestCase):
             insts_new += 1
             tag_counts_list2[gate.qasm_tag] += 1
 
-        keys_to_check = ['x', 'z', 'rxy', 'rz']
+        keys_to_check = ["x", "z", "rxy", "rz"]
         valid_stochasticity = True
         # Iterate over all keys
         for key in tag_counts_list1.keys() | tag_counts_list2.keys():
             if key in keys_to_check:
                 if tag_counts_list1.get(key, 0) > tag_counts_list2.get(key, 0):
                     valid_stochasticity = False
-            else:
-                if tag_counts_list1.get(key, 0) != tag_counts_list2.get(key, 0):
-                    valid_stochasticity = False
+            elif tag_counts_list1.get(key, 0) != tag_counts_list2.get(key, 0):
+                valid_stochasticity = False
 
-        self.assertTrue(valid_stochasticity)
-        self.assertTrue(insts == circ.number_gates)
-        self.assertTrue(insts_new == new_circ.number_gates)
-        self.assertTrue(len(instructions_new) > len(instructions_og))
+        assert valid_stochasticity
+        assert insts == circ.number_gates
+        assert insts_new == new_circ.number_gates
+        assert len(instructions_new) > len(instructions_og)
 
     def test_generate_circuit_isolated(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
@@ -110,9 +109,8 @@ class TestNoisyCircuitFactory(TestCase):
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
         new_circ = factory.generate_circuit()
-        instructions_new = new_circ.instructions
 
-        self.assertTrue(1 == circ.number_gates)
-        self.assertTrue(5 == new_circ.number_gates)
-        self.assertTrue(["x"] == [i.qasm_tag for i in instructions_og])
-        self.assertTrue(["x", "x", "x", "z", "z"])
+        assert circ.number_gates == 1
+        assert new_circ.number_gates == 5
+        assert [i.qasm_tag for i in instructions_og] == ["x"]
+        assert ["x", "x", "x", "z", "z"]

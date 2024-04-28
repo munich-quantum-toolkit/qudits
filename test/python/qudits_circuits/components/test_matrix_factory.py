@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -9,7 +11,7 @@ class TestMatrixFactory(TestCase):
         # no control
         qreg_example = QuantumRegister("reg", 1, [3])
         circuit = QuantumCircuit(qreg_example)
-        h = circuit.h(qreg_example[0])
+        circuit.h(qreg_example[0])
 
         """# with 1 control, 2 3
         qreg_example = QuantumRegister("reg", 2, [2, 3])

@@ -12,9 +12,7 @@ from python._qudits.test_pymisim import is_quantum_state
 
 
 class TestMISim(TestCase):
-
     def test_execute(self):
-
         provider = MQTQuditProvider()
         backend = provider.get_backend("misim")
 
@@ -32,10 +30,7 @@ class TestMISim(TestCase):
             result = job.result()
             state_vector = result.get_state_vector()
 
-            assert np.allclose(
-                    state_vector,
-                    test_state
-            )
+            assert np.allclose(state_vector, test_state)
 
         # X gate
         for d in range(2, 8):
@@ -51,10 +46,7 @@ class TestMISim(TestCase):
             result = job.result()
             state_vector = result.get_state_vector()
 
-            assert np.allclose(
-                    state_vector,
-                    test_state
-            )
+            assert np.allclose(state_vector, test_state)
 
         # Z gate
         for d in range(2, 8):
@@ -62,7 +54,6 @@ class TestMISim(TestCase):
             circuit = QuantumCircuit(qreg_example)
             h = circuit.h(0)
             gate = circuit.z(0)
-            matrix_gate = gate.to_matrix()
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
@@ -121,7 +112,6 @@ class TestMISim(TestCase):
                     angle = np.random.uniform(0, 2 * np.pi)
                     phase = np.random.uniform(0, 2 * np.pi)
                     gate = circuit.r(0, [level_a, level_b, angle, phase])
-                    gmat = gate.to_matrix()
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
@@ -210,7 +200,7 @@ class TestMISim(TestCase):
         # CEX
         for d1 in range(2, 8):
             for d2 in range(2, 8):
-                for clev in range(0, d1):
+                for clev in range(d1):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
                             angle = np.random.uniform(0, 2 * np.pi)
@@ -219,7 +209,6 @@ class TestMISim(TestCase):
                             circuit = QuantumCircuit(qreg_example)
                             h = circuit.h(0)
                             cx = circuit.cx([0, 1], [level_a, level_b, clev, angle])
-                            matrix_gate = cx.to_matrix()
 
                             zero_state = np.zeros(d1 * d2)
                             zero_state[0] = 1
@@ -232,7 +221,7 @@ class TestMISim(TestCase):
                             assert np.allclose(state_vector, test_state)
 
                 # Inverted basic Case
-                for clev in range(0, d2):
+                for clev in range(d2):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
                             angle = np.random.uniform(0, 2 * np.pi)
@@ -299,7 +288,7 @@ class TestMISim(TestCase):
         # CEX
         for d1 in range(2, 8):
             for d2 in range(2, 8):
-                for clev in range(0, d1):
+                for clev in range(d1):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
                             print("Test long range CEX")
@@ -321,7 +310,7 @@ class TestMISim(TestCase):
                             assert np.allclose(state_vector, test_state)
 
                 # Inverted basic Case
-                for clev in range(0, d2):
+                for clev in range(d2):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
                             angle = np.random.uniform(0, 2 * np.pi)
@@ -347,22 +336,9 @@ class TestMISim(TestCase):
 
         qreg_example = QuantumRegister("reg", 3, [2, 2, 3])
         circuit = QuantumCircuit(qreg_example)
-        h = circuit.h(1)
-        x = circuit.x(0).control([1, 2], [1, 0])
-        test_state = np.array([
-            (0.7071067 + 0j),
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            (0.7071067 + 0j),
-            0j,
-            0j
-        ])
+        circuit.h(1)
+        circuit.x(0).control([1, 2], [1, 0])
+        test_state = np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
 
         job = backend.run(circuit)
         result = job.result()
@@ -372,22 +348,9 @@ class TestMISim(TestCase):
 
         qreg_example = QuantumRegister("reg", 3, [2, 2, 3])
         circuit = QuantumCircuit(qreg_example)
-        h = circuit.h(0)
-        x = circuit.x(1).control([0, 2], [1, 0])
-        test_state = np.array([
-            (0.7071067 + 0j),
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            0j,
-            (0.7071067 + 0j),
-            0j,
-            0j
-        ])
+        circuit.h(0)
+        circuit.x(1).control([0, 2], [1, 0])
+        test_state = np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
 
         job = backend.run(circuit)
         result = job.result()
@@ -401,16 +364,16 @@ class TestMISim(TestCase):
 
         qreg_example = QuantumRegister("reg", 3, 3 * [5])
         circuit = QuantumCircuit(qreg_example)
-        rz = circuit.rz(0, [0, 2, np.pi / 13])
-        x = circuit.x(1).dag()
-        s = circuit.s(2)
-        csum = circuit.csum([2, 1]).dag()
-        h = circuit.h(2)
-        r = circuit.r(2, [0, 1, np.pi / 5 + np.pi, np.pi / 7])
-        rh = circuit.rh(1, [1, 3])
-        x = circuit.x(1).control([0], [2])
-        cx = circuit.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
-        csum = circuit.csum([0, 1])
+        circuit.rz(0, [0, 2, np.pi / 13])
+        circuit.x(1).dag()
+        circuit.s(2)
+        circuit.csum([2, 1]).dag()
+        circuit.h(2)
+        circuit.r(2, [0, 1, np.pi / 5 + np.pi, np.pi / 7])
+        circuit.rh(1, [1, 3])
+        circuit.x(1).control([0], [2])
+        circuit.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
+        circuit.csum([0, 1])
 
         # Depolarizing quantum errors
         local_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
@@ -441,6 +404,6 @@ class TestMISim(TestCase):
         result = job.result()
         state_vector = result.get_state_vector()
         counts = result.get_counts()
-        self.assertTrue(len(counts) == 2000)
-        self.assertTrue(len(state_vector.squeeze()) == 5 ** 3)
-        self.assertTrue(is_quantum_state(state_vector))
+        assert len(counts) == 2000
+        assert len(state_vector.squeeze()) == 5**3
+        assert is_quantum_state(state_vector)

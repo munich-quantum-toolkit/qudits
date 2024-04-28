@@ -147,9 +147,9 @@ class QASM:
             # "gate_matrix":
             # re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
             "gate_matrix": re.compile(
-                    r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                    r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                    r"\s*;"
+                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                r"\s*;"
             ),
             "error": re.compile(r"^(gate_matrix|if)"),
             "ignore": re.compile(r"^(creg|measure|barrier)"),

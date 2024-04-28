@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -25,5 +27,3 @@ class TestQASM(TestCase):
 
     circuit = QuantumCircuit()
     circuit.from_qasm(qasm)
-
-

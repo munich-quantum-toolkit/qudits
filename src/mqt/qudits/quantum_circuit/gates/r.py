@@ -53,17 +53,17 @@ class R(Gate):
         cosine_matrix = matrix
 
         return cosine_matrix - 1j * np.sin(theta / 2) * (
-                np.sin(phi)
-                * GellMann(
+            np.sin(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_a",
                 self._target_qudits,
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
-        ).to_matrix()
-                + np.cos(phi)
-                * GellMann(
+            ).to_matrix()
+            + np.cos(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
                 self._target_qudits,
