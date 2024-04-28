@@ -19,7 +19,7 @@ class TestS(TestCase):
     def test___array__(self):
         s_0 = self.circuit_23.s(0)
         matrix_0 = s_0.to_matrix(identities=0)
-        assert np.allclose(np.array([[1, 0], [0, omega_s_d(2)]]), matrix_0)
+        assert np.allclose(np.array([[1, 0], [0, 1j]]), matrix_0)
 
         s_1 = self.circuit_23.s(1)
         matrix_1 = s_1.to_matrix(identities=0)

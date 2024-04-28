@@ -27,17 +27,17 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        gate_type: enum,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        params: list | None = None,
-        control_set=None,
-        label: str | None = None,
-        duration=None,
-        unit="dt",
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: enum,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            params: list | None = None,
+            control_set=None,
+            label: str | None = None,
+            duration=None,
+            unit="dt",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -57,11 +57,13 @@ class Gate(Instruction):
 
     @property
     def reference_lines(self):
+        lines = []
+        f = type(self._target_qudits)
         if isinstance(self._target_qudits, int):
             lines = self.get_control_lines.copy()
             lines.append(self._target_qudits)
         elif isinstance(self._target_qudits, list):
-            lines = self._target_qudits.copy() + self.get_control_lines.copy()
+            lines = self.get_control_lines.copy() + self._target_qudits.copy()
         if len(lines) == 0:
             msg = "Gate has no target or control lines"
             raise CircuitError(msg)
@@ -96,7 +98,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)

@@ -325,7 +325,6 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
 
         if (x_choice == 1 || z_choice == 1) {
           std::vector<int> qudits;
-
           if (std::holds_alternative<std::vector<int>>(mode)) {
             qudits = std::get<std::vector<int>>(mode);
 
@@ -348,24 +347,33 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
               qudits.push_back(target_qudits.at(1));
             }
           }
-
           if (x_choice == 1) {
             for (auto dit : qudits) {
-              if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
+              if (tag == "rxy" || tag == "rz" || tag == "virtrz" ) {
                 std::vector<int> dims;
                 dims.push_back(static_cast<int>(
                     dimensions[static_cast<unsigned long>(dit)]));
-
                 py::list params_new;
 
+                size_t value_0, value_1;
                 // Retrieve field 0 and 1 from params
-                py::object field_0 = params.attr("__getitem__")(0);
-                py::object field_1 = params.attr("__getitem__")(1);
-
-                // Convert field_0 and field_1 to integers (assuming they are
-                // integers)
-                int value_0 = py::cast<int>(field_0);
-                int value_1 = py::cast<int>(field_1);
+                auto pl = params.cast<py::list>();
+                value_0 = pl[0].cast<size_t>();
+                if(tag=="virtrz"){
+                    if (dims.size() != 1) {
+                         throw std::runtime_error("Dimension should be just an int"); // Different sizes, not exactly equal
+                    }
+                    if( value_0 != dims[0]-1){
+                    value_1 = value_0 + 1;
+                    }
+                    else{
+                    value_0 = dims[0]-2;
+                    value_1 = dims[0]-1;
+                    }
+                }
+                else{
+                value_1 = pl[1].cast<size_t>();
+                }
 
                 // Create a new list and append value_0 and value_1
                 params_new.append(value_0);
@@ -407,14 +415,25 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 dims.push_back(static_cast<int>(
                     dimensions[static_cast<unsigned long>(dit)]));
 
+                size_t value_0, value_1;
                 // Retrieve field 0 and 1 from params
-                py::object field_0 = params.attr("__getitem__")(0);
-                py::object field_1 = params.attr("__getitem__")(1);
-
-                // Convert field_0 and field_1 to integers (assuming they are
-                // integers)
-                int value_0 = py::cast<int>(field_0);
-                int value_1 = py::cast<int>(field_1);
+                auto pl = params.cast<py::list>();
+                value_0 = pl[0].cast<size_t>();
+                if(tag=="virtrz"){
+                    if (dims.size() != 1) {
+                         throw std::runtime_error("Dimension should be just an int"); // Different sizes, not exactly equal
+                    }
+                    if( value_0 != dims[0]-1){
+                    value_1 = value_0 + 1;
+                    }
+                    else{
+                    value_0 = dims[0]-2;
+                    value_1 = dims[0]-1;
+                    }
+                }
+                else{
+                value_1 = pl[1].cast<size_t>();
+                }
 
                 // Create a new list and append value_0 and value_1
                 params_new.append(value_0);
@@ -468,6 +487,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
 "h": "h",
 "rxy": "r",
 "rz": "rz",
+"rh": "rh",
 "virtrz": "virtrz",
 "s": "s",
 "x": "x",
@@ -560,7 +580,6 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
     }
     }
     else if (tag == "rh") {
-
     auto pl = params.cast<py::list>();
     auto leva = pl[0].cast<size_t>();
     auto levb = pl[1].cast<size_t>();
@@ -591,7 +610,6 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
     }
   else if (tag == "virtrz") {
     auto pl = params.cast<py::list>();
-
     auto leva = pl[0].cast<size_t>();
     auto phi = pl[1].cast<double>();
 
@@ -768,7 +786,6 @@ CVec ddsimulator(dd::QuantumRegisterCount numLines,
       throw; // Re-throw the exception to propagate it further
     }
   }
-
   return dd->getVector(psi);
 }
 
@@ -777,10 +794,8 @@ py::list stateVectorSimulation(py::object& circ, py::object& noiseModel) {
   auto [numQudits, dims, original_circuit] = parsedCircuitInfo;
 
   Circuit noisyCircuit = original_circuit;
-
   py::dict noiseModelDict = noiseModel.attr("quantum_errors").cast<py::dict>();
   NoiseModel newNoiseModel = parse_noise_model(noiseModelDict);
-
   noisyCircuit = generateCircuit(parsedCircuitInfo, newNoiseModel);
 
   CVec myList =

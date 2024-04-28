@@ -54,7 +54,7 @@ class MatrixFactory:
         if len(dimensions) == 0:
             msg = "Dimensions cannot be an empty list"
             raise ValueError(msg)
-        if len(dimensions) == 1:
+        if len(qudits_applied) == len(ref_lines) and controls == None:
             return matrix
 
         single_site_logics = []

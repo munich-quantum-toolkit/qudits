@@ -7,6 +7,8 @@ import numpy as np
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
+from python._qudits.test_pymisim import is_quantum_state
 
 
 class TestMISim(TestCase):
@@ -392,3 +394,53 @@ class TestMISim(TestCase):
         state_vector = result.get_state_vector()
 
         assert np.allclose(state_vector, test_state)
+
+    def test_stochastic_simulation(self):
+        provider = MQTQuditProvider()
+        backend = provider.get_backend("misim")
+
+        qreg_example = QuantumRegister("reg", 3, 3 * [5])
+        circuit = QuantumCircuit(qreg_example)
+        rz = circuit.rz(0, [0, 2, np.pi / 13])
+        x = circuit.x(1).dag()
+        s = circuit.s(2)
+        csum = circuit.csum([2, 1]).dag()
+        h = circuit.h(2)
+        r = circuit.r(2, [0, 1, np.pi / 5 + np.pi, np.pi / 7])
+        rh = circuit.rh(1, [1, 3])
+        x = circuit.x(1).control([0], [2])
+        cx = circuit.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
+        csum = circuit.csum([0, 1])
+
+        # Depolarizing quantum errors
+        local_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        local_error_rz = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_extra = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_on_target = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_on_control = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+
+        # Add errors to noise_tools model
+
+        noise_model = NoiseModel()  # We know that the architecture is only two qudits
+        # Very noisy gate
+        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
+        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
+        # Entangling gates
+        noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
+        noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
+        noise_model.add_nonlocal_quantum_error_on_control(entangling_error_on_control, ["csum", "cx", "ls", "ms"])
+        # Super noisy Entangling gates
+        noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
+        # Local Gates
+        noise_model.add_quantum_error_locally(local_error, ["rh", "h", "rxy", "s", "x", "z"])
+        noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+
+        print("Start execution")
+        job = backend.run(circuit, noise_model=noise_model, shots=2000)
+        result = job.result()
+        state_vector = result.get_state_vector()
+        counts = result.get_counts()
+        self.assertTrue(len(counts) == 2000)
+        self.assertTrue(len(state_vector.squeeze()) == 5 ** 3)
+        self.assertTrue(is_quantum_state(state_vector))

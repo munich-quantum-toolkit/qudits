@@ -71,15 +71,22 @@ class TNSim(Backend):
             qudits_legs = [node[0] for node in state_nodes]
 
             for op in operations:
-                op_matrix = op.to_matrix(identities=1)
+                try:
+                    op_matrix = op.to_matrix(identities=1)
+                except Exception as e:
+                    print(e)
+                    op_matrix = op.to_matrix(identities=1)
                 lines = op.reference_lines
 
                 if op.gate_type == GateTypes.SINGLE:
-                    op_matrix = op_matrix.T  # np.conj(op_matrix.T)
+                    op_matrix = op_matrix.T
                     # op_matrix = op_matrix.reshape((system_sizes[lines[0]], system_sizes[lines[0]]))
 
                 elif op.gate_type == GateTypes.TWO and not op.is_long_range:
                     op_matrix = op_matrix.T
+                    lines = lines.copy()
+                    lines.sort()
+
                     op_matrix = op_matrix.reshape((
                         system_sizes[lines[0]],
                         system_sizes[lines[1]],
@@ -89,6 +96,7 @@ class TNSim(Backend):
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
                     op_matrix = op_matrix.T
+
                     minimum_line, maximum_line = min(lines), max(lines)
                     interested_lines = list(range(minimum_line, maximum_line + 1))
                     inputs_outputs_legs = []
