@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "mqt.qudits"
-description = "A framework for mixed-dimensional qudit quantum computing"
+description = "A Framework For Mixed-Dimensional Qudit Quantum Computing"
 readme = "README.md"
 authors = [
     { name = "Kevin Mato", email = "kevin.mato@tum.de" },

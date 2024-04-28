@@ -6,7 +6,7 @@ project(
   mqt-qudits
   LANGUAGES CXX
   VERSION 0.1.0
-  DESCRIPTION "MQT Qudits - A framework for mixed-dimensional qudit quantum computing")
+  DESCRIPTION "MQT Qudits - A Framework For Mixed-Dimensional Qudit Quantum Computing")
 
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)

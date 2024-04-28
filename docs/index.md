@@ -1,4 +1,4 @@
-# MQT Qudits - A framework for mixed-dimensional qudit quantum computing
+# MQT Qudits - A Framework For Mixed-Dimensional Qudit Quantum Computing
 
 MQT Qudits is an open-source C++17 and Python framework for mixed-dimensional qudit quantum computing developed as part of the {doc}`Munich Quantum Toolkit (MQT) <mqt:index>` by the [Chair for Design Automation](https://www.cda.cit.tum.de/) at the [Technical University of Munich](https://www.tum.de/).
 
