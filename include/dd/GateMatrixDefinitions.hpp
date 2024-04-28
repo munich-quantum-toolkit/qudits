@@ -136,11 +136,8 @@ inline GateMatrix RXY(fp theta, fp phi) {
 }
 
 inline GateMatrix RH() {
-  GateMatrix rotation = {
-      COMPLEX_ISQRT2_2,
-      COMPLEX_ISQRT2_2,
-      COMPLEX_ISQRT2_2,
-      COMPLEX_MISQRT2_2};
+  GateMatrix rotation = {COMPLEX_ISQRT2_2, COMPLEX_ISQRT2_2, COMPLEX_ISQRT2_2,
+                         COMPLEX_MISQRT2_2};
   return rotation;
 }
 

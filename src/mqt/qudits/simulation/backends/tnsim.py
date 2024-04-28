@@ -42,7 +42,7 @@ class TNSim(Backend):
 
         result = self.__contract_circuit(self.system_sizes, self.circ_operations)
 
-        result = np.transpose(result.tensor, list((range(len(self.system_sizes)))))
+        result = np.transpose(result.tensor, list(range(len(self.system_sizes))))
 
         state_size = reduce(operator.mul, self.system_sizes, 1)
         return result.reshape(1, state_size)

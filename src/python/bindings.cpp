@@ -349,7 +349,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
           }
           if (x_choice == 1) {
             for (auto dit : qudits) {
-              if (tag == "rxy" || tag == "rz" || tag == "virtrz" ) {
+              if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 std::vector<int> dims;
                 dims.push_back(static_cast<int>(
                     dimensions[static_cast<unsigned long>(dit)]));
@@ -359,20 +359,20 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 // Retrieve field 0 and 1 from params
                 auto pl = params.cast<py::list>();
                 value_0 = pl[0].cast<size_t>();
-                if(tag=="virtrz"){
-                    if (dims.size() != 1) {
-                         throw std::runtime_error("Dimension should be just an int"); // Different sizes, not exactly equal
-                    }
-                    if( value_0 != dims[0]-1){
+                if (tag == "virtrz") {
+                  if (dims.size() != 1) {
+                    throw std::runtime_error(
+                        "Dimension should be just an int"); // Different sizes,
+                                                            // not exactly equal
+                  }
+                  if (value_0 != dims[0] - 1) {
                     value_1 = value_0 + 1;
-                    }
-                    else{
-                    value_0 = dims[0]-2;
-                    value_1 = dims[0]-1;
-                    }
-                }
-                else{
-                value_1 = pl[1].cast<size_t>();
+                  } else {
+                    value_0 = dims[0] - 2;
+                    value_1 = dims[0] - 1;
+                  }
+                } else {
+                  value_1 = pl[1].cast<size_t>();
                 }
 
                 // Create a new list and append value_0 and value_1
@@ -419,20 +419,20 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 // Retrieve field 0 and 1 from params
                 auto pl = params.cast<py::list>();
                 value_0 = pl[0].cast<size_t>();
-                if(tag=="virtrz"){
-                    if (dims.size() != 1) {
-                         throw std::runtime_error("Dimension should be just an int"); // Different sizes, not exactly equal
-                    }
-                    if( value_0 != dims[0]-1){
+                if (tag == "virtrz") {
+                  if (dims.size() != 1) {
+                    throw std::runtime_error(
+                        "Dimension should be just an int"); // Different sizes,
+                                                            // not exactly equal
+                  }
+                  if (value_0 != dims[0] - 1) {
                     value_1 = value_0 + 1;
-                    }
-                    else{
-                    value_0 = dims[0]-2;
-                    value_1 = dims[0]-1;
-                    }
-                }
-                else{
-                value_1 = pl[1].cast<size_t>();
+                  } else {
+                    value_0 = dims[0] - 2;
+                    value_1 = dims[0] - 1;
+                  }
+                } else {
+                  value_1 = pl[1].cast<size_t>();
                 }
 
                 // Create a new list and append value_0 and value_1
@@ -578,8 +578,7 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       dd::SeptMatrix matrix = dd::RZ7(phi, leva, levb);
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
-    }
-    else if (tag == "rh") {
+  } else if (tag == "rh") {
     auto pl = params.cast<py::list>();
     auto leva = pl[0].cast<size_t>();
     auto levb = pl[1].cast<size_t>();
@@ -593,11 +592,12 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::TritMatrix>(matrix, numberRegs, controlSet, tq);
 
     } else if (checkDim(dims, 4)) {
-      dd::QuartMatrix matrix = dd::RH4( leva, levb);
-      gate = dd->makeGateDD<dd::QuartMatrix>(matrix, numberRegs, controlSet, tq);
+      dd::QuartMatrix matrix = dd::RH4(leva, levb);
+      gate =
+          dd->makeGateDD<dd::QuartMatrix>(matrix, numberRegs, controlSet, tq);
 
     } else if (checkDim(dims, 5)) {
-      dd::QuintMatrix matrix = dd::RH5( leva, levb);
+      dd::QuintMatrix matrix = dd::RH5(leva, levb);
       gate =
           dd->makeGateDD<dd::QuintMatrix>(matrix, numberRegs, controlSet, tq);
     } else if (checkDim(dims, 6)) {
@@ -607,8 +607,7 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       dd::SeptMatrix matrix = dd::RH7(leva, levb);
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
-    }
-  else if (tag == "virtrz") {
+  } else if (tag == "virtrz") {
     auto pl = params.cast<py::list>();
     auto leva = pl[0].cast<size_t>();
     auto phi = pl[1].cast<double>();

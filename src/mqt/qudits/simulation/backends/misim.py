@@ -55,9 +55,7 @@ class MISim(Backend):
 
         # Transpose the state array
         state = np.transpose(state, axes_order)
-        state = state.reshape((1, state_size))
-
-        return state
+        return state.reshape((1, state_size))
 
     def __init__(self, **fields) -> None:
         self.system_sizes = None
