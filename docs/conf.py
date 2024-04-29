@@ -58,8 +58,8 @@ extensions = [
     "sphinx_inline_tabs",
     "sphinxext.opengraph",
     "sphinx.ext.viewcode",
-    "sphinx.ext.imgconverter",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.inkscapeconverter",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -80,6 +80,7 @@ pygments_style = "colorful"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
     "mqt": ("https://mqt.readthedocs.io/en/latest/", None),
     "ddsim": ("https://mqt.readthedocs.io/projects/ddsim/en/latest/", None),
     "qmap": ("https://mqt.readthedocs.io/projects/qmap/en/latest/", None),
@@ -175,8 +176,10 @@ latex_documents = [
     (
         master_doc,
         "mqt_qudits.tex",
-        r"MQT Qudits\\{\Large A quantum computing software framework tailored for working with mixed-dimensional quantum circuits}",
-        r"Chair for Design Automation\\Technical University of Munich",
+        r"MQT Qudits\\{\Large A Framework For Mixed-Dimensional Qudit Quantum Computing}",
+        r"""\IEEEauthorblockN{Chair for Design Automation}\\
+        \IEEEauthorblockA{Technical University of Munich, Germany}\\
+        \IEEEauthorblockA{\href{mailto:quantum.cda@xcit.tum.de}{quantum.cda@xcit.tum.de}}\\""",
         "howto",
         False,
     ),

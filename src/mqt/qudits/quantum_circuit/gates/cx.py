@@ -6,11 +6,13 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
-from ..matrix_factory import from_dirac_to_basis
+from ..components.extensions.gate_types import GateTypes
+from ..components.extensions.matrix_factory import from_dirac_to_basis
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class CEx(Gate):
@@ -40,7 +42,7 @@ class CEx(Gate):
             self._params = [0, 1, 1, 0.0]
         self.qasm_tag = "cx"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         if self._params is None:
             ang = 0
             ctrl_level = 1

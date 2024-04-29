@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from scipy.linalg import expm
 
-from .....quantum_circuit.matrix_factory import from_dirac_to_basis
+from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
 CUSTOM_PRIMITIVE = None  # numpy array
 

@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class S(Gate):
@@ -29,32 +31,23 @@ class S(Gate):
         )
         self.qasm_tag = "s"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
-        dimension = self._dimensions
-        levels_list = list(range(dimension))
-
-        matrix = np.outer([0 for x in range(dimension)], [0 for x in range(dimension)])
-
-        for lev in levels_list:
-            omega = np.mod(2 / dimension * lev * (lev + 1) / 2, 2)
-            omega = omega * np.pi * 1j
-            omega = np.e**omega
-
-            l1 = [0 for _ in range(dimension)]
-            l2 = [0 for _ in range(dimension)]
-            l1[lev] = 1
-            l2[lev] = 1
-
-            array1 = np.array(l1, dtype="complex")
-            array2 = np.array(l2, dtype="complex")
-
-            result = omega * np.outer(array1, array2)
-
+    def __array__(self) -> np.ndarray:
+        if self._dimensions == 2:
+            return np.array([[1, 0], [0, 1j]])
+        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
+        for i in range(self._dimensions):
+            omega = np.e ** (2 * np.pi * 1j / self._dimensions)
+            omega **= np.mod(i * (i + 1) / 2, self._dimensions)
+            array = np.zeros(self._dimensions, dtype="complex")
+            array[i] = 1
+            result = omega * np.outer(array, array)
             matrix += result
-
         return matrix
 
     def validate_parameter(self, parameter=None) -> bool:
+        if np.mod(self._dimensions, 2) == 0 and self._dimensions > 2:
+            msg = "S can be applied to prime dimensional qudits"
+            raise Exception(msg)
         return True
 
     def __str__(self) -> str:

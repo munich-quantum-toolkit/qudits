@@ -6,10 +6,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class Perm(Gate):
@@ -35,13 +37,14 @@ class Perm(Gate):
             self._params = parameters
         self.qasm_tag = "pm"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
         assert isinstance(parameter, list), "Input is not a list"
+        num_nums = reduce(operator.mul, self._dimensions)
         assert all(
-            0 <= num < len(parameter) for num in parameter
+            (0 <= num < len(parameter) and num < num_nums) for num in parameter
         ), "Numbers are not within the range of the list length"
         return True
 

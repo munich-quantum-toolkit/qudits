@@ -5,7 +5,7 @@ import gc
 import numpy as np
 
 from ....quantum_circuit import gates
-from ....quantum_circuit.gate import GateTypes
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import (
@@ -137,13 +137,13 @@ class QrDecomp:
 
         for i in range(dimension):
             if abs(np.angle(diag_U[i])) > 1.0e-4:
-                n_i = self.graph.nodes[i]  # self.graph.nodes[i]["lpmap"]
+                self.graph.nodes[i]  # self.graph.nodes[i]["lpmap"]
 
                 phase_gate = gates.VirtRz(
                     self.gate.parent_circuit,
                     "VRz",
                     self.gate._target_qudits,
-                    [n_i, np.angle(diag_U[i])],
+                    [i, np.angle(diag_U[i])],
                     self.gate._dimensions,
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 

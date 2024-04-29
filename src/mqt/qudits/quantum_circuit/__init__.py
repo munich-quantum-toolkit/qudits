@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from .circuit import QuantumCircuit, QuantumRegister
+from .circuit import QuantumCircuit
+from .qasm import QASM
 
-__all__ = [
-    "QuantumCircuit",
-    "QuantumRegister",
-]
+__all__ = ["QASM", "QuantumCircuit"]

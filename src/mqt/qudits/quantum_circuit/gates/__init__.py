@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from ..components.extensions.controls import ControlData
+from ..components.extensions.gate_types import GateTypes
 from .csum import CSum
 from .custom_multi import CustomMulti
 from .custom_one import CustomOne
 from .custom_two import CustomTwo
 from .cx import CEx
-from .gellman import GellMann
+from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
@@ -26,9 +28,11 @@ __all__ = [
     "MS",
     "CEx",
     "CSum",
+    "ControlData",
     "CustomMulti",
     "CustomOne",
     "CustomTwo",
+    "GateTypes",
     "GellMann",
     "H",
     "Perm",

@@ -13,7 +13,7 @@ class ZPropagationPass(CompilerPass):
         self.back = back
 
     def transpile(self, circuit):
-        return self.remove_Z(circuit, self.back)
+        return self.remove_z(circuit, self.back)
 
     def propagate_z(self, circuit, line, back):
         Z_angles = {}
@@ -50,7 +50,8 @@ class ZPropagationPass(CompilerPass):
                         dimension,
                     )
                 )
-                # list_of_XYrots.append(R(line[gate_index].theta, new_phi, line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
+                # list_of_XYrots.append(R(line[gate_index].theta, new_phi,
+                # line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
             except AttributeError:
                 try:
                     line[gate_index].lev_a
@@ -92,7 +93,7 @@ class ZPropagationPass(CompilerPass):
 
         return intervals
 
-    def remove_Z(self, original_circuit, back=True):
+    def remove_z(self, original_circuit, back=True):
         circuit = original_circuit.copy()
         new_instructions = copy.deepcopy(circuit.instructions)
         intervals = self.find_intervals_with_same_target_qudits(circuit.instructions)

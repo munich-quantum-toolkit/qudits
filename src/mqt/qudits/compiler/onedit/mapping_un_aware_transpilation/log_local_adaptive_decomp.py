@@ -7,7 +7,7 @@ import numpy as np
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
-from ....quantum_circuit.gate import GateTypes
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import (
@@ -52,7 +52,7 @@ class LogLocAdaPass(CompilerPass):
 
                 gc.collect()
             else:
-                new_instructions.append(gate)  # TODO REENCODING
+                new_instructions.append(gate)
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)
 
@@ -101,7 +101,7 @@ class LogAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def Z_extraction(self, decomposition, placement, phase_propagation):
+    def z_extraction(self, decomposition, placement, phase_propagation):
         matrices = []
 
         for d in decomposition[1:]:
@@ -158,7 +158,7 @@ class LogAdaptiveDecomposition:
                             self.circuit,
                             "VRz",
                             self.qudit_index,
-                            [placement.nodes[i], thetaZ],
+                            [i, thetaZ],
                             self.dimension,
                         )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'], # [placement.nodes[i]["lpmap"], thetaZ],
                         # dimension)
@@ -243,7 +243,8 @@ class LogAdaptiveDecomposition:
                                 [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
                                 self.dimension,
                             )
-                            # R(theta, phi, new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'], dimension)
+                            # R(theta, phi, new_placement.nodes[r]['lpmap'],
+                            # new_placement.nodes[r2]['lpmap'], dimension)
                             #
                             physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
                             physical_rotation = graph_rule_ongate(physical_rotation, new_placement)

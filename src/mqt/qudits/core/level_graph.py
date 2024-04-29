@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 import copy
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
+if TYPE_CHECKING:
+    from ..circuit import QuantumCircuit
+
 
 class LevelGraph(nx.Graph):
-    def __init__(self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None) -> None:
+    def __init__(
+        self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None, qudit_index=None, og_circuit=None
+    ) -> None:
         super().__init__()
+        self.og_circuit = og_circuit
+        self.qudit_index = qudit_index
         self.logic_nodes = nodes
         self.add_nodes_from(self.logic_nodes)
 
@@ -162,7 +170,14 @@ class LevelGraph(nx.Graph):
                 if node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3:
                     phy_n_i = self.nodes[node]["lpmap"]
 
-                    phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
+                    # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
+                    phase_gate = VirtRz(
+                        self.og_circuit,
+                        "VirtRz_egraph",
+                        self.qudit_index,
+                        [phy_n_i, node_dict["phase_storage"]],
+                        self.og_circuit.dimensions[self.qudit_index],
+                    )
                     matrices.append(phase_gate)
 
         return matrices
@@ -210,3 +225,9 @@ class LevelGraph(nx.Graph):
 
     def __str__(self) -> str:
         return str(self.nodes(data=True)) + "\n" + str(self.edges(data=True))
+
+    def set_circuit(self, circuit: QuantumCircuit) -> None:
+        self.og_circuit = circuit
+
+    def set_qudits_index(self, index: int) -> None:
+        self.qudit_index = index

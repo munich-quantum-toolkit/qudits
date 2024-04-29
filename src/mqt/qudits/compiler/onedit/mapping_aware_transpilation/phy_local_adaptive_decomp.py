@@ -7,7 +7,7 @@ import numpy as np
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
-from ....quantum_circuit.gate import GateTypes
+from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
 from ...compilation_minitools import new_mod
 from ..local_operation_swap import (
@@ -255,7 +255,8 @@ class PhyAdaptiveDecomposition:
                         branch_condition = (
                             current_root.max_cost[1] - decomp_next_step_cost
                         )  # SECOND POSITION IS PHYSICAL COST
-                        # branch_condition_2 = current_root.max_cost[0] - next_step_cost  # deprecated: FIRST IS ALGORITHMIC COST
+                        # branch_condition_2 = current_root.max_cost[0] - next_step_cost
+                        # deprecated: FIRST IS ALGORITHMIC COST
 
                         if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
                             # if cost is better can be only candidate otherwise try them all
@@ -272,7 +273,8 @@ class PhyAdaptiveDecomposition:
                                 [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
                                 self.dimension,
                             )
-                            # R(theta, phi, new_placement.nodes[r]['lpmap'], new_placement.nodes[r2]['lpmap'], dimension)
+                            # R(theta, phi, new_placement.nodes[r]['lpmap'],
+                            # new_placement.nodes[r2]['lpmap'], dimension)
                             #
                             physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
                             physical_rotation = graph_rule_ongate(physical_rotation, new_placement)

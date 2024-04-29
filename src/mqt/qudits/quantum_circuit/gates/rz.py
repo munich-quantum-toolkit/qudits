@@ -4,12 +4,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ...compiler.compilation_minitools.local_compilation_minitools import regulate_theta
-from ..gate import ControlData, Gate, GateTypes
+from ...compiler.compilation_minitools.local_compilation_minitools import phi_cost, regulate_theta
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 from .r import R
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class Rz(Gate):
@@ -37,7 +39,7 @@ class Rz(Gate):
             self._params = parameters
         self.qasm_tag = "rz"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension = self._dimensions
         phi = self.phi
 
@@ -64,9 +66,9 @@ class Rz(Gate):
         assert isinstance(parameter[2], float)
 
         assert parameter[0] >= 0
-        assert parameter[0] <= self._dimensions
+        assert parameter[0] < self._dimensions
         assert parameter[1] >= 0
-        assert parameter[1] <= self._dimensions
+        assert parameter[1] < self._dimensions
         assert parameter[0] != parameter[1]
         # Useful to remember direction of the rotation
         self.original_lev_a = parameter[0]
@@ -77,3 +79,7 @@ class Rz(Gate):
     def __str__(self) -> str:
         # TODO
         pass
+
+    @property
+    def cost(self):
+        return phi_cost(self.phi)

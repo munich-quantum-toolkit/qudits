@@ -1,40 +1,26 @@
 from __future__ import annotations
 
-import enum
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
+
+from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
 
 from ..exceptions import CircuitError
-from .matrix_factory import MatrixFactory
+from .components.extensions.controls import ControlData
+from .components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
+    import enum
+
     import numpy as np
 
     from .circuit import QuantumCircuit
-
-
-class GateTypes(enum.Enum):
-    """Enumeration for job status."""
-
-    SINGLE = "Single Qudit Gate"
-    TWO = "Two Qudit Gate"
-    MULTI = "Multi Qudit Gate"
-
-
-CORE_GATE_TYPES = (GateTypes.SINGLE, GateTypes.TWO, GateTypes.MULTI)
 
 
 class Instruction(ABC):
     @abstractmethod
     def __init__(self, name: str) -> None:
         pass
-
-
-@dataclass
-class ControlData:
-    indices: list[int] | int
-    ctrl_states: list[int] | int
 
 
 class Gate(Instruction):
@@ -71,18 +57,19 @@ class Gate(Instruction):
 
     @property
     def reference_lines(self):
+        lines = []
         if isinstance(self._target_qudits, int):
             lines = self.get_control_lines.copy()
             lines.append(self._target_qudits)
         elif isinstance(self._target_qudits, list):
-            lines = self._target_qudits.copy() + self.get_control_lines.copy()
+            lines = self.get_control_lines.copy() + self._target_qudits.copy()
         if len(lines) == 0:
             msg = "Gate has no target or control lines"
             raise CircuitError(msg)
         return lines
 
     @abstractmethod
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         pass
 
     def dag(self):
@@ -90,7 +77,7 @@ class Gate(Instruction):
         self.dagger = True
         return self
 
-    def to_matrix(self, identities=0) -> Callable[[str], ndarray]:
+    def to_matrix(self, identities=0) -> np.ndarray:
         """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:

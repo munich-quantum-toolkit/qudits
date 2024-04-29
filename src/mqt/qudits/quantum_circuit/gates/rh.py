@@ -4,11 +4,13 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 from .r import R
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class Rh(Gate):
@@ -31,13 +33,15 @@ class Rh(Gate):
             dimensions=dimensions,
             control_set=controls,
         )
+        self.original_lev_b = None
+        self.original_lev_a = None
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b = parameters
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
         self.qasm_tag = "rh"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
         dimension = self._dimensions
 
@@ -48,12 +52,7 @@ class Rh(Gate):
             self.parent_circuit,
             "R",
             self._target_qudits,
-            [
-                self.lev_a,
-                self.lev_b,
-                np.pi / 2,
-                np.pi / 2,
-            ],
+            [self.lev_a, self.lev_b, np.pi / 2, np.pi / 2],
             dimension,
         ).to_matrix()
 
@@ -69,9 +68,9 @@ class Rh(Gate):
         assert isinstance(parameter[1], int)
 
         assert parameter[0] >= 0
-        assert parameter[0] <= self._dimensions
+        assert parameter[0] < self._dimensions
         assert parameter[1] >= 0
-        assert parameter[1] <= self._dimensions
+        assert parameter[1] < self._dimensions
         assert parameter[0] != parameter[1]
         # Useful to remember direction of the rotation
         self.original_lev_a = parameter[0]

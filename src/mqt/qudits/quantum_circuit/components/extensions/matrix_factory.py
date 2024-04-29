@@ -13,7 +13,7 @@ class MatrixFactory:
         self.ids = identities_flag
 
     def generate_matrix(self):
-        lines = self.gate.reference_lines
+        lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
         dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
@@ -48,12 +48,13 @@ class MatrixFactory:
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
         qudits_applied = [qudits_applied] if isinstance(qudits_applied, int) else qudits_applied
+        qudits_applied = qudits_applied.copy()
         qudits_applied.sort()
         dimensions = [dimensions] if isinstance(dimensions, int) else dimensions
         if len(dimensions) == 0:
             msg = "Dimensions cannot be an empty list"
             raise ValueError(msg)
-        if len(dimensions) == 1:
+        if len(qudits_applied) == len(ref_lines) and controls is None:
             return matrix
 
         single_site_logics = []
@@ -94,7 +95,7 @@ class MatrixFactory:
                     if isinstance(extract_r, int):
                         extract_r = [extract_r]
                         extract_c = [extract_c]
-                    if extract_r == controls_levels and extract_r == extract_c:
+                    if list(extract_r) == controls_levels and extract_r == extract_c:
                         rest_of_indices = set(ref_lines) - set(qudits_applied) - set(controls)
                         if not rest_of_indices or operator.itemgetter(*rest_of_indices)(
                             global_index_to_state[r]
@@ -130,8 +131,7 @@ class MatrixFactory:
 
     @classmethod
     def wrap_in_identities(cls, matrix, indices, sizes):
-        sizes = sizes.copy()
-        # sizes.reverse()
+        indices.sort()
         if any(index >= len(sizes) for index in indices):
             msg = "Index out of range"
             raise ValueError(msg)
@@ -140,9 +140,9 @@ class MatrixFactory:
         result = np.identity(sizes[i])
         while i < len(sizes):
             if i == indices[0]:
-                result = matrix if i == 0 else np.kron(matrix, result)
-            elif i > indices[-1]:
-                result = np.kron(np.identity(sizes[i]), result)
+                result = matrix if i == 0 else np.kron(result, matrix)
+            elif (i < indices[0] and i != 0) or i > indices[-1]:
+                result = np.kron(result, np.identity(sizes[i]))
 
             i += 1
 

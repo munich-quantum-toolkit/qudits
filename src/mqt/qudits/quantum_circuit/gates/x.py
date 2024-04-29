@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class X(Gate):
@@ -29,25 +31,15 @@ class X(Gate):
         )
         self.qasm_tag = "x"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
-        basis_states_list = list(range(self._dimensions))
-
-        matrix = np.outer([0 for x in range(self._dimensions)], [0 for x in range(self._dimensions)])
-
-        for i in basis_states_list:
+    def __array__(self) -> np.ndarray:
+        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
+        for i in range(self._dimensions):
             i_plus_1 = np.mod(i + 1, self._dimensions)
-
-            l1 = [0 for x in range(self._dimensions)]
-            l2 = [0 for x in range(self._dimensions)]
-            l1[i_plus_1] = 1
-            l2[i] = 1
-
-            array1 = np.array(l1, dtype="complex")
-            array2 = np.array(l2, dtype="complex")
-
-            result = np.outer(array2, array1)
-            matrix += result
-
+            array1 = np.zeros(self._dimensions, dtype="complex")
+            array2 = np.zeros(self._dimensions, dtype="complex")
+            array1[i_plus_1] = 1
+            array2[i] = 1
+            matrix += np.outer(array1, array2)
         return matrix
 
     def validate_parameter(self, parameter=None) -> bool:

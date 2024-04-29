@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ...compiler.compilation_minitools.local_compilation_minitools import phi_cost, regulate_theta
-from ..gate import ControlData, Gate, GateTypes
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 class VirtRz(Gate):
@@ -35,7 +37,7 @@ class VirtRz(Gate):
             self._params = parameters
         self.qasm_tag = "virtrz"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension = self._dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype="complex")
@@ -46,7 +48,7 @@ class VirtRz(Gate):
     def validate_parameter(self, parameter) -> bool:
         assert isinstance(parameter[0], int)
         assert isinstance(parameter[1], float)
-        assert 0 <= parameter[0] <= self._dimensions
+        assert 0 <= parameter[0] < self._dimensions
         return True
 
     def __str__(self) -> str:

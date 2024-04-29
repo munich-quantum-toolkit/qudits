@@ -4,11 +4,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..gate import ControlData, Gate, GateTypes
-from ..matrix_factory import from_dirac_to_basis
+from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
+
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
 
 if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
 
 
 from scipy.linalg import expm
@@ -37,7 +40,7 @@ class LS(Gate):
             self._params = parameters
         self.qasm_tag = "ls"
 
-    def __array__(self, dtype: str = "complex") -> np.ndarray:
+    def __array__(self) -> np.ndarray:
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]
 

@@ -54,7 +54,7 @@ def graph_rule_update(gate, graph) -> None:
     return
 
 
-def graph_rule_ongate(gate, graph):
+def graph_rule_ongate(gate, graph) -> gates.R:
     inode = graph._1stInode
     if "phase_storage" not in graph.nodes[inode]:
         return gate
@@ -71,9 +71,10 @@ def graph_rule_ongate(gate, graph):
     if logic_nodes[1] is not None:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
-    return R(
+    return gates.R(
         gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
-    )  # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
+    )
+    # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
 
 def gate_chain_condition(previous_gates, current):

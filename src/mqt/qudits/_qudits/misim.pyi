@@ -1,7 +1,7 @@
-from typing import Any
+from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.simulation.noise_tools import NoiseModel
 
-# todo: this need significantly better typing and a better docstring
-def state_vector_simulation(circuit: Any, noise_model: dict[str, Any]) -> list[complex]:  # noqa: ANN401
+def state_vector_simulation(circuit: QuantumCircuit, noise_model: NoiseModel) -> list[complex]:
     """Simulate the state vector of a quantum circuit with noise model.
 
     Args:

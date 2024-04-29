@@ -46,7 +46,16 @@ class MISim(Backend):
         result = state_vector_simulation(circuit, noise_model)
         state = np.array(result)
         state_size = reduce(operator.mul, self.system_sizes, 1)
-        return state.reshape(1, state_size)
+        # Reverse the dimensions of the circuit and reshape the state array
+        reversed_dimensions = list(reversed(circuit.dimensions))
+        state = state.reshape(reversed_dimensions)
+
+        # Reverse the order of the axes for the transpose operation
+        axes_order = list(reversed(list(range(len(circuit.dimensions)))))
+
+        # Transpose the state array
+        state = np.transpose(state, axes_order)
+        return state.reshape((1, state_size))
 
     def __init__(self, **fields) -> None:
         self.system_sizes = None

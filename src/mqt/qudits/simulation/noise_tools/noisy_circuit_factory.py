@@ -69,7 +69,6 @@ class NoisyCircuitFactory:
                             else:
                                 for dit in qudits:
                                     noisy_circuit.x(dit)
-                            noisy_circuit.number_gates += 1
                         if z_choice == 1:
                             if isinstance(instruction, (gates.R, gates.Rz)):
                                 for dit in qudits:
@@ -77,6 +76,5 @@ class NoisyCircuitFactory:
                             else:
                                 for dit in qudits:
                                     noisy_circuit.z(dit)
-                            noisy_circuit.number_gates += 1
 
         return noisy_circuit
