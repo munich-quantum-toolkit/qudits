@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 
@@ -7,7 +9,6 @@ class TestLogLocAdaPass(TestCase):
 
 
 class TestLogAdaptiveDecomposition(TestCase):
-
     def test_execute(self):
         pass
         # dim = 5

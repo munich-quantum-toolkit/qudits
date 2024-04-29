@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 from unittest import TestCase
-import numpy as np
 
 
 class TestZPropagationPass(TestCase):
-
     """def test_tag_generator(self):
         gates = [R(np.pi, np.pi / 2, 0, 1, 3), Rz(np.pi / 3, 0, 3), R(np.pi, np.pi / 2, 0, 1, 3),
                  R(np.pi, np.pi / 2, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
@@ -50,4 +50,4 @@ class TestZPropagationPass(TestCase):
         self.assertIsInstance(QC.qreg[0][3], Rz)
         self.assertIsInstance(QC.qreg[0][4], Rz)
         self.assertIsInstance(QC.qreg[0][4], Rz)
-"""
+    """
