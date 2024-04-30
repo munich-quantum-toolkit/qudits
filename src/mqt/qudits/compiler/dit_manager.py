@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from .onedit import LogLocAdaPass, LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationPass, ZRemovalPass
-from .twodit import LogEntQRCEXPass
+from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationPass, ZRemovalPass
 
 
 class QuditCompiler:
@@ -10,9 +9,7 @@ class QuditCompiler:
         "PhyLocAdaPass": PhyLocAdaPass,
         "LocQRPass": PhyLocQRPass,
         "LocAdaPass": PhyLocAdaPass,
-        "LogLocAdaPass": LogLocAdaPass,
         "LogLocQRPass": LogLocQRPass,
-        "LogEntQRCEXPass": LogEntQRCEXPass,
         "ZPropagationPass": ZPropagationPass,
         "ZRemovalPass": ZRemovalPass,
     }

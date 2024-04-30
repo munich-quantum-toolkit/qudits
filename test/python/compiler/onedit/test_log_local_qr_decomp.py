@@ -15,7 +15,6 @@ class TestLogLocQRPass(TestCase):
 
 class TestQrDecomp(TestCase):
     def test_execute(self):
-        # DIM 3
         dim = 3
         test_sample_edges = [
             (0, 2, {"delta_m": 0, "sensitivity": 1}),
@@ -34,9 +33,7 @@ class TestQrDecomp(TestCase):
 
         decomp, _algorithmic_cost, _total_cost = QR.execute()
 
-        V = UnitaryVerifier(
-            decomp, Htest.to_matrix(identities=0), [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map
-        )
+        V = UnitaryVerifier(decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
         # sequence, target, dimensions, nodes=None, initial_map=None, final_map=None
         assert len(decomp) == 5
         assert V.verify()
