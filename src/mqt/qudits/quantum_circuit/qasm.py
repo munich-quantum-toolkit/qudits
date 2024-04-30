@@ -5,10 +5,14 @@ from pathlib import Path
 
 import numpy as np
 
-from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
+from .components.extensions.controls import ControlData
 
 
 class QASM:
+    """
+    Class that manages the parsing of QASM programs
+    """
+
     def __init__(self) -> None:
         self._program = None
 
@@ -51,6 +55,15 @@ class QASM:
             return True
         return False
 
+    def parse_creg(self, line, rgxs, sitemap_classic) -> bool:
+        match = rgxs["creg"].match(line)
+        if match:
+            name, nclassics = match.groups()
+            for i in range(int(nclassics)):
+                sitemap_classic[(str(name), i)] = len(sitemap_classic)
+            return True
+        return False
+
     def safe_eval_math_expression(self, expression):
         try:
             expression = expression.replace("pi", str(np.pi))
@@ -71,17 +84,15 @@ class QASM:
             ctl_qudits = match.group(6)
             ctl_levels = match.group(8)
 
-            # params = (
-            #     tuple(sp.sympify(param.replace("pi", str(sp.pi))) for param in params.strip("()").split(","))
-            #     if params
-            #     else ()
-            # )
             # Evaluate params using NumPy and NumExpr
-            params = (
-                tuple(self.safe_eval_math_expression(param) for param in params.strip("()").split(","))
-                if params
-                else ()
-            )
+            if params:
+                if ".npy" in params:
+                    params = np.load(params)
+                else:
+                    # TODO: This does not handle "custom_data" correctly
+                    params = tuple(self.safe_eval_math_expression(param) for param in params.strip("()[]").split(","))
+            else:
+                params = ()
 
             qudits_list = []
             for dit in qudits.split(","):
@@ -142,6 +153,7 @@ class QASM:
             "comment_start": re.compile(r"/\*"),
             "comment_end": re.compile(r"\*/"),
             "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "creg": re.compile(r"creg\s+(\w+)\s*\[\s*(\d+)\s*\]\s*;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate_matrix":
@@ -152,11 +164,13 @@ class QASM:
                 r"\s*;"
             ),
             "error": re.compile(r"^(gate_matrix|if)"),
-            "ignore": re.compile(r"^(creg|measure|barrier)"),
+            "ignore": re.compile(r"^(measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
         sitemap = {}
+        sitemap_classic = {}
+
         gates = []
         # only want to warn once about each ignored instruction
         warned = {}
@@ -171,6 +185,9 @@ class QASM:
                 continue
 
             if self.parse_qreg(line, rgxs, sitemap):
+                continue
+
+            if self.parse_creg(line, rgxs, sitemap_classic):
                 continue
 
             if self.parse_ignore(line, rgxs, warned):
@@ -190,6 +207,7 @@ class QASM:
         self._program = {
             "circuits_size": len(sitemap),
             "sitemap": sitemap,
+            "sitemap_classic": sitemap_classic,
             "instructions": gates,
             "n_gates": len(gates),
         }

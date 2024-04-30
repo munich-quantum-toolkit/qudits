@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import operator
+from collections.abc import Collection
 from functools import reduce
 from typing import TYPE_CHECKING
 
@@ -41,7 +42,10 @@ class Perm(Gate):
         return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
-        assert isinstance(parameter, list), "Input is not a list"
+        """Verify that the input is a list of indices"""
+        if not isinstance(parameter, Collection):
+            return False
+
         num_nums = reduce(operator.mul, self._dimensions)
         assert all(
             (0 <= num < len(parameter) and num < num_nums) for num in parameter

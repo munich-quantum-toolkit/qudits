@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import copy
-import locale
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .components.quantum_register import QuantumRegister
+import numpy as np
+
+from .components import ClassicRegister, QuantumRegister
 from .gates import (
     LS,
     MS,
@@ -28,10 +30,14 @@ from .gates import (
 from .qasm import QASM
 
 if TYPE_CHECKING:
-    import numpy as np
-
     from .components.extensions.controls import ControlData
     from .gate import Gate
+
+
+def is_not_none_or_empty(variable):
+    return (variable is not None and hasattr(variable, "__iter__") and len(variable) > 0) or (
+        isinstance(variable, np.ndarray) and variable.size > 0
+    )
 
 
 def add_gate_decorator(func):
@@ -67,14 +73,18 @@ class QuantumCircuit:
     }
 
     def __init__(self, *args) -> None:
+        self.cl_inverse_sitemap = {}
         self.inverse_sitemap = {}
         self.number_gates = 0
         self.instructions = []
         self.quantum_registers = []
+        self.classic_registers = []
         self._sitemap = {}
+        self._classic_site_map = {}
         self._num_cl = 0
         self._num_qudits = 0
         self._dimensions = []
+        self.path_save = None
 
         if len(args) == 0:
             return
@@ -104,14 +114,18 @@ class QuantumCircuit:
         return self._dimensions
 
     def reset(self) -> None:
+        self.cl_inverse_sitemap = {}
+        self.inverse_sitemap = {}
         self.number_gates = 0
         self.instructions = []
         self.quantum_registers = []
-        self.inverse_sitemap = {}
+        self.classic_registers = []
         self._sitemap = {}
+        self._classic_site_map = {}
         self._num_cl = 0
         self._num_qudits = 0
         self._dimensions = []
+        self.path_save = None
 
     def copy(self):
         return copy.deepcopy(self)
@@ -127,6 +141,16 @@ class QuantumCircuit:
             self._sitemap[(str(qreg.label), i)] = (num_lines_stored + i, qreg.dimensions[i])
             self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
 
+    def append_classic(self, creg: ClassicRegister) -> None:
+        self.classic_registers.append(creg)
+        self._num_cl += creg.size
+
+        num_lines_stored = len(self._classic_site_map)
+        for i in range(creg.size):
+            creg.local_sitemap[i] = num_lines_stored + i
+            self._classic_site_map[(str(creg.label), i)] = (num_lines_stored + i,)
+            self.cl_inverse_sitemap[num_lines_stored + i] = (str(creg.label), i)
+
     @add_gate_decorator
     def csum(self, qudits: list[int]):
         return CSum(
@@ -140,7 +164,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cu_two(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
+    def cu_two(self, qudits: list[int], parameters: np.ndarray, controls: ControlData | None = None):
         return CustomTwo(
             self,
             "CUt" + str([self.dimensions[i] for i in qudits]),
@@ -151,7 +175,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cu_multi(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
+    def cu_multi(self, qudits: list[int], parameters: np.ndarray, controls: ControlData | None = None):
         return CustomMulti(
             self,
             "CUm" + str([self.dimensions[i] for i in qudits]),
@@ -259,13 +283,18 @@ class QuantumCircuit:
         return self
 
     def from_qasm(self, qasm_prog) -> None:
+        """Create a circuit from qasm text"""
         self.reset()
         qasm_parser = QASM().parse_ditqasm2_str(qasm_prog)
         instructions = qasm_parser["instructions"]
         temp_sitemap = qasm_parser["sitemap"]
+        cl_sitemap = qasm_parser["sitemap_classic"]
 
         for qreg in QuantumRegister.from_map(temp_sitemap):
             self.append(qreg)
+
+        for creg in ClassicRegister.from_map(cl_sitemap):
+            self.append_classic(creg)
 
         qasm_set = self.get_qasm_set()
 
@@ -285,7 +314,7 @@ class QuantumCircuit:
                     # Extract the first element from each tuple and return as a list
                     else:
                         qudits_call = [t[0] for t in list(tuples_qudits)]
-                    if op["params"]:
+                    if is_not_none_or_empty(op["params"]):
                         if op["controls"]:
                             function(qudits_call, op["params"], op["controls"])
                         else:
@@ -316,7 +345,7 @@ class QuantumCircuit:
 
         return text
 
-    def save_to_file(self, file_name, file_path="/"):
+    def save_to_file(self, file_name: str, file_path: str = ".") -> str:
         """
         Save qasm into a file with the specified name and path.
 
@@ -329,15 +358,17 @@ class QuantumCircuit:
             str: The full path of the saved file.
         """
         # Combine the file path and name to get the full file path
-        full_file_path = f"{file_path}/{file_name}.qasm"
+        self.path_save = file_path
+        full_file_path = Path(file_path) / (file_name + ".qasm")
 
         # Write the text to the file
-        with open(full_file_path, "w+", encoding=locale.getpreferredencoding(False)) as file:
+        with full_file_path.open("w+") as file:
             file.write(self.to_qasm())
 
-        return full_file_path
+        self.path_save = None
+        return str(full_file_path)
 
-    def load_from_file(self, file_path):
+    def load_from_file(self, file_path: str) -> None:
         """
         Load text from a file.
 
@@ -347,12 +378,9 @@ class QuantumCircuit:
         Returns:
             str: The text loaded from the file.
         """
-        try:
-            with open(file_path, encoding=locale.getpreferredencoding(False)) as file:
-                text = file.read()
-            return self.from_qasm(text)
-        except FileNotFoundError:
-            return None
+        with Path(file_path).open("r") as file:
+            text = file.read()
+        self.from_qasm(text)
 
     def draw(self) -> None:
         # TODO

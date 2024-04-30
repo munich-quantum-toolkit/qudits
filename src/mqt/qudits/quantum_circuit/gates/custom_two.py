@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class CustomTwo(Gate):
+    """Two body custom gate"""
+
     def __init__(
         self,
         circuit: QuantumCircuit,
@@ -29,16 +31,16 @@ class CustomTwo(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            params=parameters,
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-
         self.qasm_tag = "cutwo"
 
     def __array__(self) -> np.ndarray:
         return self.__array_storage
 
-    def validate_parameter(self, parameter=None):
+    def validate_parameter(self, parameter=None) -> bool:
         return isinstance(parameter, np.ndarray)
 
     def __str__(self) -> str:
