@@ -103,7 +103,6 @@ class Test(TestCase):
 
         assert total_costing == 0.00425
         assert len(pi_pulses_routing) == 2
-
         assert cost_of_pi_pulses == 0.002
 
     def test_route_states2rotate_basic(self):

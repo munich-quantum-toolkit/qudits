@@ -72,27 +72,28 @@ MQT Qudits has been developed based on methods proposed in the following papers:
 ## Acknowledgements
 
 MQT Qudits is the result of the project NeQST funded by the European Union under Horizon Europe Programme - Grant Agreement 101080086.
-Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or European Climate, Infrastructure and Environment Executive Agency (CINEA). Neither the European Union nor the granting authority can be held responsible for them.
+Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union
+or the European Commission. Neither the European Union nor the granting authority can be held responsible for them.
 
 The Munich Quantum Toolkit has been supported by the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation program (grant agreement No. 101001318), the Bavarian State Ministry for Science and Arts through the Distinguished Professorship Program, as well as the Munich Quantum Valley, which is supported by the Bavarian state government with funds from the Hightech Agenda Bayern Plus.
 
 <p align="center">
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://neqst-he.eu/icons/logo.svg" width="20%">
-<img src="https://neqst-he.eu/icons/logo.svg" width="20%">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_dark.svg" width="25%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_light.svg" width="25%">
 </picture>
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_dark.svg" width="20%">
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_light.svg" width="20%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_light.svg" width="15%">
 </picture>
 <picture>
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-bavaria.svg" width="16%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-bavaria.svg" width="12%">
 </picture>
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_dark.svg" width="20%">
 <img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_light.svg" width="20%">
 </picture>
 <picture>
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-mqv.svg" width="20%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-mqv.svg" width="18%">
 </picture>
 </p>
