@@ -468,7 +468,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   fullMixWState(myfile, {2, 3, 2, 5});
   fullMixWState(myfile, {2, 3, 3, 3});
   fullMixWState(myfile, {5, 5, 2, 2});
-  std::cout << "First set" << "\n";
+  std::cout << "First set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
 
@@ -478,7 +479,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   ghzQutritStateScaled(myfile, 60);
   ghzQutritStateScaled(myfile, 120);
   ghzQutritStateScaled(myfile, 128);
-  std::cout << "Second set" << "\n";
+  std::cout << "Second set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
   randomCircuits(3, 1000, myfile);
@@ -487,7 +489,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   randomCircuits(6, 1000, myfile);
   randomCircuits(7, 1000, myfile);
 
-  std::cout << "Third set" << "\n";
+  std::cout << "Third set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
   randomCircuits(3, 1000, myfile);
@@ -496,7 +499,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   randomCircuits(6, 1000, myfile);
   randomCircuits(7, 1000, myfile);
 
-  std::cout << "fourth set" << "\n";
+  std::cout << "fourth set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
   randomCircuits(3, 1000, myfile);
@@ -505,7 +509,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   randomCircuits(6, 1000, myfile);
   randomCircuits(7, 1000, myfile);
 
-  std::cout << "fifth set" << "\n";
+  std::cout << "fifth set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
   randomCircuits(8, 1000, myfile);
@@ -515,7 +520,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   randomCircuits(12, 1000, myfile);
   randomCircuits(13, 1000, myfile);
 
-  std::cout << "6 set" << "\n";
+  std::cout << "6 set"
+            << "\n";
   myfile.close();
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);
   randomCircuits(8, 1000, myfile);
@@ -525,7 +531,8 @@ int main() { // NOLINT(bugprone-exception-escape)
   randomCircuits(12, 1000, myfile);
   randomCircuits(13, 1000, myfile);
 
-  std::cout << "7 set" << "\n";
+  std::cout << "7 set"
+            << "\n";
 
   myfile.close();
   return 0;

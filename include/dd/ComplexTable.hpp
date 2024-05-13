@@ -426,7 +426,8 @@ public:
     for (std::size_t key = 0; key < table.size(); ++key) {
       auto p = table[key];
       if (p != nullptr) {
-        std::cout << key << ": " << "\n";
+        std::cout << key << ": "
+                  << "\n";
       }
 
       while (p != nullptr) {

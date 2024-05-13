@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import locale
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -378,7 +379,7 @@ class QuantumCircuit:
         Returns:
             str: The text loaded from the file.
         """
-        with Path(file_path).open("r") as file:
+        with Path(file_path).open("r", encoding=locale.getpreferredencoding(False)) as file:
             text = file.read()
         self.from_qasm(text)
 
