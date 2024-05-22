@@ -9,13 +9,6 @@ from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
 from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
-from ...compilation_minitools import new_mod
-from ..local_operation_swap import (
-    cost_calculator,
-    gate_chain_condition,
-    graph_rule_ongate,
-    graph_rule_update,
-)
 from ..mapping_aware_transpilation import PhyQrDecomp
 
 np.seterr(all="ignore")
@@ -90,10 +83,9 @@ class LogAdaptiveDecomposition:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
 
             if matrices_decomposed != []:
-                pass
-            #    matrices_decomposed, final_graph = self.Z_extraction(
-            #            matrices_decomposed, final_graph, self.phase_propagation
-            #   )
+                matrices_decomposed, final_graph = self.z_extraction(
+                    matrices_decomposed, final_graph, self.phase_propagation
+                )
             else:
                 pass
 
@@ -131,48 +123,17 @@ class LogAdaptiveDecomposition:
 
         for i in range(dimension):
             if abs(np.angle(diag_U[i])) > 1.0e-4:
-                if phase_propagation:
-                    inode = placement._1stInode
-                    if "phase_storage" in placement.nodes[inode]:
-                        placement.nodes[i]["phase_storage"] += np.angle(diag_U[i])
-                        placement.nodes[i]["phase_storage"] = new_mod(placement.nodes[i]["phase_storage"])
-                else:
-                    n_i = placement.nodes[i]  # ["lpmap"]
-
-                    phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [n_i, np.angle(diag_U[i])], self.dimension
-                    )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
-                    # dimension)
-
-                    U_ = phase_gate.to_matrix(identities=0) @ U_  # matmul(phase_gate.to_matrix(identities=0), U_)
-
-                    matrices.append(phase_gate)
-
-        if not phase_propagation:
-            inode = placement._1stInode
-            if "phase_storage" in placement.nodes[inode]:
-                for i in range(len(list(placement.nodes))):
-                    thetaZ = new_mod(placement.nodes[i]["phase_storage"])
-                    if abs(thetaZ) > 1.0e-4:
-                        phase_gate = gates.VirtRz(
-                            self.circuit,
-                            "VRz",
-                            self.qudit_index,
-                            [i, thetaZ],
-                            self.dimension,
-                        )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'], # [placement.nodes[i]["lpmap"], thetaZ],
-                        # dimension)
-                        matrices.append(phase_gate)
-                    # reset the node
-                    placement.nodes[i]["phase_storage"] = 0
+                phase_gate = gates.VirtRz(
+                    self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_U[i])], self.dimension
+                )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
+                U_ = phase_gate.to_matrix(identities=0) @ U_
+                matrices.append(phase_gate)
 
         return matrices, placement
 
     def DFS(self, current_root, level=0) -> None:
         # check if close to diagonal
         Ucopy = current_root.U_of_level.copy()
-
-        current_placement = current_root.graph
 
         # is the diagonal noisy?
         valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)
@@ -204,7 +165,6 @@ class LogAdaptiveDecomposition:
                 for r2 in range(r + 1, dimension):
                     if abs(U_[r2, c]) > 1.0e-8 and (abs(U_[r, c]) > 1.0e-18 or abs(U_[r, c]) == 0):
                         theta = 2 * np.arctan2(abs(U_[r2, c]), abs(U_[r, c]))
-
                         phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
 
                         rotation_involved = gates.R(
@@ -213,18 +173,7 @@ class LogAdaptiveDecomposition:
 
                         U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
 
-                        non_zeros = np.count_nonzero(abs(U_temp) > 1.0e-4)
-
-                        (
-                            estimated_cost,
-                            pi_pulses_routing,
-                            new_placement,
-                            cost_of_pi_pulses,
-                            gate_cost,
-                        ) = cost_calculator(rotation_involved, current_placement, non_zeros)
-
-                        next_step_cost = estimated_cost + current_root.current_cost
-                        decomp_next_step_cost = cost_of_pi_pulses + gate_cost + current_root.current_decomp_cost
+                        decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
 
                         branch_condition = current_root.max_cost[1] - decomp_next_step_cost
 
@@ -234,54 +183,12 @@ class LogAdaptiveDecomposition:
                             self.TREE.global_id_counter += 1
                             new_key = self.TREE.global_id_counter
 
-                            if new_placement.nodes[r]["lpmap"] > new_placement.nodes[r2]["lpmap"]:
-                                phi *= -1
-                            physical_rotation = gates.R(
-                                self.circuit,
-                                "R",
-                                self.qudit_index,
-                                [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
-                                self.dimension,
-                            )
-                            # R(theta, phi, new_placement.nodes[r]['lpmap'],
-                            # new_placement.nodes[r2]['lpmap'], dimension)
-                            #
-                            physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
-                            physical_rotation = graph_rule_ongate(physical_rotation, new_placement)
-
-                            # take care of phases accumulated by not pi-pulsing back
-                            p_backs = []
-                            for ppulse in pi_pulses_routing:
-                                p_backs.append(
-                                    gates.R(
-                                        self.circuit,
-                                        "R",
-                                        self.qudit_index,
-                                        [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
-                                        self.dimension,
-                                    )
-                                )
-                                # p_backs.append(R(ppulse.theta, -ppulse.phi, ppulse.lev_a, ppulse.lev_b, dimension))
-
-                            for p_back in p_backs:
-                                graph_rule_update(p_back, new_placement)
-                            """
-                            current_root.add(
-                                    new_key,
-                                    physical_rotation,
-                                    U_temp,
-                                    new_placement,
-                                    next_step_cost,
-                                    decomp_next_step_cost,
-                                    current_root.max_cost,
-                                    pi_pulses_routing
-                            )"""
                             current_root.add(
                                 new_key,
                                 rotation_involved,
                                 U_temp,
-                                new_placement,
-                                next_step_cost,
+                                None,  # new_placement,
+                                0,  # next_step_cost,
                                 decomp_next_step_cost,
                                 current_root.max_cost,
                                 [],

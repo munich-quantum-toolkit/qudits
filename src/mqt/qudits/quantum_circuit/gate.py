@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import random
+import string
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+import numpy as np
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
 
@@ -11,8 +16,6 @@ from .components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     import enum
-
-    import numpy as np
 
     from .circuit import QuantumCircuit
 
@@ -33,7 +36,7 @@ class Gate(Instruction):
         gate_type: enum,
         target_qudits: list[int] | int,
         dimensions: list[int] | int,
-        params: list | None = None,
+        params: list | np.ndarray | None = None,
         control_set=None,
         label: str | None = None,
         duration=None,
@@ -127,8 +130,11 @@ class Gate(Instruction):
         pass
 
     def __qasm__(self) -> str:
+        """Generate QASM for Gate export"""
         string = f"{self.qasm_tag} "
-        if self._params:
+        if isinstance(self._params, np.ndarray):
+            string += self.return_custom_data()
+        elif self._params:
             string += "("
             for parameter in self._params:
                 string += f"{parameter}, "
@@ -187,3 +193,12 @@ class Gate(Instruction):
             "params": self._params,
             "controls": self._controls_data,
         }
+
+    def return_custom_data(self) -> str:
+        if not self.parent_circuit.path_save:
+            return "(custom_data) "
+
+        key = "".join(random.choice(string.ascii_letters) for _ in range(4))
+        file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
+        np.save(file_path, self._params)
+        return f"({file_path}) "

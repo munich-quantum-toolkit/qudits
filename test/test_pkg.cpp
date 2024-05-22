@@ -833,7 +833,8 @@ TEST(DDPackageTest, RandomCircuits) {
   auto evolution = dd->makeZeroState(width);
 
   std::cout << "\n"
-            << "STARTED" << "\n"
+            << "STARTED"
+            << "\n"
             << std::endl;
 
   std::uniform_int_distribution<> pickbool(0, 1);
@@ -851,7 +852,8 @@ TEST(DDPackageTest, RandomCircuits) {
 
         if (localChoice == 0) { // hadamard
           std::cout << "\n"
-                    << "hadamard" << "\n"
+                    << "hadamard"
+                    << "\n"
                     << std::endl;
           if (particles.at(line) == 2) {
             auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
@@ -872,7 +874,8 @@ TEST(DDPackageTest, RandomCircuits) {
           }
         } else { // givens
           std::cout << "\n"
-                    << "givens" << "\n"
+                    << "givens"
+                    << "\n"
                     << std::endl;
           if (particles.at(line) == 2) {
             double const theta = 0.;
@@ -936,7 +939,8 @@ TEST(DDPackageTest, RandomCircuits) {
         }
       } else { // entangling
         std::cout << "\n"
-                  << "entangling" << "\n"
+                  << "entangling"
+                  << "\n"
                   << std::endl;
 
         auto entChoice = pickbool(gen);
@@ -970,7 +974,8 @@ TEST(DDPackageTest, RandomCircuits) {
         if (entChoice == 0) { // CEX based
           // selection of controls
           std::cout << "\n"
-                    << "CEX" << "\n"
+                    << "CEX"
+                    << "\n"
                     << std::endl;
           if (particles.at(line) == 2) {
             double const theta = angles(gen);
@@ -1033,7 +1038,8 @@ TEST(DDPackageTest, RandomCircuits) {
           }
         } else { // Controlled clifford
           std::cout << "\n"
-                    << "clifford" << "\n"
+                    << "clifford"
+                    << "\n"
                     << std::endl;
           if (particles.at(line) == 2) {
             auto chosenGate = dd->makeGateDD<dd::GateMatrix>(

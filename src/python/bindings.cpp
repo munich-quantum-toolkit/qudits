@@ -9,7 +9,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <random>
-#include <unistd.h>
 #include <vector>
 
 namespace py = pybind11;

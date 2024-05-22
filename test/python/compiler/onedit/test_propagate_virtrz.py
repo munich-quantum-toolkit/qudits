@@ -1,55 +1,54 @@
 from __future__ import annotations
 
 from unittest import TestCase
+
 import numpy as np
+
+from mqt.qudits.compiler import QuditCompiler
+from mqt.qudits.compiler.onedit import ZPropagationPass
+from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
+from mqt.qudits.simulation import MQTQuditProvider
 
 
 class TestZPropagationPass(TestCase):
-
-    """def test_tag_generator(self):
-        gates = [R(np.pi, np.pi / 2, 0, 1, 3), Rz(np.pi / 3, 0, 3), R(np.pi, np.pi / 2, 0, 1, 3),
-                 R(np.pi, np.pi / 2, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
-        tags = tag_generator(gates)
-
-        self.assertEqual([0, 1, 1, 1, 2], tags)
+    def setUp(self):
+        provider = MQTQuditProvider()
+        self.compiler = QuditCompiler()
+        self.passes = ["ZPropagationPass"]
+        self.backend_ion = provider.get_backend("faketraps2trits", shots=1000)
 
     def test_propagate_z(self):
-        QC = QuantumCircuit(1, 0, 3, None, False)
-        QC.qreg[0] = [R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3), R(np.pi, np.pi / 3, 0, 1, 3),
-                      R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
+        qreg = QuantumRegister("test_reg", 1, [3])
+        circ = QuantumCircuit(qreg)
 
-        list_of_XYrots, Zseq = propagate_z(QC, 0, True)
+        circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])
+        circ.virtrz(qreg[0], [0, np.pi / 3])
+        circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])
+        circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])
+        circ.virtrz(qreg[0], [0, np.pi / 3])
 
-        self.assertEqual(list_of_XYrots[1].phi, 2 * np.pi / 3)
-        self.assertEqual(list_of_XYrots[2].phi, 2 * np.pi / 3)
-        self.assertEqual(list_of_XYrots[0].phi, np.pi)
+        # R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3),
+        # R(np.pi, np.pi / 3, 0, 1, 3), R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
+        new_circuit = self.compiler.compile(self.backend_ion, circ, self.passes)
 
-        self.assertEqual(Zseq[1].theta, 4 * np.pi)
-        self.assertEqual(Zseq[2].theta, 4 * np.pi)
-        self.assertEqual(Zseq[0].theta, 2 * np.pi / 3)
+        # VirtZs
+        assert new_circuit.instructions[0].phi == 2 * np.pi / 3
+        assert new_circuit.instructions[1].phi == 4 * np.pi
+        assert new_circuit.instructions[2].phi == 4 * np.pi
+        # Rs
+        assert new_circuit.instructions[3].phi == np.pi / 3 + 2 * np.pi / 3
+        assert new_circuit.instructions[4].phi == 2 * np.pi / 3
+        assert new_circuit.instructions[5].phi == 2 * np.pi / 3
 
-    def test_remove_z(self):
-        QC = QuantumCircuit(1, 0, 3, None, False)
-        QC.qreg[0] = [R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3), R(np.pi, np.pi / 3, 0, 1, 3),
-                      R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
-        remove_Z(QC, back=True)
+        pass_z = ZPropagationPass(backend=self.backend_ion, back=False)
+        new_circuit = pass_z.transpile(circ)
 
-        self.assertIsInstance(QC.qreg[0][0], Rz)
-        self.assertIsInstance(QC.qreg[0][1], Rz)
-        self.assertIsInstance(QC.qreg[0][2], Rz)
-        self.assertIsInstance(QC.qreg[0][3], R)
-        self.assertIsInstance(QC.qreg[0][4], R)
-        self.assertIsInstance(QC.qreg[0][4], R)
-
-        QC = QuantumCircuit(1, 0, 3, None, False)
-        QC.qreg[0] = [R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3), R(np.pi, np.pi / 3, 0, 1, 3),
-                      R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
-        remove_Z(QC, False)
-
-        self.assertIsInstance(QC.qreg[0][0], R)
-        self.assertIsInstance(QC.qreg[0][1], R)
-        self.assertIsInstance(QC.qreg[0][2], R)
-        self.assertIsInstance(QC.qreg[0][3], Rz)
-        self.assertIsInstance(QC.qreg[0][4], Rz)
-        self.assertIsInstance(QC.qreg[0][4], Rz)
-"""
+        # Rs
+        assert new_circuit.instructions[0].phi == np.pi / 3
+        assert new_circuit.instructions[1].phi == 0.0
+        assert new_circuit.instructions[2].phi == 0.0
+        # VirtZs
+        assert new_circuit.instructions[3].phi == 2 * np.pi / 3
+        assert new_circuit.instructions[4].phi == 4 * np.pi
+        assert new_circuit.instructions[5].phi == 4 * np.pi
