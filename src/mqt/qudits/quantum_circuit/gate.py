@@ -97,6 +97,8 @@ class Gate(Instruction):
         raise CircuitError(msg, {type(self)})
 
     def control(self, indices: list[int] | int, ctrl_states: list[int] | int):
+        if len(indices) == 0 or len(ctrl_states) == 0:
+            return self
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
