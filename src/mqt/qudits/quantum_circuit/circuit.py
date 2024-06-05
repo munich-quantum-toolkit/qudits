@@ -391,3 +391,12 @@ class QuantumCircuit:
     def gate_set(self) -> None:
         for _item in self.qasm_to_gate_set_dict.values():
             print(_item)
+
+    def simulate(self):
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        provider = MQTQuditProvider()
+        backend = provider.get_backend("tnsim")
+        job = backend.run(self)
+        result = job.result()
+        return result.get_state_vector()
