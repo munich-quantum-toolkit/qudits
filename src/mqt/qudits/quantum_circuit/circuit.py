@@ -139,7 +139,7 @@ class QuantumCircuit:
         num_lines_stored = len(self._sitemap)
         for i in range(qreg.size):
             qreg.local_sitemap[i] = num_lines_stored + i
-            self._sitemap[(str(qreg.label), i)] = (num_lines_stored + i, qreg.dimensions[i])
+            self._sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
             self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
 
     def append_classic(self, creg: ClassicRegister) -> None:
@@ -149,7 +149,7 @@ class QuantumCircuit:
         num_lines_stored = len(self._classic_site_map)
         for i in range(creg.size):
             creg.local_sitemap[i] = num_lines_stored + i
-            self._classic_site_map[(str(creg.label), i)] = (num_lines_stored + i,)
+            self._classic_site_map[str(creg.label), i] = (num_lines_stored + i,)
             self.cl_inverse_sitemap[num_lines_stored + i] = (str(creg.label), i)
 
     @add_gate_decorator

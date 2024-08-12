@@ -107,10 +107,10 @@ class StatePrep:
             a, p = getAngles(coef[i + 1], coef[i])
             gate = R(self.circuit, "R", qudit, [i, i + 1, a, p], self.circuit.dimensions[qudit], None).to_matrix()
             coef = np.dot(gate, coef)
-            aplog[(i, i + 1)] = (-a, p)
+            aplog[i, i + 1] = (-a, p)
 
         phase_2 = np.angle(find_complex_number(fweight, coef[0]))
-        aplog[(-1, 0)] = (-phase_2 * 2, 0)
+        aplog[-1, 0] = (-phase_2 * 2, 0)
 
         return aplog
 

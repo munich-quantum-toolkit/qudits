@@ -50,7 +50,7 @@ class QASM:
                 qdims = [2] * nq
 
             for i in range(int(nq)):
-                sitemap[(str(name), i)] = len(sitemap), qdims[i]
+                sitemap[str(name), i] = len(sitemap), qdims[i]
 
             return True
         return False
@@ -60,7 +60,7 @@ class QASM:
         if match:
             name, nclassics = match.groups()
             for i in range(int(nclassics)):
-                sitemap_classic[(str(name), i)] = len(sitemap_classic)
+                sitemap_classic[str(name), i] = len(sitemap_classic)
             return True
         return False
 
@@ -100,7 +100,7 @@ class QASM:
                 if match:
                     name, reg_qudit_index = match.groups()
                     reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
-                    qudit = tuple(sitemap[(name, reg_qudit_index)])
+                    qudit = tuple(sitemap[name, reg_qudit_index])
                     qudits_list.append(qudit)
 
             qudits_control_list = []
@@ -109,7 +109,7 @@ class QASM:
                 for match in matches:
                     name, reg_qudit_index = match
                     reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
-                    qudit = tuple(sitemap[(name, reg_qudit_index)])
+                    qudit = tuple(sitemap[name, reg_qudit_index])
                     qudits_control_list.append(qudit[0])
 
             qudits_levels_list = []

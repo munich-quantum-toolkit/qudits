@@ -63,7 +63,7 @@ class Backend(ABC):
         return self.target.num_qudits
 
     @property
-    def energy_level_graphs(self) -> list[(LevelGraph, LevelGraph)]:
+    def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
         raise NotImplementedError
 
     def _default_options(self):

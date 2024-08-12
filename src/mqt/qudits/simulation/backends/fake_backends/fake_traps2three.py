@@ -47,7 +47,7 @@ class FakeIonTraps2Trits(TNSim):
         self._energy_level_graphs = None
 
     @property
-    def energy_level_graphs(self) -> list[(LevelGraph, LevelGraph)]:
+    def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
         e_graphs = []
 
         # declare the edges on the energy level graph between logic states .
