@@ -10,6 +10,16 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
+def remap_result(result: np.ndarray, circuit: QuantumCircuit) -> np.ndarray:
+    new_result = result.copy()
+    if circuit.mappings:
+        permutation = np.eye(circuit.dimensions[0])[:, circuit.mappings[0]]
+        for i in range(1, len(circuit.mappings)):
+            permutation = np.kron(permutation, np.eye(circuit.dimensions[i])[:, circuit.mappings[i]])
+        return new_result @ np.linalg.inv(permutation)
+    return new_result
+
+
 class HistogramWithErrors:
     def __init__(self, labels, counts, errors, title="", xlabel="Labels", ylabel="Counts") -> None:
         self.labels = labels
@@ -77,21 +87,25 @@ def state_labels(circuit):
     return string_states
 
 
-def plot_state(state_vector: np.ndarray, circuit: QuantumCircuit, errors=None) -> None:
+def plot_state(state_vector: np.ndarray, circuit: QuantumCircuit, errors=None) -> np.ndarray:
     labels = state_labels(circuit)
 
     state_vector_list = np.squeeze(state_vector).tolist()
     counts = [abs(coeff) for coeff in state_vector_list]
+    counts = remap_result(counts, circuit)
 
     h_plotter = HistogramWithErrors(labels, counts, errors, title="Simulation", xlabel="States", ylabel="Sqrt(Pr)")
     h_plotter.generate_histogram()
+    return counts
 
 
-def plot_counts(measurements, circuit: QuantumCircuit) -> None:
+def plot_counts(measurements, circuit: QuantumCircuit) -> np.ndarray:
     labels = state_labels(circuit)
     counts = [measurements.count(i) for i in range(len(labels))]
+    counts = remap_result(counts, circuit)
 
     errors = len(labels) * [0]
 
     h_plotter = HistogramWithErrors(labels, counts, errors, title="Simulation", xlabel="States", ylabel="Counts")
     h_plotter.generate_histogram()
+    return counts

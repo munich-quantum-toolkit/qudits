@@ -85,6 +85,7 @@ class QuantumCircuit:
         self._num_cl = 0
         self._num_qudits = 0
         self._dimensions = []
+        self.mappings = None
         self.path_save = None
 
         if len(args) == 0:
@@ -283,6 +284,10 @@ class QuantumCircuit:
         self.number_gates = len(sequence)
         return self
 
+    def set_mapping(self, mappings: list[list]):
+        self.mappings = mappings
+        return self
+
     def from_qasm(self, qasm_prog) -> None:
         """Create a circuit from qasm text"""
         self.reset()
@@ -400,3 +405,21 @@ class QuantumCircuit:
         job = backend.run(self)
         result = job.result()
         return result.get_state_vector()
+
+    def compile(self, backend_name):
+        from mqt.qudits.compiler import QuditCompiler
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        qudit_compiler = QuditCompiler()
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend(backend_name, shots=50)
+
+        return qudit_compiler.compile_O1(backend_ion, self)
+
+    def set_initial_state(self, state: np.ndarray, approx=False) -> QuantumCircuit:
+        from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep
+
+        preparation = StatePrep(self, state, approx)
+        new_circuit = preparation.compile_state()
+        self.set_instructions(new_circuit.instructions)
+        return self

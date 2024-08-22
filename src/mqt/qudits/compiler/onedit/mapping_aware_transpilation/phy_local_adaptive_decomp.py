@@ -25,6 +25,21 @@ class PhyLocAdaPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
+    def transpile_gate(self, gate, vrz_prop=False):
+        energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
+
+        QR = PhyQrDecomp(gate, energy_graph_i)
+
+        _decomp, algorithmic_cost, total_cost = QR.execute()
+
+        Adaptive = PhyAdaptiveDecomposition(
+            gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop=vrz_prop
+        )
+        (matrices_decomposed, _best_cost, new_energy_level_graph) = Adaptive.execute()
+
+        self.backend.energy_level_graphs[gate._target_qudits] = new_energy_level_graph
+        return [op.dag() for op in reversed(matrices_decomposed)]
+
     def transpile(self, circuit):
         self.circuit = circuit
         instructions = circuit.instructions
@@ -32,54 +47,11 @@ class PhyLocAdaPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
-                energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
-                # ini_lpmap = list(self.backend.energy_level_graphs.log_phy_map)
-
-                # if self.verify:
-                #    recover_dict = {}
-                #    inode = self.energy_level_graph._1stInode
-                #    if 'phase_storage' in self.energy_level_graph.nodes[inode]:
-                #       for i in range(len(list(self.energy_level_graph.nodes))):
-                #            thetaZ = newMod(self.energy_level_graph.nodes[i]['phase_storage'])
-                #            recover_dict[i] = thetaZ
-
-                QR = PhyQrDecomp(gate, energy_graph_i)
-
-                _decomp, algorithmic_cost, total_cost = QR.execute()
-
-                Adaptive = PhyAdaptiveDecomposition(
-                    gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
-                )
-
-                (
-                    matrices_decomposed,
-                    _best_cost,
-                    self.backend.energy_level_graphs[gate._target_qudits],
-                ) = Adaptive.execute()
-
-                # if self.verify:
-                #     nodes = list(self.energy_level_graph.nodes)
-                #     lpmap = list(self.energy_level_graph.log_phy_map)
-                #
-                #     Vgate = deepcopy(gate_matrix)
-                #     inode = self.energy_level_graph._1stInode
-                #
-                #     if 'phase_storage' in self.energy_level_graph.nodes[inode]:
-                #         for i in range(len(recover_dict)):
-                #             if abs(recover_dict[i]) > 1.0e-4:
-                #                 phase_gate = Rz(-recover_dict[i], i, self.dimension)  # logical rotation
-                #                 Vgate = Custom_Unitary(matmul(phase_gate.matrix, Vgate.matrix), self.dimension)
-                #
-                #     V = Verifier(matrices_decomposed, Vgate, nodes, ini_lpmap, lpmap, self.dimension)
-                #     Vr = V.verify()
-                #
-                #     if not Vr:
-                #         raise Exception
-                new_instructions += matrices_decomposed
-                # circuit.replace_gate(i, matrices_decomposed)
+                gate_trans = self.transpile_gate(gate)
+                new_instructions.extend(gate_trans)
                 gc.collect()
             else:
-                new_instructions.append(gate)  # TODO REENCODING
+                new_instructions.append(gate)
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)
 

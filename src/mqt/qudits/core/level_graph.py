@@ -9,7 +9,7 @@ import numpy as np
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
 if TYPE_CHECKING:
-    from ..circuit import QuantumCircuit
+    from ..quantum_circuit import QuantumCircuit
 
 
 class LevelGraph(nx.Graph):

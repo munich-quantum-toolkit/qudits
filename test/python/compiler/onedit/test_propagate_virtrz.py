@@ -5,17 +5,17 @@ from unittest import TestCase
 import numpy as np
 
 from mqt.qudits.compiler import QuditCompiler
-from mqt.qudits.compiler.onedit import ZPropagationPass
+from mqt.qudits.compiler.onedit import ZPropagationOptPass
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
 
 
-class TestZPropagationPass(TestCase):
+class TestZPropagationOptPass(TestCase):
     def setUp(self):
         provider = MQTQuditProvider()
         self.compiler = QuditCompiler()
-        self.passes = ["ZPropagationPass"]
+        self.passes = ["ZPropagationOptPass"]
         self.backend_ion = provider.get_backend("faketraps2trits", shots=1000)
 
     def test_propagate_z(self):
@@ -30,7 +30,8 @@ class TestZPropagationPass(TestCase):
 
         # R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3),
         # R(np.pi, np.pi / 3, 0, 1, 3), R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
-        new_circuit = self.compiler.compile(self.backend_ion, circ, self.passes)
+        pass_z = ZPropagationOptPass(backend=self.backend_ion, back=True)
+        new_circuit = pass_z.transpile(circ)
 
         # VirtZs
         assert new_circuit.instructions[0].phi == 2 * np.pi / 3
@@ -41,7 +42,7 @@ class TestZPropagationPass(TestCase):
         assert new_circuit.instructions[4].phi == 2 * np.pi / 3
         assert new_circuit.instructions[5].phi == 2 * np.pi / 3
 
-        pass_z = ZPropagationPass(backend=self.backend_ion, back=False)
+        pass_z = ZPropagationOptPass(backend=self.backend_ion, back=False)
         new_circuit = pass_z.transpile(circ)
 
         # Rs

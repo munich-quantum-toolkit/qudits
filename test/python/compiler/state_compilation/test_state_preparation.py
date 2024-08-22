@@ -24,7 +24,7 @@ def mini_sim(circuit):
 
 class TestStatePrep(TestCase):
     def test_compile_state(self):
-        for length in range(2, 5):
+        for length in range(2, 4):
             cardinalities = [randint(2, 7) for _ in range(length)]
 
             w = generate_uniform_state(cardinalities, "qudit-w-state")

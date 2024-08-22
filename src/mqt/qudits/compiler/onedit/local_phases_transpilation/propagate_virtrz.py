@@ -7,10 +7,13 @@ from ... import CompilerPass
 from ...compilation_minitools import pi_mod
 
 
-class ZPropagationPass(CompilerPass):
+class ZPropagationOptPass(CompilerPass):
     def __init__(self, backend, back=True) -> None:
         super().__init__(backend)
         self.back = back
+
+    def transpile_gate(self, gate):
+        return gate
 
     def transpile(self, circuit):
         return self.remove_z(circuit, self.back)

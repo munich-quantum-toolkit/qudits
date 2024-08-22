@@ -67,7 +67,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     def _default_options(self):
-        return {"shots": 1000, "memory": False}
+        return {"shots": 50, "memory": False}
 
     def set_options(self, **fields) -> None:
         for field in fields:

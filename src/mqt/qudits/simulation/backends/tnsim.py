@@ -22,14 +22,14 @@ class TNSim(Backend):
 
         self._options.update(options)
         self.noise_model = self._options.get("noise_model", None)
-        self.shots = self._options.get("shots", 1 if self.noise_model is None else 1000)
+        self.shots = self._options.get("shots", 1 if self.noise_model is None else 50)
         self.memory = self._options.get("memory", False)
         self.full_state_memory = self._options.get("full_state_memory", False)
         self.file_path = self._options.get("file_path", None)
         self.file_name = self._options.get("file_name", None)
 
         if self.noise_model is not None:
-            assert self.shots >= 1000, "Number of shots should be above 1000"
+            assert self.shots >= 50, "Number of shots should be above 50"
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))

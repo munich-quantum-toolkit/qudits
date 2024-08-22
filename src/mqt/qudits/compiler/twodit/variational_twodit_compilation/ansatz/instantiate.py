@@ -2,22 +2,22 @@ from __future__ import annotations
 
 import numpy as np
 
-from .....quantum_circuit import gates
-from ....compilation_minitools import gate_expand_to_circuit
-from .parametrize import CUSTOM_PRIMITIVE, generic_sud, params_splitter
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import Primitive
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
+from mqt.qudits.quantum_circuit import gates
+from mqt.qudits.quantum_circuit.gates import CustomOne
 
 
-def ansatz_decompose(u, params, dims):
-    decomposition = []
+def ansatz_decompose(circuit, u, params, dims):
     counter = 0
-
+    decomposition = []
     for i in range(len(params)):
         if counter == 2:
             counter = 0
             decomposition.append(u)
 
         decomposition.append(
-            gate_expand_to_circuit(generic_sud(params[i], dims[counter]), n=2, target=counter, dim=dims)
+            CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
         )
 
         counter += 1
@@ -25,27 +25,20 @@ def ansatz_decompose(u, params, dims):
     return decomposition
 
 
-def create_cu_instance(P, dims):
+def create_cu_instance(circuit, P, dims):
     params = params_splitter(P, dims)
-    cu = CUSTOM_PRIMITIVE
-    return ansatz_decompose(cu, params, dims)
+    cu = Primitive.CUSTOM_PRIMITIVE
+    return ansatz_decompose(circuit, cu, params, dims)
 
 
-def create_ms_instance(P, dims):
+def create_ms_instance(circuit, P, dims):
     params = params_splitter(P, dims)
-    ms = gates.MS(
-        None,
-        "MS",
-        None,
-        [np.pi / 2],
-        dims,
-        None,
-    ).to_matrix()  # ms_gate(np.pi / 2, dim)
+    ms = gates.MS(circuit, "MS", [0, 1], [np.pi / 2], dims)  # ms_gate(np.pi / 2, dim)
 
-    return ansatz_decompose(ms, params, dims)
+    return ansatz_decompose(circuit, ms, params, dims)
 
 
-def create_ls_instance(P, dims):
+def create_ls_instance(circuit, P, dims):
     params = params_splitter(P, dims)
 
     if 2 in dims:
@@ -55,13 +48,6 @@ def create_ls_instance(P, dims):
     else:
         theta = np.pi
 
-    ls = gates.LS(
-        None,
-        "LS",
-        None,
-        [theta],
-        dims,
-        None,
-    ).to_matrix()  # ls_gate(theta, dim)
+    ls = gates.LS(circuit, "LS", [0, 1], [theta], dims)  # ls_gate(theta, dim)
 
-    return ansatz_decompose(ls, params, dims)
+    return ansatz_decompose(circuit, ls, params, dims)

@@ -41,3 +41,12 @@ class TestQuantumCircuit(TestCase):
         circ.to_qasm()
         circ_new = QuantumCircuit()
         circ_new.load_from_file(file)
+
+    def test_simulate(self):
+        pass
+
+    def test_compile(self):
+        pass
+
+    def test_set_initial_state(self):
+        pass

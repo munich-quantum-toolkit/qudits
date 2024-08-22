@@ -4,7 +4,7 @@ import re
 from typing import TYPE_CHECKING, ClassVar
 
 from .backends import MISim, TNSim
-from .backends.fake_backends import FakeIonTraps2Six, FakeIonTraps2Trits
+from .backends.fake_backends import FakeIonTraps2Six, FakeIonTraps2Trits, FakeIonTraps3Six
 
 if TYPE_CHECKING:
     from .backends.backendv2 import Backend
@@ -20,6 +20,7 @@ class MQTQuditProvider:
         "misim": MISim,
         "faketraps2trits": FakeIonTraps2Trits,
         "faketraps2six": FakeIonTraps2Six,
+        "faketraps3six": FakeIonTraps3Six,
     }
 
     def get_backend(self, name: str | None = None, **kwargs) -> Backend:

@@ -5,12 +5,7 @@ import threading
 
 import numpy as np
 
-from .ansatz.parametrize import (
-    bound_1,
-    bound_2,
-    bound_3,
-)
-from .opt import Optimizer
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
 
 def interrupt_function() -> None:
@@ -48,19 +43,7 @@ def binary_search_compile(max_num_layer, ansatz_type):
 
 
 def run(num_layer, ansatz_type):
-    num_params_single_unitary_line_0 = -1 + Optimizer.SINGLE_DIM_0**2
-    num_params_single_unitary_line_1 = -1 + Optimizer.SINGLE_DIM_1**2
-
-    bounds_line_0 = Optimizer.bounds_assigner(
-        bound_1, bound_2, bound_3, num_params_single_unitary_line_0**2, Optimizer.SINGLE_DIM_0
-    ) * (num_layer + 1)
-    bounds_line_1 = Optimizer.bounds_assigner(
-        bound_1, bound_2, bound_3, num_params_single_unitary_line_1**2, Optimizer.SINGLE_DIM_1
-    ) * (num_layer + 1)
-
-    bounds = [
-        bounds_line_0[i] if i % 2 == 0 else bounds_line_1[i] for i in range(max(len(bounds_line_0), len(bounds_line_1)))
-    ]
+    bounds = Optimizer.return_bounds(num_layer)
 
     duration = 3600 * (Optimizer.SINGLE_DIM_0 * Optimizer.SINGLE_DIM_1 / 4)
 
@@ -74,6 +57,5 @@ def run(num_layer, ansatz_type):
 
     thread.join()
     f, x = result_queue.get()
-    # f, x = solve_anneal(bounds, ansatz_type)
 
     return f, x

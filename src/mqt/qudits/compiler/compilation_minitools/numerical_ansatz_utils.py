@@ -22,9 +22,9 @@ def gate_expand_to_circuit(gate, circuits_size, target, dims=None):
         msg = "target must be integer < integer circuits_size"
         raise ValueError(msg)
 
-    upper = [np.identity(dims[i], dtype="complex") for i in range(circuits_size - target - 1)]
+    upper = [np.identity(dims[i], dtype="complex") for i in range(target + 1, circuits_size)]
     lower = [np.identity(dims[j], dtype="complex") for j in range(target)]
-    circ = [*upper, gate, *lower]
+    circ = [*lower, gate, *upper]
     res = circ[-1]
 
     for i in reversed(list(range(1, len(circ)))):

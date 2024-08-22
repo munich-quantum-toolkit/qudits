@@ -6,9 +6,12 @@ from ....quantum_circuit import gates
 from ... import CompilerPass
 
 
-class ZRemovalPass(CompilerPass):
+class ZRemovalOptPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
+
+    def transpile_gate(self, gate):
+        return gate
 
     def transpile(self, circuit):
         circuit = self.remove_initial_rz(circuit)
