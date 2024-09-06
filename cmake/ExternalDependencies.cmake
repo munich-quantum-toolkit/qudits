@@ -1,30 +1,51 @@
 # Declare all external dependencies and make sure that they are available.
 
 include(FetchContent)
-include(CMakeDependentOption)
 set(FETCH_PACKAGES "")
 
 if(BUILD_MQT_QUDITS_BINDINGS)
   if(NOT SKBUILD)
-    # Manually detect the installed pybind11 package and import it into CMake.
+    # Manually detect the installed pybind11 package.
     execute_process(
       COMMAND "${Python_EXECUTABLE}" -m pybind11 --cmakedir
       OUTPUT_STRIP_TRAILING_WHITESPACE
       OUTPUT_VARIABLE pybind11_DIR)
+
+    # Add the detected directory to the CMake prefix path.
     list(APPEND CMAKE_PREFIX_PATH "${pybind11_DIR}")
   endif()
 
   # add pybind11 library
-  find_package(pybind11 CONFIG REQUIRED)
+  find_package(pybind11 2.13.5 CONFIG REQUIRED)
+endif()
+
+# cmake-format: off
+set(MQT_CORE_VERSION 2.6.1
+    CACHE STRING "MQT Core version")
+set(MQT_CORE_REV "41eea72cdbefbd86ba06f76dc41a911950dd3081"
+    CACHE STRING "MQT Core identifier (tag, branch or commit hash)")
+set(MQT_CORE_REPO_OWNER "cda-tum"
+    CACHE STRING "MQT Core repository owner (change when using a fork)")
+# cmake-format: on
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+  FetchContent_Declare(
+    mqt-core
+    GIT_REPOSITORY https://github.com/${MQT_CORE_REPO_OWNER}/mqt-core.git
+    GIT_TAG ${MQT_CORE_REV}
+    FIND_PACKAGE_ARGS ${MQT_CORE_VERSION})
+  list(APPEND FETCH_PACKAGES mqt-core)
+else()
+  find_package(mqt-core ${MQT_CORE_VERSION} QUIET)
+  if(NOT mqt-core_FOUND)
+    FetchContent_Declare(
+      mqt-core
+      GIT_REPOSITORY https://github.com/${MQT_CORE_REPO_OWNER}/mqt-core.git
+      GIT_TAG ${MQT_CORE_REV})
+    list(APPEND FETCH_PACKAGES mqt-core)
+  endif()
 endif()
 
 if(BUILD_MQT_QUDITS_TESTS)
-  set(FETCHCONTENT_SOURCE_DIR_GOOGLETEST
-      ${PROJECT_SOURCE_DIR}/extern/googletest
-      CACHE
-        PATH
-        "Path to the source directory of the gtest submodule. This variable is used by FetchContent to download the library if it is not already available."
-  )
   set(gtest_force_shared_crt
       ON
       CACHE BOOL "" FORCE)

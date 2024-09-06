@@ -30,7 +30,7 @@ If you have any questions, feel free to create a [discussion](https://github.com
 
 ## Getting Started
 
-`mqt.qudits` is available via [PyPI](https://pypi.org/project/mqt.qudits/) for all major operating systems and supports Python 3.8 to 3.12.
+`mqt.qudits` is available via [PyPI](https://pypi.org/project/mqt.qudits/) for all major operating systems and supports Python 3.9 to 3.13.
 
 ```console
 (.venv) $ pip install mqt.qudits
@@ -48,7 +48,7 @@ If you have any questions, feel free to create a [discussion](https://github.com
 
 ## System Requirements
 
-The implementation is compatible with any C++17 compiler, a minimum CMake version of 3.19, and Python 3.8+.
+The implementation is compatible with any C++17 compiler, a minimum CMake version of 3.19, and Python 3.9+.
 
 <!-- Please refer to the [documentation](https://mqt.readthedocs.io/projects/qudits) on how to build the project.-->
 

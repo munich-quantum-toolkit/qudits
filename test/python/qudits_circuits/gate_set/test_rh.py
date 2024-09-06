@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestRh(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit_3 = QuantumCircuit(1, [3], 0)
         rh = circuit_3.rh(0, [1, 2])
 
@@ -48,7 +49,8 @@ class TestRh(TestCase):
 
         assert np.allclose(rh.dag().to_matrix(identities=0), rh_test_dag)
 
-    def test_levels_setter(self):
+    @staticmethod
+    def test_levels_setter():
         circuit_3 = QuantumCircuit(1, [3], 0)
         rh = circuit_3.rh(0, [2, 0])
         assert rh.lev_a == 0
@@ -56,7 +58,8 @@ class TestRh(TestCase):
         assert rh.original_lev_a == 2
         assert rh.original_lev_b == 0
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit_3 = QuantumCircuit(1, [3], 0)
         rh = circuit_3.rh(0, [2, 0])
 

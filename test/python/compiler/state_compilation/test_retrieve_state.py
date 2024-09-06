@@ -8,7 +8,8 @@ from mqt.qudits.compiler.state_compilation.retrieve_state import generate_unifor
 
 
 class TestRetStates(TestCase):
-    def test_generate_uniform_state(self):
+    @staticmethod
+    def test_generate_uniform_state():
         try:
             generate_uniform_state([2, 3], "wrong")
         except Exception:
@@ -20,9 +21,11 @@ class TestRetStates(TestCase):
         assert np.allclose(wemb, np.array([0, np.sqrt(2) / 2, 0, np.sqrt(2) / 2, 0, 0]))
         assert np.allclose(w, np.array([0, 0.57735, 0.57735, 0.57735, 0, 0]))
 
-    def test_verify_normalized_state(self):
+    @staticmethod
+    def test_verify_normalized_state():
         dimension = 10
-        non_normalized_vector = np.random.rand(dimension)
+        rng = np.random.default_rng()
+        non_normalized_vector = rng.random(dimension)
         non_normalized_vector = np.abs(non_normalized_vector) ** 2
         normalized_vector = non_normalized_vector / np.linalg.norm(non_normalized_vector)
         normalized_vector = np.abs(normalized_vector) ** 2

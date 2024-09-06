@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from random import randint
 from unittest import TestCase
 
 import numpy as np
@@ -11,8 +10,9 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory
 
 
-def rand_0_5():
-    return randint(0, 5)
+def rand_0_5() -> int:
+    rng = np.random.default_rng()
+    return int(rng.integers(0, 6))
 
 
 class TestNoisyCircuitFactory(TestCase):
@@ -29,7 +29,6 @@ class TestNoisyCircuitFactory(TestCase):
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate_matrix
         noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
@@ -73,8 +72,8 @@ class TestNoisyCircuitFactory(TestCase):
         new_circ = factory.generate_circuit()
         instructions_new = new_circ.instructions
 
-        tag_counts_list1 = defaultdict(int)
-        tag_counts_list2 = defaultdict(int)
+        tag_counts_list1: dict[str, int] = defaultdict(int)
+        tag_counts_list2: dict[str, int] = defaultdict(int)
         insts = 0
         insts_new = 0
         for gate in instructions_og:
@@ -104,7 +103,7 @@ class TestNoisyCircuitFactory(TestCase):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
         circ = QuantumCircuit(qreg_example)
         x = circ.x(0)
-        x = x.control([1], [2])
+        x.control([1], [2])
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions

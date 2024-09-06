@@ -2,24 +2,29 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
-def verify_normalized_state(quantum_state):
+
+def verify_normalized_state(quantum_state: ArrayLike) -> bool:
     squared_magnitudes = np.abs(quantum_state) ** 2
-    sum_squared_magnitudes = np.sum(squared_magnitudes)
+    sum_squared_magnitudes = float(np.sum(squared_magnitudes))
 
     # Check if the sum is approximately equal to one
     tolerance = 1e-6
-    return np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance)
+    return bool(np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance))
 
 
-def generate_random_quantum_state(cardinalities):
+def generate_random_quantum_state(cardinalities: list[int]) -> ArrayLike:
     length = reduce(operator.mul, cardinalities)
     # Generate random complex numbers with real and imaginary parts
-    real_parts = np.random.randn(length)
-    imag_parts = np.random.randn(length)
+    rng = np.random.default_rng()
+    real_parts = rng.standard_normal(length)
+    imag_parts = rng.standard_normal(length)
     complex_nums = real_parts + 1j * imag_parts
 
     # Normalize the array
@@ -35,7 +40,7 @@ def generate_all_combinations(dimensions: list[int]) -> list[list[int]]:
     for i in range(dimensions[0]):
         sub_combinations = generate_all_combinations(dimensions[1:])
         for sub_combination in sub_combinations:
-            all_combinations.append([i, *sub_combination])
+            all_combinations.append([i, *sub_combination])  # noqa: PERF401
 
     return all_combinations
 
@@ -80,35 +85,32 @@ def find_entries_indices(input_list: list[list[int]], sublist: list[list[int]]) 
     indices = []
 
     for state in sublist:
-        id = True
+        idf = True
         for i in range(len(input_list)):
             for j in range(len(input_list[i])):
                 if input_list[i][j] != state[j]:
-                    id = False
+                    idf = False
                     break
-            if id:
+            if idf:
                 indices.append(i)
-            id = True
+            idf = True
 
     indices.sort()
     return indices
 
 
-def generate_uniform_state(dimensions: list[int], state: str) -> np.array:
+def generate_uniform_state(dimensions: list[int], state: str) -> ArrayLike:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":
-        # print("qudit-w-state")
         state_entries = generate_qudit_w_entries(dimensions)
     elif state == "embedded-w-state":
-        # print("embedded-w-state")
         state_entries = generate_embedded_w_entries(dimensions)
     elif state == "ghz":
         state_entries = generate_ghz_entries(dimensions)
-        # print("GHZ")
     else:
-        print("Input chose is wrong")
-        raise Exception
+        msg = "Input chose is wrong"
+        raise ValueError(msg)
 
     complex_ = np.sqrt(1.0 / len(state_entries))
     state_vector = np.array([0.0] * len(all_entries), dtype=complex)

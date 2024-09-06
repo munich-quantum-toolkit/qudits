@@ -1,24 +1,26 @@
 from __future__ import annotations
 
-from random import randint
+import typing
 from unittest import TestCase
 
 import numpy as np
 
-from mqt.qudits._qudits.misim import state_vector_simulation
+from mqt.qudits._qudits.misim import state_vector_simulation  # noqa: PLC2701
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
-def rand_0_5():
-    return randint(0, 5)
+
+def rand_0_5() -> int:
+    rng = np.random.default_rng()
+    return int(rng.integers(0, 5))
 
 
-def is_quantum_state(state):
-    """
-    Check if a given NumPy array represents a valid quantum state vector.
-    """
+def is_quantum_state(state: NDArray[np.complex128]) -> bool:
+    """Check if a given NumPy array represents a valid quantum state vector."""
     # Check if the input is a NumPy array
     if not isinstance(state, np.ndarray):
         print("Input is not a NumPy array")
@@ -47,7 +49,8 @@ def is_quantum_state(state):
 
 
 class Testpymisim(TestCase):
-    def test_state_vector_simulation(self):
+    @staticmethod
+    def test_state_vector_simulation():
         qreg_example = QuantumRegister("reg", 6, 6 * [5])
         circ = QuantumCircuit(qreg_example)
         for _i in range(300):
@@ -96,7 +99,6 @@ class Testpymisim(TestCase):
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate
         noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])

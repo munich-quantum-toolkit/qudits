@@ -9,6 +9,8 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
@@ -18,8 +20,8 @@ class H(Gate):
         self,
         circuit: QuantumCircuit,
         name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
+        target_qudits: int,
+        dimensions: int,
         controls: ControlData | None = None,
     ) -> None:
         super().__init__(
@@ -29,25 +31,23 @@ class H(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="h",
         )
-        self.qasm_tag = "h"
 
-    def __array__(self) -> np.ndarray:
-        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
-        for e0, e1 in itertools.product(range(self._dimensions), repeat=2):
-            omega = np.mod(2 / self._dimensions * (e0 * e1), 2)
+    def __array__(self) -> NDArray:  # noqa: PLW3201
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+        for e0, e1 in itertools.product(range(self.dimensions), repeat=2):
+            omega = np.mod(2 / self.dimensions * (e0 * e1), 2)
             omega = omega * np.pi * 1j
             omega = np.e**omega
-            array0 = np.zeros(self._dimensions, dtype="complex")
-            array1 = np.zeros(self._dimensions, dtype="complex")
+            array0 = np.zeros(self.dimensions, dtype="complex")
+            array1 = np.zeros(self.dimensions, dtype="complex")
             array0[e0] = 1
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
-        return matrix * (1 / np.sqrt(self._dimensions))
+        return matrix * (1 / np.sqrt(self.dimensions))
 
-    def validate_parameter(self, parameter=None) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass
+    @property
+    def dimensions(self) -> int:
+        assert isinstance(self._dimensions, int), "Dimensions must be an integer"
+        return self._dimensions

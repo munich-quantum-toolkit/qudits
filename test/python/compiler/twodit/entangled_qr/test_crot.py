@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_unitary_sim
 from mqt.qudits.compiler.twodit.entanglement_qr import CRotGen
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from python.compiler.twodit.entangled_qr.test_entangled_qr import mini_unitary_sim
 
 
 class TestCRot(TestCase):

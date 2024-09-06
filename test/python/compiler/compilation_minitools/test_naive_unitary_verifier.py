@@ -36,9 +36,9 @@ class TestUnitaryVerifier(TestCase):
         initial_map = [0, 1]
         final_map = [0, 1]
 
-        V1 = UnitaryVerifier(sequence, target, [dimension], nodes, initial_map, final_map)
+        v1 = UnitaryVerifier(sequence, target, [dimension], nodes, initial_map, final_map)
 
-        assert V1.verify()
+        assert v1.verify()
 
         ##################################################################
 
@@ -58,6 +58,6 @@ class TestUnitaryVerifier(TestCase):
 
         target_3 = self.circuit.h(2)
 
-        V1 = UnitaryVerifier(sequence_3, target_3, [dimension], nodes_3, initial_map_3, final_map_3)
+        v1 = UnitaryVerifier(sequence_3, target_3, [dimension], nodes_3, initial_map_3, final_map_3)
 
-        assert V1.verify()
+        assert v1.verify()

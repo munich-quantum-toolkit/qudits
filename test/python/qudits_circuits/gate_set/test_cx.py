@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestCEx(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         # Mve around the control and angle
 
         # control on 2
@@ -255,7 +256,8 @@ class TestCEx(TestCase):
             matrix_dag,
         )
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit_33 = QuantumCircuit(2, [3, 3], 0)
         cx = circuit_33.cx(
             [1, 0],

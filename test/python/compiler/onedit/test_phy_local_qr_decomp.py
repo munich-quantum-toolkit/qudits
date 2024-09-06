@@ -14,7 +14,8 @@ class TestPhyLocQRPass(TestCase):
 
 
 class TestPhyQRDecomposition(TestCase):
-    def test_execute(self):
+    @staticmethod
+    def test_execute():
         dim = 5
         test_sample_edges = [
             (0, 4, {"delta_m": 0, "sensitivity": 1}),
@@ -30,16 +31,16 @@ class TestPhyQRDecomposition(TestCase):
         circuit_5 = QuantumCircuit(1, [5], 0)
         graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0], 0, circuit_5)
 
-        Htest = circuit_5.h(0)
+        htest = circuit_5.h(0)
         graph_1.phase_storing_setup()
 
-        QR = PhyQrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = PhyQrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
-        decomp, _algorithmic_cost, _total_cost = QR.execute()
+        decomp, _algorithmic_cost, _total_cost = qr.execute()
 
         # ##############################################
 
-        V = UnitaryVerifier(decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
+        v = UnitaryVerifier(decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
         assert len(decomp) == 30
-        assert V.verify()
+        assert v.verify()

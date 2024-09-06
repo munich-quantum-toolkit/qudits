@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from ...exceptions import JobError, JobTimeoutError
 from .jobstatus import JobStatus
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ..backends.backendv2 import Backend
+    from . import JobResult
 
 
 class Job:
-    """Class to handle jobs
+    """Class to handle jobs.
 
     This first version of the Backend abstract class is written to be mostly
     backwards compatible with the legacy providers interface. This was done to ease
@@ -24,7 +27,7 @@ class Job:
     version = 1
     _async = True
 
-    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs) -> None:
+    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs: dict[str, Any]) -> None:
         """Initializes the asynchronous job.
 
         Args:
@@ -34,7 +37,7 @@ class Job:
         """
         if job_id == "auto":
             current_time = int(time.time() * 1000)
-            self._job_id = hash((os.getpid(), current_time))
+            self._job_id = str(hash((os.getpid(), current_time)))
         else:
             self._job_id = job_id
         self._backend = backend
@@ -65,10 +68,10 @@ class Job:
 
     def in_final_state(self) -> bool:
         """Return whether the job is in a final job state such as DONE or ERROR."""
-        return self.status() in JobStatus.JOB_FINAL_STATES
+        return self.status() in {JobStatus.DONE, JobStatus.ERROR}
 
     def wait_for_final_state(
-        self, timeout: float | None = None, wait: float = 5, callback: Callable | None = None
+        self, timeout: float | None = None, wait: float = 5, callback: Callable[[str, str, Job], None] | None = None
     ) -> None:
         """Poll the job status until it progresses to a final state such as DONE or ERROR.
 
@@ -84,7 +87,7 @@ class Job:
             return
         start_time = time.time()
         status = self.status()
-        while status not in JobStatus.JOB_FINAL_STATES:
+        while status not in {JobStatus.DONE, JobStatus.ERROR}:
             elapsed_time = time.time() - start_time
             if timeout is not None and elapsed_time >= timeout:
                 msg = f"Timeout while waiting for job {self.job_id()}."
@@ -98,11 +101,11 @@ class Job:
         """Submit the job to the backend for execution."""
         raise NotImplementedError
 
-    def result(self):
+    def result(self) -> JobResult:
         """Return the results of the job."""
         return self._result
 
-    def set_result(self, result) -> None:
+    def set_result(self, result: JobResult) -> None:
         self._result = result
 
     def cancel(self) -> NoReturn:

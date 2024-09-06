@@ -5,17 +5,21 @@ from unittest import TestCase
 import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
+from mqt.qudits.quantum_circuit.components import ClassicRegister
 
 
 class TestQuantumCircuit(TestCase):
-    def test_to_qasm(self):
-        """Export circuit as QASM program"""
+    @staticmethod
+    def test_to_qasm():
+        """Export circuit as QASM program."""
         qreg_field = QuantumRegister("field", 7, [7, 7, 7, 7, 7, 7, 7])
         qreg_matter = QuantumRegister("matter", 2, [2, 2])
+        cl_reg = ClassicRegister("classic", 3)
 
         # Initialize the circuit
         circ = QuantumCircuit(qreg_field)
         circ.append(qreg_matter)
+        circ.append_classic(cl_reg)
 
         # Apply operations
         circ.x(qreg_field[0])
@@ -24,7 +28,7 @@ class TestQuantumCircuit(TestCase):
         circ.cx([qreg_field[1], qreg_field[2]])
         circ.r(qreg_matter[1], [0, 1, np.pi, np.pi / 2])
         circ.csum([qreg_field[2], qreg_matter[1]])
-        circ.pm([qreg_matter[0], qreg_matter[1]], [1, 0, 2, 3])
+        circ.pm(qreg_matter[0], [1, 0])
         circ.rh(qreg_field[2], [0, 1])
         circ.ls([qreg_field[2], qreg_matter[0]], [np.pi / 3])
         circ.ms([qreg_field[2], qreg_matter[0]], [np.pi / 3])

@@ -8,20 +8,22 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
 
 class CustomTwo(Gate):
-    """Two body custom gate"""
+    """Two body custom gate."""
 
     def __init__(
         self,
         circuit: QuantumCircuit,
         name: str,
-        target_qudits: list[int] | int,
-        parameters: np.ndarray,
-        dimensions: list[int] | int,
+        target_qudits: list[int],
+        parameters: NDArray[np.complex128, np.complex128],
+        dimensions: list[int],
         controls: ControlData | None = None,
     ) -> None:
         super().__init__(
@@ -32,17 +34,19 @@ class CustomTwo(Gate):
             dimensions=dimensions,
             control_set=controls,
             params=parameters,
+            qasm_tag="cutwo",
         )
+        self.__array_storage: NDArray = None
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-        self.qasm_tag = "cutwo"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         return self.__array_storage
 
-    def validate_parameter(self, parameter=None) -> bool:
-        return isinstance(parameter, np.ndarray)
-
-    def __str__(self) -> str:
-        # TODO
-        pass
+    @staticmethod
+    def validate_parameter(parameter: NDArray | None = None) -> bool:
+        if parameter is None:
+            return True  # or False, depending on whether None is considered valid
+        return isinstance(parameter, np.ndarray) and (
+            parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)
+        )

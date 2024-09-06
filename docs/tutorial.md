@@ -39,7 +39,7 @@ $ source .venv/bin/activate
 +++
 
 ```{note}
-This requires a C++17 compiler, a minimum CMake version of 3.19, and Python 3.8+.
+This requires a C++17 compiler, a minimum CMake version of 3.19, and Python 3.9+.
 ````
 
 ## User Inputs 💻

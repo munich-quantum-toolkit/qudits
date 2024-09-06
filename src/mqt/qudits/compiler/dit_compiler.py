@@ -1,15 +1,23 @@
 from __future__ import annotations
 
+import typing
+
 from ..core.lanes import Lanes
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
+from . import CompilerPass
 from .naive_local_resynth import NaiveLocResynthOptPass
 from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPass, ZRemovalOptPass
 from .twodit import LogEntQRCEXPass
 from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
 
+if typing.TYPE_CHECKING:
+    from ..quantum_circuit import QuantumCircuit
+    from ..quantum_circuit.gate import Gate
+    from ..simulation.backends.backendv2 import Backend
+
 
 class QuditCompiler:
-    passes_enabled = {
+    passes_enabled: typing.ClassVar = {
         "PhyLocQRPass": PhyLocQRPass,
         "PhyLocAdaPass": PhyLocAdaPass,
         "LocQRPass": PhyLocQRPass,
@@ -25,12 +33,12 @@ class QuditCompiler:
     def __init__(self) -> None:
         pass
 
-    def compile(self, backend, circuit, passes_names):
+    def compile(self, backend: Backend, circuit: QuantumCircuit, passes_names: list[str]) -> QuantumCircuit:
         passes_dict = {}
         new_instr = []
         # Instantiate and execute created classes
-        for compiler_pass in passes_names:
-            compiler_pass = self.passes_enabled[compiler_pass]
+        for compiler_pass_name in passes_names:
+            compiler_pass = self.passes_enabled[compiler_pass_name]
             decomposition = compiler_pass(backend)
             if "Loc" in str(compiler_pass):
                 passes_dict[GateTypes.SINGLE] = decomposition
@@ -39,7 +47,7 @@ class QuditCompiler:
             elif "Multi" in str(compiler_pass):
                 passes_dict[GateTypes.MULTI] = decomposition
         for gate in circuit.instructions:
-            decomposer = passes_dict.get(gate.gate_type)
+            decomposer = typing.cast(CompilerPass, passes_dict.get(gate.gate_type))
             new_instructions = decomposer.transpile_gate(gate)
             new_instr.extend(new_instructions)
 
@@ -48,7 +56,7 @@ class QuditCompiler:
 
         return circuit
 
-    def compile_O0(self, backend, circuit):
+    def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
         compiled = self.compile(backend, circuit, passes)
 
@@ -58,15 +66,17 @@ class QuditCompiler:
         compiled.set_mapping(mappings)
         return compiled
 
-    def compile_O1(self, backend, circuit):
-        phyloc = PhyLocAdaPass(backend)
+    @staticmethod
+    def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         phyent = PhyEntQRCEXPass(backend)
 
         lanes = Lanes(circuit)
         new_instructions = []
         for gate in circuit.instructions:
+            ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:
-                ins = phyloc.transpile_gate(gate, lanes.next_is_local(gate))
+                phyloc = PhyLocAdaPass(backend, lanes.next_is_local(gate))
+                ins = phyloc.transpile_gate(gate)
                 new_instructions.extend(ins)
             else:
                 ins = phyent.transpile_gate(gate)

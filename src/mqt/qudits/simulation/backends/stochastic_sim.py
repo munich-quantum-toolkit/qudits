@@ -7,85 +7,71 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..noise_tools import NoisyCircuitFactory
+from ..noise_tools import NoiseModel, NoisyCircuitFactory
 from ..save_info import save_full_states, save_shots
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ...quantum_circuit import QuantumCircuit
+    from . import MISim, TNSim
     from .backendv2 import Backend
 
 
-def stochastic_simulation(backend: Backend, circuit: QuantumCircuit):
-    noise_model = backend.noise_model
-    shots = backend.shots
-    num_processes = mp.cpu_count()
-    factory = NoisyCircuitFactory(noise_model, circuit)
+def generate_seed() -> int:
+    """Generate a random seed for numpy random generator."""
+    current_time = int(time.time() * 1000)
+    return hash((os.getpid(), current_time)) % 2**32
 
-    with mp.Pool(processes=num_processes) as process:
-        execution_args = [(backend, factory) for _ in range(shots)]
-        results = process.map(stochastic_execution, execution_args)
 
-    if backend.full_state_memory:
-        filepath = backend.file_path
-        filename = backend.file_name
-        save_full_states(results, filepath, filename)
-    elif backend.memory:
-        filepath = backend.file_path
-        filename = backend.file_name
-        save_shots(results, filepath, filename)
+def measure_state(vector_data: NDArray[np.complex128]) -> int:
+    """Measure the quantum state and return the result."""
+    probabilities = np.abs(vector_data.ravel()) ** 2
+    rng = np.random.default_rng(generate_seed())
+    return rng.choice(len(probabilities), p=probabilities)
 
+
+def save_results(backend: Backend, results: list[int | NDArray[np.complex128]]) -> None:
+    """Save the simulation results based on backend configuration."""
+    if backend.full_state_memory and backend.file_path and backend.file_name:
+        save_full_states(results, backend.file_path, backend.file_name)
+    elif backend.memory and backend.file_path and backend.file_name:
+        save_shots(results, backend.file_path, backend.file_name)
+
+
+def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray | list[int]:
+    noise_model: NoiseModel = NoiseModel()
+    if backend.noise_model is not None:
+        noise_model = backend.noise_model
+
+    shots: int = backend.shots
+    num_processes: int = mp.cpu_count()
+    from . import MISim, TNSim
+
+    with mp.Pool(processes=num_processes) as pool:
+        if isinstance(backend, TNSim):
+            factory = NoisyCircuitFactory(noise_model, circuit)
+            args_tn = [(backend, factory) for _ in range(shots)]
+            results = pool.map(stochastic_execution_tn, args_tn)
+        elif isinstance(backend, MISim):
+            args_mis = [(backend, circuit, noise_model) for _ in range(shots)]
+            results = pool.map(stochastic_execution_mi, args_mis)
+        else:
+            msg = "Unsupported backend type"
+            raise TypeError(msg)
+
+    save_results(backend, results)
     return results
 
 
-def stochastic_execution(args):
+def stochastic_execution_tn(args: tuple[TNSim, NoisyCircuitFactory]) -> NDArray | int:
     backend, factory = args
     circuit = factory.generate_circuit()
     vector_data = backend.execute(circuit)
-
-    if not backend.full_state_memory:
-        current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2**32
-        gen = np.random.Generator(np.random.PCG64(seed=seed))
-        vector_data = np.ravel(vector_data)
-        probabilities = [abs(x) ** 2 for x in vector_data]
-        return gen.choice(a=range(len(probabilities)), p=probabilities)
-
-    return vector_data
+    return vector_data if backend.full_state_memory else measure_state(vector_data)
 
 
-def stochastic_simulation_misim(backend: Backend, circuit: QuantumCircuit):
-    noise_model = backend.noise_model
-    shots = backend.shots
-    num_processes = mp.cpu_count()
-
-    execution_pack = (circuit, noise_model)
-    with mp.Pool(processes=num_processes) as process:
-        execution_args = [(backend, execution_pack) for _ in range(shots)]
-        results = process.map(stochastic_execution_misim, execution_args)
-
-    if backend.full_state_memory:
-        filepath = backend.file_path
-        filename = backend.file_name
-        save_full_states(results, filepath, filename)
-    elif backend.memory:
-        filepath = backend.file_path
-        filename = backend.file_name
-        save_shots(results, filepath, filename)
-
-    return results
-
-
-def stochastic_execution_misim(args):
-    backend, execution_pack = args
-    circuit, noise_model = execution_pack
+def stochastic_execution_mi(args: tuple[MISim, QuantumCircuit, NoiseModel]) -> NDArray | int:
+    backend, circuit, noise_model = args
     vector_data = backend.execute(circuit, noise_model)
-
-    if not backend.full_state_memory:
-        current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2**32
-        gen = np.random.Generator(np.random.PCG64(seed=seed))
-        vector_data = np.ravel(vector_data)
-        probabilities = [abs(x) ** 2 for x in vector_data]
-        return gen.choice(a=range(len(probabilities)), p=probabilities)
-
-    return vector_data
+    return vector_data if backend.full_state_memory else measure_state(vector_data)

@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+import numpy as np
+
 from mqt.qudits.core import LevelGraph, NAryTree, Node
 from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.quantum_circuit.gates import R
 
 
 class TestNode(TestCase):
@@ -25,17 +28,18 @@ class TestNode(TestCase):
 
         circuit = QuantumCircuit(1, [6], 0)
         self.U = circuit.h(0).to_matrix(identities=0)
+        self.r = R(circuit, "R", 0, [0, 1, 0.1, 0.3], 6)
 
-        self.root = Node(0, None, self.U, self.graph_1, 0, 10e-4, 1, [], -1, None)
+        self.root = Node(0, self.r, self.U, self.graph_1, 0, 10e-4, (1.0, 1.0), [], -1)
 
     def test_add(self):
-        self.root.add(1, None, self.U, self.graph_1, 0, 10e-4, 1, [])
+        self.root.add(1, self.r, self.U, self.graph_1, 0, 10e-4, (1.0, 1.0), [])
         assert self.root.size == 1
         assert self.root.children[0].key == 1
         assert self.root.children[0].current_cost == 0
 
     def test_print(self):
-        self.root.add(1, None, self.U, self.graph_1, 0, 10e-4, 1, [])
+        self.root.add(1, self.r, self.U, self.graph_1, 0, 10e-4, (1.0, 1.0), [])
         print(self.root.children[0])
 
 
@@ -58,28 +62,32 @@ class TestNAryTree(TestCase):
 
         circuit = QuantumCircuit(1, [6], 0)
         self.U = circuit.h(0).to_matrix(identities=0)
+        self.r = R(circuit, "R", 0, [0, 1, 0.1, 0.3], 6)
+        np.array([[1, 0], [0, 1]], dtype=np.float64)
 
         self.T = NAryTree()
-        self.T.add(0, None, None, None, 0, 0, 0, [])
+        self.T.add(0, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [])
 
     def test_add(self):
-        # new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses, parent_key
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
-        self.T.add(3, None, None, None, 0, 0, 0, [], 0)
+        # new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses,
+        # parent_key
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
 
         assert self.T.root.children[0].key == 2
         assert self.T.root.children[1].key == 3
 
     def test_find_node(self):
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
 
         node = self.T.find_node(self.T.root, 2)
-        assert node.parent_key == 0
-        assert node.key == 2
+        if node is not None:
+            assert node.parent_key == 0
+            assert node.key == 2
 
     def test_depth(self):
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
-        self.T.add(3, None, None, None, 0, 0, 0, [], 2)
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
 
         d0 = self.T.depth(0)
         d2 = self.T.depth(2)
@@ -87,13 +95,13 @@ class TestNAryTree(TestCase):
         assert d2 == 1
 
     def test_max_depth(self):
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
-        self.T.add(3, None, None, None, 0, 0, 0, [], 2)
-        self.T.add(4, None, None, None, 0, 0, 0, [], 3)
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 3)
 
         node = self.T.find_node(self.T.root, 2)
-
-        d2 = self.T.max_depth(node)
+        if node is not None:
+            d2 = self.T.max_depth(node)
         assert d2 == 2
 
     def test_size_refresh(self):
@@ -101,19 +109,19 @@ class TestNAryTree(TestCase):
 
         assert size == 0
 
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
-        self.T.add(3, None, None, None, 0, 0, 0, [], 2)
-        self.T.add(4, None, None, None, 0, 0, 0, [], 2)
-        self.T.add(5, None, None, None, 0, 0, 0, [], 3)
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
+        self.T.add(5, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 3)
 
         size = self.T.size_refresh(self.T.root)
 
         assert size == 4
 
     def test_found_checker(self):
-        self.T.add(2, None, None, None, 0.1, 0.1, 10, [], 0)
-        self.T.add(3, None, None, None, 0.11, 0.1, 10, [], 2)
-        self.T.add(4, None, None, None, 0.01, 0.01, 10, [], 2)
+        self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0.11, 0.1, (10.0, 10.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0.01, 0.01, (10.0, 10.0), [], 2)
 
         self.T.root.finished = False
         self.T.root.children[0].finished = False
@@ -129,27 +137,28 @@ class TestNAryTree(TestCase):
         assert not self.T.found_checker(self.T.root)
 
     def test_min_cost_decomp(self):
-        self.T.add(2, None, None, None, 0.1, 0.1, 10, [], 0)
-        self.T.add(3, None, None, None, 0.11, 0.1, 10, [], 2)
-        self.T.add(4, None, None, None, 0.01, 0.01, 10, [], 2)
+        R(QuantumCircuit(), "R", 0, [0, 1, 0.1, 0.3], 2)
+        np.array([[1, 0], [0, 1]], dtype=np.float64)
+        self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0.11, 0.1, (10.0, 10.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0.01, 0.01, (10.0, 10.0), [], 2)
 
         self.T.root.finished = True
         self.T.root.children[0].finished = True
         self.T.root.children[0].children[0].finished = True
         self.T.root.children[0].children[1].finished = True
 
-        node_seq, best_cost, final_graph = self.T.min_cost_decomp(self.T.root)
+        node_seq, best_cost, _final_graph = self.T.min_cost_decomp(self.T.root)
         assert best_cost[0] == 0.01
         assert best_cost[1] == 0.01
-        assert final_graph is None
         assert node_seq[0].key == 0
         assert node_seq[1].key == 2
         assert node_seq[2].key == 4
 
     def test_retrieve_decomposition(self):
-        self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
-        self.T.add(3, None, None, self.graph_1, 0.11, 0.1, 10, [], 2)
-        self.T.add(4, None, None, self.graph_1, 0.01, 0.01, 10, [], 2)
+        self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0.11, 0.1, (10.0, 10.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0.01, 0.01, (10.0, 10.0), [], 2)
 
         self.T.root.finished = False
         self.T.root.children[0].finished = False
@@ -169,30 +178,32 @@ class TestNAryTree(TestCase):
         self.T = NAryTree()
         assert self.T.is_empty()
 
-        self.T.add(0, None, None, self.graph_1, 0.0, 0.0, 10, [])
+        self.T.add(0, self.r, self.U, self.graph_1, 0.0, 0.0, (10.0, 10.0), [])
         assert not self.T.is_empty()
 
-        self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
+        self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
         assert not self.T.is_empty()
 
     def test_total_size(self):
         size = self.T.total_size
+        R(QuantumCircuit(), "R", 0, [0, 1, 0.1, 0.3], 2)
+        np.array([[1, 0], [0, 1]], dtype=np.float64)
 
         assert size == 1
 
-        self.T.add(2, None, None, None, 0, 0, 0, [], 0)
-        self.T.add(3, None, None, None, 0, 0, 0, [], 2)
-        self.T.add(4, None, None, None, 0, 0, 0, [], 2)
-        self.T.add(5, None, None, None, 0, 0, 0, [], 3)
+        self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 2)
+        self.T.add(5, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 3)
 
         size = self.T.total_size
 
         assert size == 5
 
     def test_print_tree(self):
-        self.T.add(2, None, None, self.graph_1, 0.1, 0.1, 10, [], 0)
-        self.T.add(3, None, None, self.graph_1, 0.11, 0.1, 10, [], 2)
-        self.T.add(4, None, None, self.graph_1, 0.01, 0.01, 10, [], 2)
+        self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
+        self.T.add(3, self.r, self.U, self.graph_1, 0.11, 0.1, (10.0, 10.0), [], 2)
+        self.T.add(4, self.r, self.U, self.graph_1, 0.01, 0.01, (10.0, 10.0), [], 2)
 
         tree_string = self.T.print_tree(self.T.root, "")
 

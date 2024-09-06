@@ -13,5 +13,5 @@ if(NOT TARGET _qudits)
   install(
     TARGETS _qudits
     DESTINATION .
-    COMPONENT mqt-qudits_PythonModule)
+    COMPONENT mqt-qudits_Python)
 endif()

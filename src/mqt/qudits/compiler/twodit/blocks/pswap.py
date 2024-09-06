@@ -1,19 +1,25 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 from math import floor
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
 from mqt.qudits.quantum_circuit import gates
 
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+
 
 class PSwapGen:
-    def __init__(self, circuit, indices) -> None:
-        self.circuit = circuit
-        self.indices = indices
+    def __init__(self, circuit: QuantumCircuit, indices: list[int]) -> None:
+        self.circuit: QuantumCircuit = circuit
+        self.indices: list[int] = indices
 
-    def pswap_101_as_list_phases(self, theta, phi):
+    def pswap_101_as_list_phases(self, theta: float, phi: float) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -59,7 +65,7 @@ class PSwapGen:
             )
             # Cex().cex_101(d, 0)
         else:
-            cex = CEX_SEQUENCE
+            cex_s = CEX_SEQUENCE
 
         #############################################################################################
         # START THE DECOMPOSITION
@@ -76,7 +82,7 @@ class PSwapGen:
                 None,
         )
         """
-        compose = []
+        compose: list[Gate] = []
         # Used to be [on0(ph1, d), on0(h_, d)]
         #################################
 
@@ -84,15 +90,16 @@ class PSwapGen:
             r_flip_1 = gates.R(self.circuit, "R_flip", index_target, [1, dim_target - 1, np.pi, np.pi / 2], dim_target)
             compose.append(r_flip_1)  # (on1(R(np.pi, np.pi / 2, 1, d - 1, d).matrix, d))
 
-        compose.append(h_0)
+        """compose.append(h_0)
         compose.append(h_1)  # (on1(h_, d))
 
-        compose.append(zpiov2_0)  # (on0(zpiov2, d))
+        compose.append(zpiov2_0)  # (on0(zpiov2, d))"""
+        compose.extend((h_0, h_1, zpiov2_0))
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(h_0)  # (on0(h_, d))
         compose.append(h_1)  # (on1(h_, d))
@@ -106,14 +113,14 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
         compose.append(single_excitation)
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(tplus)
         compose.append(single_excitation_back)
@@ -130,7 +137,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(h_0)  # (on0(h_, d))
         compose.append(h_1)  # (on1(h_, d))
@@ -143,11 +150,11 @@ class PSwapGen:
 
         return compose
 
-    def pswap_101_as_list_no_phases(self, theta, phi):
+    def pswap_101_as_list_no_phases(self, theta: float, phi: float) -> list[Gate]:
         rotation = self.pswap_101_as_list_phases(-theta / 4, phi)
         return rotation + rotation + rotation + rotation
 
-    def permute_pswap_101_as_list(self, pos, theta, phase, with_phase=False):
+    def permute_pswap_101_as_list(self, pos: int, theta: float, phase: float, with_phase: bool = False) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]

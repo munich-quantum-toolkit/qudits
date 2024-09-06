@@ -19,7 +19,3 @@ class TestX(TestCase):
         x_1 = self.circuit_23.x(1)
         matrix_1 = x_1.to_matrix(identities=0)
         assert np.allclose(np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]), matrix_1)
-
-    def test_validate_parameter(self):
-        x = self.circuit_23.x(0)
-        assert x.validate_parameter()

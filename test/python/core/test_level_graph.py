@@ -49,9 +49,9 @@ class TestLevelGraph(TestCase):
         test_sample_nodes_map = [3, 2, 4, 1, 0]
 
         self.graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0])
-        assert self.graph_1._1stInode == 0
+        assert self.graph_1.fst_inode == 0
         self.graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [1])
-        assert self.graph_1._1stInode == 1
+        assert self.graph_1.fst_inode == 1
 
     def test_update_list(self):
         graph_1_list = [(0, 5), (0, 4), (0, 3), (0, 2), (1, 5), (1, 4), (1, 3), (1, 2)]
@@ -178,7 +178,7 @@ class TestLevelGraph(TestCase):
         self.graph_1.set_qudits_index(0)
         self.graph_1.nodes[0]["phase_storage"] = 1.0
         self.graph_1.nodes[1]["phase_storage"] = 1.0
-        rzs = self.graph_1.get_VRz_gates()
+        rzs = self.graph_1.get_vrz_gates()
         assert len(rzs) == 2
         assert rzs[0].lev_a == 3
         assert rzs[1].lev_a == 2
@@ -197,18 +197,18 @@ class TestLevelGraph(TestCase):
         sensitivity = self.graph_1.get_edge_sensitivity(0, 4)
         assert sensitivity == 1
 
-    def test__1stRnode(self):
-        assert self.graph_1._1stRnode == 1
+    def test_fst_rnode(self):
+        assert self.graph_1.fst_rnode == 1
 
-    def test__1stInode(self):
-        assert self.graph_1._1stInode == 0
+    def test_fstinode(self):
+        assert self.graph_1.fst_inode == 0
 
-    def test_is_Inode(self):
-        assert self.graph_1.is_Inode(0)
-        assert not self.graph_1.is_Inode(1)
-        assert not self.graph_1.is_Inode(2)
-        assert not self.graph_1.is_Inode(3)
-        assert not self.graph_1.is_Inode(4)
+    def test_is_inode(self):
+        assert self.graph_1.is_inode(0)
+        assert not self.graph_1.is_inode(1)
+        assert not self.graph_1.is_inode(2)
+        assert not self.graph_1.is_inode(3)
+        assert not self.graph_1.is_inode(4)
 
     def test_is_irnode(self):
         assert self.graph_1.is_irnode(1)

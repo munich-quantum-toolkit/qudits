@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from unittest import TestCase
 
 import numpy as np
@@ -7,6 +8,9 @@ import numpy as np
 from mqt.qudits.core.lanes import Lanes
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.gates import CEx, CustomMulti, R
+
+if typing.TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit.gate import Gate
 
 
 class TestLanes(TestCase):
@@ -25,7 +29,7 @@ class TestLanes(TestCase):
         ]
         self.circuit.instructions = gates
         self.lanes = Lanes(self.circuit)
-        expected_index_dict = {
+        expected_index_dict: dict[int, list[tuple[int, Gate]]] = {
             0: [(0, gates[0]), (0, gates[1]), (1, gates[2]), (2, gates[4])],
             1: [(1, gates[2]), (1, gates[3]), (2, gates[4])],
             2: [(2, gates[4])],

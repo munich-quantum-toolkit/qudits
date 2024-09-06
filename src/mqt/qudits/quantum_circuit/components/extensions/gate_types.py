@@ -4,11 +4,11 @@ import enum
 
 
 class GateTypes(enum.Enum):
-    """Enumeration for job status."""
+    """Enumeration for gate types."""
 
-    SINGLE = "Single Qudit Gate"
-    TWO = "Two Qudit Gate"
-    MULTI = "Multi Qudit Gate"
+    SINGLE: str = "Single Qudit Gate"
+    TWO: str = "Two Qudit Gate"
+    MULTI: str = "Multi Qudit Gate"
 
 
-CORE_GATE_TYPES = (GateTypes.SINGLE, GateTypes.TWO, GateTypes.MULTI)
+CORE_GATE_TYPES: tuple[GateTypes, GateTypes, GateTypes] = (GateTypes.SINGLE, GateTypes.TWO, GateTypes.MULTI)

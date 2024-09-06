@@ -1,5 +1,5 @@
-"""FROM An alternative quantum fidelity for mixed states of qudits Xiaoguang Wang, 1, 2, * Chang-Shui Yu, 3 and x. x.
-Yi 3"""
+#!/usr/bin/env python3
+"""FROM An alternative quantum fidelity for mixed states of qudits https://doi.org/10.1016/j.physleta.2008.10.083."""
 
 from __future__ import annotations
 
@@ -7,14 +7,20 @@ import typing
 
 import numpy as np
 
+from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 
-def size_check(a: np.ndarray, b: np.ndarray) -> bool:
+if typing.TYPE_CHECKING:
+    from numpy.typing import ArrayLike, NDArray
+
+
+def size_check(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> bool:
     return bool(a.shape == b.shape and a.shape[0] == a.shape[1])
 
 
-def fidelity_on_operator(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_operator(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
     if not size_check(a, b):
-        raise Exception
+        msg = "Input arrays must have the same square shape."
+        raise ShapeMismatchError(msg)
 
     adag = a.T.conj().copy()
     bdag = b.T.conj().copy()
@@ -24,18 +30,22 @@ def fidelity_on_operator(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, (numerator / denominator))
 
 
-def fidelity_on_unitares(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
     if not size_check(a, b):
-        raise Exception
+        msg = "Input arrays must have the same square shape."
+        raise ShapeMismatchError(msg)
 
     dimension = a.shape[0]
 
     return typing.cast(float, np.abs(np.trace(a.T.conj() @ b)) / dimension)
 
 
-def fidelity_on_density_operator(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_density_operator(
+    a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
+) -> float:
     if not size_check(a, b):
-        raise Exception
+        msg = "Input arrays must have the same square shape."
+        raise ShapeMismatchError(msg)
 
     numerator = np.abs(np.trace(a @ b))
     denominator = np.sqrt(np.trace(a @ a) * np.trace(b @ b))
@@ -43,29 +53,15 @@ def fidelity_on_density_operator(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, (numerator / denominator))
 
 
-def density_operator(state_vector) -> np.ndarray:
-    if isinstance(state_vector, list):
-        state_vector = np.array(state_vector)
-
-    return np.outer(state_vector, state_vector.conj())
-
-
-def frobenius_dist(x, y):
-    a = x - y
-    return np.sqrt(np.trace(np.abs(a.T.conj() @ a)))
-
-
-def naive_state_fidelity(state1, state2):
-    """
-    Calculates fidelity between two state vectors.
-    """
+def naive_state_fidelity(state1: ArrayLike, state2: ArrayLike) -> float:
+    """Calculates fidelity between two state vectors."""
     # Ensure both states have the same dimension
     if state1.shape != state2.shape:
-        msg = "State vectors must have the same dimension."
-        raise ValueError(msg)
+        msg = "Input arrays must have the same square shape."
+        raise ShapeMismatchError(msg)
 
     # Inner product of the two states
     inner_product = np.conj(state1).dot(state2)
 
     # Fidelity calculation
-    return np.abs(inner_product) ** 2
+    return float(np.abs(inner_product) ** 2)

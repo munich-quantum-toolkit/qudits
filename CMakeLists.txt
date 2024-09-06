@@ -1,17 +1,11 @@
 # set required cmake version
-cmake_minimum_required(VERSION 3.19...3.28)
+cmake_minimum_required(VERSION 3.19...3.30)
 
 # project definition
 project(
   mqt-qudits
   LANGUAGES CXX
-  VERSION 0.1.0
   DESCRIPTION "MQT Qudits - A Framework For Mixed-Dimensional Qudit Quantum Computing")
-
-include(cmake/StandardProjectSettings.cmake)
-include(cmake/PreventInSourceBuilds.cmake)
-include(cmake/PackageAddTest.cmake)
-include(cmake/Cache.cmake)
 
 option(BUILD_MQT_QUDITS_BINDINGS "Build the MQT Qudits Python bindings" OFF)
 if(BUILD_MQT_QUDITS_BINDINGS)
@@ -30,9 +24,14 @@ if(BUILD_MQT_QUDITS_BINDINGS)
       ON
       CACHE BOOL "Prevent multiple searches for Python and instead cache the results.")
 
+  if(DISABLE_GIL)
+    message(STATUS "Disabling Python GIL")
+    add_compile_definitions(Py_GIL_DISABLED)
+  endif()
+
   # top-level call to find Python
   find_package(
-    Python 3.8 REQUIRED
+    Python 3.9 REQUIRED
     COMPONENTS Interpreter Development.Module
     OPTIONAL_COMPONENTS Development.SABIModule)
 endif()
@@ -59,4 +58,17 @@ if(BUILD_MQT_QUDITS_TESTS)
   enable_testing()
   include(GoogleTest)
   add_subdirectory(test)
+endif()
+
+if(MQT_QUDITS_MASTER_PROJECT)
+  if(NOT TARGET mqt-qudits-uninstall)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+    add_custom_target(mqt-qudits-uninstall
+                      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+  endif()
+else()
+  set(mqt-qudits_FOUND
+      TRUE
+      CACHE INTERNAL "True if mqt-qudits is found on the system")
 endif()

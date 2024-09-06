@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from .backends import MISim, TNSim
 from .backends.fake_backends import FakeIonTraps2Six, FakeIonTraps2Trits, FakeIonTraps3Six
@@ -15,7 +15,7 @@ class MQTQuditProvider:
     def version(self) -> int:
         return 0
 
-    __backends: ClassVar[dict] = {
+    __backends: ClassVar[dict[str, type[Backend]]] = {
         "tnsim": TNSim,
         "misim": MISim,
         "faketraps2trits": FakeIonTraps2Trits,
@@ -23,26 +23,36 @@ class MQTQuditProvider:
         "faketraps3six": FakeIonTraps3Six,
     }
 
-    def get_backend(self, name: str | None = None, **kwargs) -> Backend:
+    def get_backend(self, name: str | None = None, **kwargs: dict[str, Any]) -> Backend:
         """Return a single backend matching the specified filtering."""
-        keys_with_pattern = None
-        regex = re.compile(name)
-        for key in self.__backends:
-            if regex.search(key):
-                keys_with_pattern = key
-        return self.__backends[keys_with_pattern](**kwargs)
+        if name is None:
+            msg = "Backend name must be provided"
+            raise ValueError(msg)
 
-    def backends(self, name: str | None = None, **kwargs) -> list[Backend]:
-        """Return a list of backends matching the specified filtering."""
-        keys_with_pattern = []
         regex = re.compile(name)
-        for key in self.__backends:
-            if regex.search(key):
-                keys_with_pattern.append(key)
-        return keys_with_pattern
+        matching_backends = [key for key in self.__backends if regex.search(key)]
+
+        if not matching_backends:
+            msg = f"No backend found matching '{name}'"
+            raise ValueError(msg)
+        if len(matching_backends) > 1:
+            msg = f"Multiple backends found matching '{name}': {matching_backends}"
+            raise ValueError(msg)
+
+        return self.__backends[matching_backends[0]](provider=self, **kwargs)  # type: ignore[arg-type]
+
+    def backends(self, name: str | None = None) -> list[str]:
+        """Return a list of backend names matching the specified filtering."""
+        if name is None:
+            return list(self.__backends.keys())
+
+        regex = re.compile(name)
+        return [key for key in self.__backends if regex.search(key)]
 
     def __eq__(self, other: object) -> bool:
-        return type(self).__name__ == type(other).__name__
+        if not isinstance(other, MQTQuditProvider):
+            return NotImplemented
+        return True
 
     def __hash__(self) -> int:
-        return hash(type(self).__name__)
+        return hash(MQTQuditProvider)

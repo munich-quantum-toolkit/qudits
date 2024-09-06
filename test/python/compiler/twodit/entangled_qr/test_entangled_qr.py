@@ -1,27 +1,20 @@
 from __future__ import annotations
 
-import operator
-from functools import reduce
+import typing
 from unittest import TestCase
 
 import numpy as np
-from scipy.stats import unitary_group
+from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
-
-def mini_unitary_sim(circuit, list_of_op):
-    size = reduce(operator.mul, circuit.dimensions)
-    id_mat = np.identity(size)
-    for gate in list_of_op:
-        id_mat = gate.to_matrix(identities=2) @ id_mat
-        id_mat.round(2)
-    return id_mat
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
-def random_unitary_matrix(n):
+def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
     return unitary_group.rvs(n)
 
 
@@ -37,7 +30,7 @@ class TestEntangledQR(TestCase):
 
         self.circuit_33.cu_two([0, 1], target)
         provider = MQTQuditProvider()
-        backend_ion = provider.get_backend("faketraps2trits", shots=1000)
+        backend_ion = provider.get_backend("faketraps2trits")
         qudit_compiler = QuditCompiler()
 
         passes = ["LogEntQRCEXPass"]

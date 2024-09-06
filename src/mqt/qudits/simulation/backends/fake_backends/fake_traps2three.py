@@ -2,14 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from typing_extensions import Unpack
+
 from ....core import LevelGraph
 from ...noise_tools import Noise, NoiseModel
 from ..tnsim import TNSim
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
-    from ...qudit_provider import QuditProvider as Provider
+    from ... import MQTQuditProvider
+    from ..backendv2 import Backend
 
 
 class FakeIonTraps2Trits(TNSim):
@@ -19,37 +20,23 @@ class FakeIonTraps2Trits(TNSim):
 
     def __init__(
         self,
-        provider: Provider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields,
+        provider: MQTQuditProvider,
+        **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
-        self._options = self._default_options()
-        self._provider = provider
-
-        if fields:
-            # for field in fields:
-            #    if field not in self._options.data:
-            #        msg = f"Options field '{field}' is not valid for this backend"
-            #        raise AttributeError(msg)
-            self._options.update(fields)
-
-        self.name = name
-
-        self.name = "FakeTrap2"
-        self.description = "A Fake backend of an ion trap qudit machine"
+        super().__init__(
+            provider=provider,
+            name="FakeTrap2",
+            description="A Fake backend of an ion trap qudit machine",
+            **fields,
+        )
+        self.options["noise_model"] = self.__noise_model()
         self.author = "<Kevin Mato>"
-        self.online_date = online_date
-        self.backend_version = backend_version
-        self._coupling_map = None
-        self._energy_level_graphs = None
+        self._energy_level_graphs: list[LevelGraph] = []
 
     @property
-    def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
-        if self._energy_level_graphs is None:
-            e_graphs = []
+    def energy_level_graphs(self) -> list[LevelGraph]:
+        if len(self._energy_level_graphs) == 0:
+            e_graphs: list[LevelGraph] = []
 
             # declare the edges on the energy level graph between logic states .
             edges = [
@@ -80,14 +67,10 @@ class FakeIonTraps2Trits(TNSim):
             e_graphs.extend((graph_0, graph_1))
 
             self._energy_level_graphs = e_graphs
-            return e_graphs
         return self._energy_level_graphs
 
-    @staticmethod
-    def __noise_model() -> NoiseModel:
-        """Noise model coded in plain sight, just for prototyping reasons
-        :return: NoideModel.
-        """
+    def __noise_model(self) -> NoiseModel:
+        """Noise model coded in plain sight, just for prototyping reasons."""
         # Depolarizing quantum errors
         local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
         local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
@@ -101,7 +84,6 @@ class FakeIonTraps2Trits(TNSim):
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate_matrix
         noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
@@ -112,7 +94,5 @@ class FakeIonTraps2Trits(TNSim):
         noise_model.add_quantum_error_locally(local_error, ["h", "rxy", "s", "x", "z"])
         noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
 
+        self.noise_model = noise_model
         return noise_model
-
-    def _default_options(self):
-        return {"shots": 50, "memory": False, "noise_model": self.__noise_model()}

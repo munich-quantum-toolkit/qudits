@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestCSum(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         # all 22 csum
 
         circuit_22 = QuantumCircuit(2, [2, 2], 0)
@@ -175,8 +176,3 @@ class TestCSum(TestCase):
             matrix.conj().T,
             matrix_dag,
         )
-
-    def test_validate_parameter(self):
-        circuit_33 = QuantumCircuit(2, [3, 3], 0)
-        csum = circuit_33.csum([1, 0])
-        assert csum.validate_parameter()

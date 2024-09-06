@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING, cast
 
-import networkx as nx
+import networkx as nx  # type: ignore[import-not-found]
 import numpy as np
 
 from ....quantum_circuit import gates
@@ -13,10 +14,14 @@ from ...compilation_minitools import (
     swap_elements,
 )
 
+if TYPE_CHECKING:
+    from ....core import LevelGraph
+    from ....quantum_circuit.gates import R
 
-def find_logic_from_phys(lev_a, lev_b, graph):
+
+def find_logic_from_phys(lev_a: int, lev_b: int, graph: LevelGraph) -> list[int]:
     # find node by physical level associated
-    logic_nodes = [None, None]
+    logic_nodes = [-1, -1]
     for node, node_data in graph.nodes(data=True):
         if node_data["lpmap"] == lev_a:
             logic_nodes[0] = node
@@ -26,19 +31,19 @@ def find_logic_from_phys(lev_a, lev_b, graph):
     return logic_nodes
 
 
-def graph_rule_update(gate, graph) -> None:
+def graph_rule_update(gate: gates.R, graph: LevelGraph) -> None:
     if abs(abs(gate.theta) - math.pi) < 1e-2:
-        inode = graph._1stInode
+        inode = graph.fst_inode
         if "phase_storage" not in graph.nodes[inode]:
             return
 
         g_lev_a = gate.lev_a
         g_lev_b = gate.lev_b
 
-        logic_nodes = find_logic_from_phys(g_lev_a, g_lev_b, graph)
+        logic_nodes: list[int] = find_logic_from_phys(g_lev_a, g_lev_b, graph)
 
         # only pi pulses can update online the graph
-        if logic_nodes[0] is not None and logic_nodes[1] is not None:
+        if logic_nodes[0] != -1 and logic_nodes[1] != -1:
             # SWAPPING PHASES
             graph.swap_node_attr_simple(logic_nodes[0], logic_nodes[1])
 
@@ -54,8 +59,8 @@ def graph_rule_update(gate, graph) -> None:
     return
 
 
-def graph_rule_ongate(gate, graph) -> gates.R:
-    inode = graph._1stInode
+def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
+    inode = graph.fst_inode
     if "phase_storage" not in graph.nodes[inode]:
         return gate
 
@@ -66,18 +71,22 @@ def graph_rule_ongate(gate, graph) -> gates.R:
     logic_nodes = find_logic_from_phys(g_lev_a, g_lev_b, graph)
 
     # MINUS source PLUS target according to pi pulse back
-    if logic_nodes[0] is not None:
+    if logic_nodes[0] != -1:
         new_g_phi -= graph.nodes[logic_nodes[0]]["phase_storage"]
-    if logic_nodes[1] is not None:
+    if logic_nodes[1] != -1:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-        gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
+        gate.parent_circuit,
+        "R",
+        cast(int, gate.target_qudits),
+        [g_lev_a, g_lev_b, gate.theta, new_g_phi],
+        gate.dimensions,
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
 
-def gate_chain_condition(previous_gates, current):
+def gate_chain_condition(previous_gates: list[R], current: R) -> R:
     if not previous_gates:
         return current
 
@@ -108,18 +117,18 @@ def gate_chain_condition(previous_gates, current):
     return gates.R(
         current.parent_circuit,
         "R",
-        current._target_qudits,
+        cast(int, current.target_qudits),
         [current.lev_a, current.lev_b, theta, phi],
-        current._dimensions,
+        current.dimensions,
     )  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
 
 
-def route_states2rotate_basic(gate, orig_placement):
+def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[float, list[R], LevelGraph]:
     placement = orig_placement
-    dimension = gate._dimensions
+    dimension = gate.dimensions
 
-    cost_of_pi_pulses = 0
-    pi_pulses_routing = []
+    cost_of_pi_pulses = 0.0
+    pi_pulses_routing: list[R] = []
 
     source = gate.original_lev_a  # Original code requires to know the direction of rotations
     target = gate.original_lev_b
@@ -133,7 +142,7 @@ def route_states2rotate_basic(gate, orig_placement):
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
         pi_gate_phy = gates.R(
-            gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+            gate.parent_circuit, "R", cast(int, gate.target_qudits), [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)
@@ -143,11 +152,11 @@ def route_states2rotate_basic(gate, orig_placement):
         pi_gate_logic = gates.R(
             gate.parent_circuit,
             "R",
-            gate._target_qudits,
+            cast(int, gate.target_qudits),
             [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
             dimension,
         )  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)
-        cost_of_pi_pulses += rotation_cost_calc(pi_gate_logic, placement)
+        cost_of_pi_pulses += float(rotation_cost_calc(pi_gate_logic, placement))
         # -----------------------------------------------------------------------------------------------------
         placement = placement.swap_nodes(path[i + 1], path[i])
         path = swap_elements(path, i + 1, i)
@@ -159,7 +168,7 @@ def route_states2rotate_basic(gate, orig_placement):
     return cost_of_pi_pulses, pi_pulses_routing, placement
 
 
-def cost_calculator(gate, placement, non_zeros):
+def cost_calculator(gate: R, placement: LevelGraph, non_zeros: int) -> tuple[float, list[R], LevelGraph, float, float]:
     cost_of_pi_pulses, pi_pulses_routing, new_placement = route_states2rotate_basic(gate, placement)
     gate_cost = rotation_cost_calc(gate, new_placement)
     total_costing = (gate_cost + cost_of_pi_pulses) * non_zeros

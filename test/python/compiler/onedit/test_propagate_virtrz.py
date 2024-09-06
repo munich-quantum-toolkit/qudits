@@ -16,7 +16,7 @@ class TestZPropagationOptPass(TestCase):
         provider = MQTQuditProvider()
         self.compiler = QuditCompiler()
         self.passes = ["ZPropagationOptPass"]
-        self.backend_ion = provider.get_backend("faketraps2trits", shots=1000)
+        self.backend_ion = provider.get_backend("faketraps2trits")
 
     def test_propagate_z(self):
         qreg = QuantumRegister("test_reg", 1, [3])

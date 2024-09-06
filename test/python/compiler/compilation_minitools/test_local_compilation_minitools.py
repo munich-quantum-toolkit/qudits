@@ -18,49 +18,56 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestCompilationMiniTools(TestCase):
-    def test_swap_elements(self):
+    @staticmethod
+    def test_swap_elements():
         example = [0, 1, 2, 3]
         test_swapped = [3, 1, 2, 0]
         swapped_example = swap_elements(example, 0, 3)
 
         assert swapped_example == test_swapped
 
-    def test_pi_mod(self):
+    @staticmethod
+    def test_pi_mod():
         res = pi_mod(3 * np.pi / 2)
         assert res == -np.pi / 2
 
         res = pi_mod(-3 * np.pi / 2)
         assert res == np.pi / 2
 
-    def test_new_mod(self):
+    @staticmethod
+    def test_new_mod():
         res = new_mod(-5 * np.pi / 2)
         assert res == -np.pi / 2
 
         res = new_mod(5 * np.pi / 2)
         assert res == np.pi / 2
 
-    def test_regulate_theta(self):
+    @staticmethod
+    def test_regulate_theta():
         newang = regulate_theta(-5 * np.pi)
         assert newang == -1 * np.pi
 
         newang = regulate_theta(0.1 * np.pi)
         assert newang == 4.1 * np.pi
 
-    def test_theta_cost(self):
+    @staticmethod
+    def test_theta_cost():
         cost = theta_cost(np.pi / 8)
         assert cost == 6.25e-05
 
         cost = theta_cost(np.pi / 4)
         assert cost == 0.000125
 
-    def test_phi_cost(self):
+    @staticmethod
+    def test_phi_cost():
         cost = phi_cost(np.pi / 8)
         assert cost == 1.25e-05
 
         cost = phi_cost(np.pi / 4)
         assert cost == 2.5e-05
 
-    def test_rotation_cost_calc(self):
+    @staticmethod
+    def test_rotation_cost_calc():
         test_sample_edges_1 = [
             (0, 1, {"delta_m": 1, "sensitivity": 1}),
             (0, 3, {"delta_m": 0, "sensitivity": 1}),
@@ -75,10 +82,10 @@ class TestCompilationMiniTools(TestCase):
         # NODES CAN BE INFERRED BY THE EDGES
         test_graph_1 = LevelGraph(test_sample_edges_1, test_sample_nodes_1, test_sample_nodes_map, [1], 0, circuit)
 
-        R_1 = circuit.r(0, [2, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 2, 4, 6)
-        cost_1 = rotation_cost_calc(R_1, test_graph_1)
+        r_1 = circuit.r(0, [2, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 2, 4, 6)
+        cost_1 = rotation_cost_calc(r_1, test_graph_1)
         assert cost_1 == 4 * 0.000125
 
-        R_2 = circuit.r(0, [3, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 3, 4, 6)
-        cost_2 = rotation_cost_calc(R_2, test_graph_1)
+        r_2 = circuit.r(0, [3, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 3, 4, 6)
+        cost_2 = rotation_cost_calc(r_2, test_graph_1)
         assert cost_2 == 3 * 0.000125

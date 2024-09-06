@@ -1,18 +1,25 @@
+#!/usr/bin/env python3
 from __future__ import annotations
+
+import typing
 
 import numpy as np
 
 from mqt.qudits.quantum_circuit import gates
 
-CEX_SEQUENCE = None  # list of numpy arrays
+if typing.TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+
+CEX_SEQUENCE: list[Gate] | None = None  # list of numpy arrays
 
 
 class CRotGen:
-    def __init__(self, circuit, indices) -> None:
-        self.circuit = circuit
-        self.indices = indices
+    def __init__(self, circuit: QuantumCircuit, indices: list[int]) -> None:
+        self.circuit: QuantumCircuit = circuit
+        self.indices: list[int] = indices
 
-    def crot_101_as_list(self, theta, phi):
+    def crot_101_as_list(self, theta: float, phi: float) -> list[Gate]:
         phi = -phi
         # Assuming that 0 was control and 1 was target
         index_target = self.indices[1]
@@ -46,23 +53,23 @@ class CRotGen:
             )
             # Cex().cex_101(d, 0)
         else:
-            cex = CEX_SEQUENCE
+            cex_s = CEX_SEQUENCE
 
         #############
 
-        compose = [frame_there]
+        compose: list[Gate] = [frame_there]
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
         compose.append(single_excitation)
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(tplus)
         ####################################
@@ -72,7 +79,7 @@ class CRotGen:
 
         return compose
 
-    def permute_crot_101_as_list(self, i, theta, phase):
+    def permute_crot_101_as_list(self, i: int, theta: float, phase: float) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]

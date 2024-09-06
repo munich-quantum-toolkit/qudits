@@ -5,5 +5,5 @@ from dataclasses import dataclass
 
 @dataclass
 class ControlData:
-    indices: list[int] | int
-    ctrl_states: list[int] | int
+    indices: list[int]
+    ctrl_states: list[int]

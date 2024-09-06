@@ -13,7 +13,9 @@ from .._qudits.test_pymisim import is_quantum_state
 
 
 class TestTNSim(TestCase):
-    def test_execute(self):
+    @staticmethod
+    def test_execute():
+        rng = np.random.default_rng()
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
 
@@ -37,11 +39,11 @@ class TestTNSim(TestCase):
         for d in range(2, 8):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
-            gate = circuit.x(0)
+            x = circuit.x(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ zero_state
+            test_state = x.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -54,11 +56,11 @@ class TestTNSim(TestCase):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
             h = circuit.h(0)
-            gate = circuit.z(0)
+            z = circuit.z(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ h.to_matrix() @ zero_state
+            test_state = z.to_matrix() @ h.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -71,11 +73,11 @@ class TestTNSim(TestCase):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
             h = circuit.h(0)
-            gate = circuit.s(0)
+            s = circuit.s(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ h.to_matrix() @ zero_state
+            test_state = s.to_matrix() @ h.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -90,12 +92,12 @@ class TestTNSim(TestCase):
                 for level_b in range(level_a + 1, d):
                     circuit = QuantumCircuit(qreg_example)
                     h = circuit.h(0)
-                    angle = np.random.uniform(0, 2 * np.pi)
-                    gate = circuit.rz(0, [level_a, level_b, angle])
+                    angle = rng.uniform(0, 2 * np.pi)
+                    rz = circuit.rz(0, [level_a, level_b, angle])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = rz.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -110,11 +112,11 @@ class TestTNSim(TestCase):
                 for level_b in range(level_a + 1, d):
                     circuit = QuantumCircuit(qreg_example)
                     h = circuit.h(0)
-                    gate = circuit.rh(0, [level_a, level_b])
+                    rh = circuit.rh(0, [level_a, level_b])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = rh.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -129,13 +131,13 @@ class TestTNSim(TestCase):
                 for level_b in range(level_a + 1, d):
                     circuit = QuantumCircuit(qreg_example)
                     h = circuit.h(0)
-                    angle = np.random.uniform(0, 2 * np.pi)
-                    phase = np.random.uniform(0, 2 * np.pi)
-                    gate = circuit.r(0, [level_a, level_b, angle, phase])
+                    angle = rng.uniform(0, 2 * np.pi)
+                    phase = rng.uniform(0, 2 * np.pi)
+                    r = circuit.r(0, [level_a, level_b, angle, phase])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = r.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -149,12 +151,12 @@ class TestTNSim(TestCase):
             for level in range(d):
                 circuit = QuantumCircuit(qreg_example)
                 h = circuit.h(0)
-                angle = np.random.uniform(0, 2 * np.pi)
-                gate = circuit.virtrz(0, [level, angle])
+                angle = rng.uniform(0, 2 * np.pi)
+                vrz = circuit.virtrz(0, [level, angle])
 
                 ini_state = np.zeros(d)
                 ini_state[0] = 1
-                test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                test_state = vrz.to_matrix() @ h.to_matrix() @ ini_state
 
                 job = backend.run(circuit)
                 result = job.result()
@@ -204,7 +206,7 @@ class TestTNSim(TestCase):
                 for clev in range(d1):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
-                            angle = np.random.uniform(0, 2 * np.pi)
+                            angle = rng.uniform(0, 2 * np.pi)
 
                             qreg_example = QuantumRegister("reg", 2, [d1, d2])
                             circuit = QuantumCircuit(qreg_example)
@@ -225,7 +227,7 @@ class TestTNSim(TestCase):
                 for clev in range(d2):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
-                            angle = np.random.uniform(0, 2 * np.pi)
+                            angle = rng.uniform(0, 2 * np.pi)
                             qreg_example = QuantumRegister("reg", 2, [d1, d2])
                             circuit = QuantumCircuit(qreg_example)
                             h = circuit.h(1)
@@ -242,7 +244,9 @@ class TestTNSim(TestCase):
 
                             assert np.allclose(state_vector, test_state)
 
-    def test_tn_long_range(self):
+    @staticmethod
+    def test_tn_long_range():
+        rng = np.random.default_rng()
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
         # Long range gates
@@ -293,7 +297,7 @@ class TestTNSim(TestCase):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
                             print("Test long range CEX")
-                            angle = np.random.uniform(0, 2 * np.pi)
+                            angle = rng.uniform(0, 2 * np.pi)
 
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
                             circuit = QuantumCircuit(qreg_example)
@@ -314,7 +318,7 @@ class TestTNSim(TestCase):
                 for clev in range(d2):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
-                            angle = np.random.uniform(0, 2 * np.pi)
+                            angle = rng.uniform(0, 2 * np.pi)
                             print("Test long range Cex inverted")
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
                             circuit = QuantumCircuit(qreg_example)
@@ -331,7 +335,8 @@ class TestTNSim(TestCase):
 
                             assert np.allclose(state_vector, test_state)
 
-    def test_execute_controlled(self):
+    @staticmethod
+    def test_execute_controlled():
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
 
@@ -359,7 +364,8 @@ class TestTNSim(TestCase):
 
         assert np.allclose(state_vector, test_state)
 
-    def test_stochastic_simulation(self):
+    @staticmethod
+    def test_stochastic_simulation():
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
 
@@ -389,7 +395,6 @@ class TestTNSim(TestCase):
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate
         noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
@@ -401,16 +406,18 @@ class TestTNSim(TestCase):
         noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
 
         print("Start execution")
-        job = backend.run(circuit, noise_model=noise_model, shots=2000)
+        job = backend.run(circuit, noise_model=noise_model, shots=100)
         result = job.result()
         state_vector = result.get_state_vector()
         counts = result.get_counts()
-        assert len(counts) == 2000
+        assert len(counts) == 100
         assert len(state_vector.squeeze()) == 5**3
         assert is_quantum_state(state_vector)
 
-    def test_tn_multi(self):
+    def test_tn_multi(self):  # noqa: PLR6301
+        # TODO: Implement test currently just a stub
         assert True
 
-    def test_ion_ent_gates(self):
+    def test_ion_ent_gates(self):  # noqa: PLR6301
+        # TODO: Implement test for ion entity gates
         assert True

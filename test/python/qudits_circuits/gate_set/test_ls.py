@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestLS(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit = QuantumCircuit(1, [3, 3], 0)
         ls = circuit.ls([0, 1], [np.pi / 2]).to_matrix()
 
@@ -120,7 +121,8 @@ class TestLS(TestCase):
 
         assert np.allclose(ls_dag, matrix.conj().T)
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit_4 = QuantumCircuit(1, [4, 4], 0)
         ls = circuit_4.ls([0, 1], [np.pi / 2])
         assert ls.validate_parameter([np.pi / 2])

@@ -1,6 +1,5 @@
 ignore:
   - "extern/**/*"
-  - "include/GateMatrixDefinitions.h"
   - "**/python"
   - "test/**/*"
 

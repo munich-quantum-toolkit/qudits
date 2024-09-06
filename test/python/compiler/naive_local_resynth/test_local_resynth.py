@@ -4,11 +4,11 @@ from unittest import TestCase
 
 import numpy as np
 
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_sim
 from mqt.qudits.compiler.naive_local_resynth.local_resynth import NaiveLocResynthOptPass
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.gates import CEx, CustomMulti, R
 from mqt.qudits.simulation import MQTQuditProvider
-from python.compiler.state_compilation.test_state_preparation import mini_sim
 
 
 class TestNaiveLocResynthOptPass(TestCase):
@@ -17,7 +17,7 @@ class TestNaiveLocResynthOptPass(TestCase):
 
     def test_transpile(self):
         provider = MQTQuditProvider()
-        backend_ion = provider.get_backend("faketraps3six", shots=50)
+        backend_ion = provider.get_backend("faketraps3six")
 
         gates = [
             R(self.circuit, "R", 0, [0, 1, np.pi / 3, np.pi / 6], self.circuit.dimensions[0]),

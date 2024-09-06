@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestR(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [1, 2, np.pi / 3, np.pi / 7])
         # R(np.pi / 3, np.pi / 7, 1, 2, 3)
@@ -50,13 +51,15 @@ class TestR(TestCase):
 
         assert np.allclose(r_2.dag().to_matrix(identities=0), r_2_test_dag)
 
-    def test_regulate_theta(self):
+    @staticmethod
+    def test_regulate_theta():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [1, 2, 0.01 * np.pi, np.pi / 7])
         # R(0.01 * np.pi, np.pi / 7, 0, 2, 3)
-        self.assertAlmostEqual(round(r.theta, 4), 12.5978)
+        assert round(r.theta, 4) == 12.5978
 
-    def test_levels_setter(self):
+    @staticmethod
+    def test_levels_setter():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [2, 0, 0.01 * np.pi, np.pi / 7])
         # R(0.01 * np.pi, np.pi / 7, 2, 0, 3)
@@ -66,12 +69,14 @@ class TestR(TestCase):
         assert r.original_lev_a == 2
         assert r.original_lev_b == 0
 
-    def test_cost(self):
+    @staticmethod
+    def test_cost():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [2, 0, 0.01 * np.pi, np.pi / 7])
         assert round(r.cost, 4) == 0.0016
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [2, 0, np.pi, np.pi / 7])
 

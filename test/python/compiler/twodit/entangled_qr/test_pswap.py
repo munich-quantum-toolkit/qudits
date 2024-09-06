@@ -4,9 +4,9 @@ from unittest import TestCase
 
 import numpy as np
 
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_unitary_sim
 from mqt.qudits.compiler.twodit.entanglement_qr import PSwapGen
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from python.compiler.twodit.entangled_qr.test_entangled_qr import mini_unitary_sim
 
 
 class TestPSwapGen(TestCase):

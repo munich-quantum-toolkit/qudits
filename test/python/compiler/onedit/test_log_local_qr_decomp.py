@@ -14,7 +14,8 @@ class TestLogLocQRPass(TestCase):
 
 
 class TestQrDecomp(TestCase):
-    def test_execute(self):
+    @staticmethod
+    def test_execute():
         dim = 3
         test_sample_edges = [
             (0, 2, {"delta_m": 0, "sensitivity": 1}),
@@ -26,17 +27,17 @@ class TestQrDecomp(TestCase):
         circuit_3 = QuantumCircuit(1, [3], 0)
         graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0], 0, circuit_3)
 
-        Htest = circuit_3.h(0)
+        htest = circuit_3.h(0)
 
-        QR = QrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = QrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
-        decomp, _algorithmic_cost, _total_cost = QR.execute()
+        decomp, _algorithmic_cost, _total_cost = qr.execute()
 
-        V = UnitaryVerifier(decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
+        v = UnitaryVerifier(decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
         # sequence, target, dimensions, nodes=None, initial_map=None, final_map=None
         assert len(decomp) == 5
-        assert V.verify()
+        assert v.verify()
 
         assert (decomp[0].lev_a, decomp[0].lev_b) == (1, 2)
         assert (decomp[1].lev_a, decomp[1].lev_b) == (0, 1)

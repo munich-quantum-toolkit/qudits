@@ -9,9 +9,8 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 
 
 class TestMatrixFactory(TestCase):
-    def test_generate_matrix(
-        self,
-    ):
+    @staticmethod
+    def test_generate_matrix():
         # no control
         qreg_example = QuantumRegister("reg", 3, [2, 2, 2])
         circuit = QuantumCircuit(qreg_example)

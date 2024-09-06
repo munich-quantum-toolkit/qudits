@@ -1,89 +1,75 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict, cast
+
+from typing_extensions import Unpack
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
     from ...core import LevelGraph
-    from ...quantum_circuit.gate import Gate
+    from ...quantum_circuit import QuantumCircuit
+    from .. import MQTQuditProvider
     from ..jobs import Job
-    from ..qudit_provider import QuditProvider as Provider
+    from ..noise_tools import NoiseModel
 
 
 class Backend(ABC):
-    @property
-    def version(self) -> int:
-        return 2
+    class DefaultOptions(TypedDict, total=False):
+        shots: int
+        memory: bool
+        noise_model: NoiseModel | None
+        file_path: str | None
+        file_name: str | None
+        full_state_memory: bool
 
     def __init__(
         self,
-        provider: Provider | None = None,
+        provider: MQTQuditProvider,
         name: str | None = None,
         description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields: Any,
+        **fields: Unpack[DefaultOptions],
     ) -> None:
-        self._options = self._default_options()
-        self._provider = provider
+        self._provider: MQTQuditProvider = provider
+        self.name = name
+        self.description: str | None = description
+        self._energy_level_graphs: list[LevelGraph] = []
+        self.noise_model: NoiseModel | None = None
+        self.shots: int = 50
+        self.memory: bool = False
+        self.full_state_memory: bool = False
+        self.file_path: str | None = None
+        self.file_name: str | None = None
 
+        self._options = self._default_options()
         if fields:
-            # for field in fields:
-            #    if field not in self._options.data:
-            #        msg = f"Options field '{field}' is not valid for this backend"
-            #        raise AttributeError(msg)
             self._options.update(fields)
 
-        self.name = name
-        self.description = description
-        self.online_date = online_date
-        self.backend_version = backend_version
-        self._coupling_map = None
-        self._energy_level_graphs = None
-
     @property
-    def instructions(self) -> list[tuple[Gate, tuple[int]]]:
-        return self.target.instructions
-
-    @property
-    def operations(self) -> list[Gate]:
-        return list(self.target.operations)
-
-    @property
-    def operation_names(self) -> list[str]:
-        return list(self.target.operation_names)
-
-    # todo: this has to be defined properly
-    target = Any
-
-    @property
-    def num_qudits(self) -> int:
-        return self.target.num_qudits
-
-    @property
-    def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
+    def energy_level_graphs(self) -> list[LevelGraph]:
         raise NotImplementedError
 
-    def _default_options(self):
-        return {"shots": 50, "memory": False}
+    @staticmethod
+    def _default_options() -> DefaultOptions:
+        return {"shots": 50, "memory": False, "noise_model": None}
 
-    def set_options(self, **fields) -> None:
+    def set_options(self, **fields: Unpack[Backend.DefaultOptions]) -> None:
         for field in fields:
             if not hasattr(self._options, field):
                 msg = f"Options field '{field}' is not valid for this backend"
                 raise AttributeError(msg)
-        self._options.update_options(**fields)
+        self._options.update(fields)
 
     @property
-    def options(self):
-        return self._options
+    def options(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._options)
 
     @property
-    def provider(self):
+    def provider(self) -> MQTQuditProvider:
         return self._provider
 
     @abstractmethod
-    def run(self, run_input, **options) -> Job:
+    def run(self, circuit: QuantumCircuit, **options: Unpack[DefaultOptions]) -> Job:
         pass
+
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
+        raise NotImplementedError

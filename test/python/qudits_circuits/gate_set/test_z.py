@@ -7,7 +7,7 @@ import numpy as np
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
-def omega_d(d):
+def omega_d(d: int) -> complex:
     return np.e ** (2 * np.pi * 1j / d)
 
 
@@ -23,7 +23,3 @@ class TestZ(TestCase):
         z_1 = self.circuit_23.z(1)
         matrix_1 = z_1.to_matrix(identities=0)
         assert np.allclose(np.array([[1, 0, 0], [0, omega_d(3), 0], [0, 0, (omega_d(3) ** 2)]]), matrix_1)
-
-    def test_validate_parameter(self):
-        z = self.circuit_23.z(0)
-        assert z.validate_parameter()

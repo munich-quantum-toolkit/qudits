@@ -5,24 +5,43 @@ from functools import reduce
 from typing import TYPE_CHECKING
 
 import numpy as np
-import tensornetwork as tn
+import tensornetwork as tn  # type: ignore[import-not-found]
+from typing_extensions import Unpack
 
-from ...quantum_circuit.gate import Gate, GateTypes
+from ...quantum_circuit.components.extensions.gate_types import GateTypes
 from ..jobs import Job, JobResult
 from .backendv2 import Backend
 from .stochastic_sim import stochastic_simulation
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import NDArray
+
     from ...quantum_circuit import QuantumCircuit
+    from ...quantum_circuit.gate import Gate
+    from .. import MQTQuditProvider
+    from ..noise_tools import NoiseModel
 
 
 class TNSim(Backend):
-    def run(self, circuit: QuantumCircuit, **options):
-        job = Job(self)
+    def __init__(
+        self,
+        provider: MQTQuditProvider,
+        name: str | None = None,
+        description: str | None = None,
+        **fields: Unpack[Backend.DefaultOptions],
+    ) -> None:
+        super().__init__(provider, name=name, description=description, **fields)
 
+    def __noise_model(self) -> NoiseModel | None:
+        return self.noise_model
+
+    def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
+        job = Job(self)
         self._options.update(options)
-        self.noise_model = self._options.get("noise_model", None)
-        self.shots = self._options.get("shots", 1 if self.noise_model is None else 50)
+        self.noise_model: NoiseModel | None = self._options.get("noise_model", None)
+        self.shots = self._options.get("shots", 50)
         self.memory = self._options.get("memory", False)
         self.full_state_memory = self._options.get("full_state_memory", False)
         self.file_path = self._options.get("file_path", None)
@@ -32,11 +51,11 @@ class TNSim(Backend):
             assert self.shots >= 50, "Number of shots should be above 50"
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
         else:
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
 
         return job
 
-    def execute(self, circuit: QuantumCircuit):
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:  # noqa: ARG002
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
 
@@ -47,19 +66,17 @@ class TNSim(Backend):
         state_size = reduce(operator.mul, self.system_sizes, 1)
         return result.reshape(1, state_size)
 
-    def __init__(self, **fields) -> None:
-        self.system_sizes = None
-        self.circ_operations = None
-        super().__init__(**fields)
-
-    def __apply_gate(self, qudit_edges, gate, operating_qudits) -> None:
+    @staticmethod
+    def __apply_gate(qudit_edges: tn.Edge, gate: NDArray, operating_qudits: list[int]) -> None:
         op = tn.Node(gate)
         for i, bit in enumerate(operating_qudits):
             tn.connect(qudit_edges[bit], op[i])
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
-    def __contract_circuit(self, system_sizes, operations: list[Gate]):
-        all_nodes = []
+    def __contract_circuit(
+        self, system_sizes: list[int], operations: Sequence[Gate]
+    ) -> tn.network_components.AbstractNode:
+        all_nodes: Sequence[tn.network_components.AbstractNode] = []
 
         with tn.NodeCollection(all_nodes):
             state_nodes = []
@@ -71,11 +88,7 @@ class TNSim(Backend):
             qudits_legs = [node[0] for node in state_nodes]
 
             for op in operations:
-                try:
-                    op_matrix = op.to_matrix(identities=1)
-                except Exception as e:
-                    print(e)
-                    op_matrix = op.to_matrix(identities=1)
+                op_matrix = op.to_matrix(identities=1)
                 lines = op.reference_lines
 
                 if op.gate_type == GateTypes.SINGLE:
@@ -96,14 +109,9 @@ class TNSim(Backend):
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
                     op_matrix = op_matrix.T
-
                     minimum_line, maximum_line = min(lines), max(lines)
                     interested_lines = list(range(minimum_line, maximum_line + 1))
-                    inputs_outputs_legs = []
-                    for i in interested_lines:
-                        inputs_outputs_legs.append(system_sizes[i])
-                    inputs_outputs_legs += inputs_outputs_legs
-
+                    inputs_outputs_legs = [system_sizes[i] for i in interested_lines] * 2
                     op_matrix = op_matrix.reshape(tuple(inputs_outputs_legs))
                     lines = interested_lines
 

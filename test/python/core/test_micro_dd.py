@@ -8,7 +8,7 @@ from mqt.qudits.core.micro_dd import (
     create_decision_tree,
     cut_branches,
     dd_reduction,
-    getNodeContributions,
+    get_node_contributions,
     normalize,
     normalize_all,
     one,
@@ -17,7 +17,8 @@ from mqt.qudits.core.micro_dd import (
 
 
 class TestMicroDD(TestCase):
-    def test_terminals(self):
+    @staticmethod
+    def test_terminals():
         assert zero.value == "zero"
         assert zero.terminal is True
         assert zero.dd_hash == hash(0)
@@ -25,7 +26,8 @@ class TestMicroDD(TestCase):
         assert one.terminal is True
         assert one.dd_hash == hash(1)
 
-    def test_normalize(self):
+    @staticmethod
+    def test_normalize():
         # test_all_non_zero_weights
         in_weight = 2 + 3j
         out_weights = [1 + 2j, 3 + 4j]
@@ -35,9 +37,9 @@ class TestMicroDD(TestCase):
             (3 + 4j) / np.sqrt((1**2 + 2**2) + (3**2 + 4**2)),
         ]
         result_in_weight, result_out_weights = normalize(in_weight, out_weights)
-        self.assertAlmostEqual(result_in_weight, expected_in_weight_result)
+        assert np.allclose(result_in_weight, expected_in_weight_result)
         for result, expected in zip(result_out_weights, expected_out_weights_result):
-            self.assertAlmostEqual(result, expected)
+            assert np.allclose(result, expected)
 
         # test_zero_out_weights
         in_weight = 2 + 3j
@@ -54,9 +56,9 @@ class TestMicroDD(TestCase):
         expected_in_weight_result = (1 + 1j) * np.sqrt(3**2 + 4**2)
         expected_out_weights_result = [(0 + 0j) / np.sqrt(3**2 + 4**2), (3 + 4j) / np.sqrt(3**2 + 4**2)]
         result_in_weight, result_out_weights = normalize(in_weight, out_weights)
-        self.assertAlmostEqual(result_in_weight, expected_in_weight_result)
+        assert np.allclose(result_in_weight, expected_in_weight_result)
         for result, expected in zip(result_out_weights, expected_out_weights_result):
-            self.assertAlmostEqual(result, expected)
+            assert np.allclose(result, expected)
 
         # test_single_non_zero_weight
         in_weight = 3 + 3j
@@ -64,10 +66,11 @@ class TestMicroDD(TestCase):
         expected_in_weight_result = (3 + 3j) * np.sqrt(5**2 + 12**2)
         expected_out_weights_result = [(5 + 12j) / np.sqrt(5**2 + 12**2)]
         result_in_weight, result_out_weights = normalize(in_weight, out_weights)
-        self.assertAlmostEqual(result_in_weight, expected_in_weight_result)
-        self.assertAlmostEqual(result_out_weights[0], expected_out_weights_result[0])
+        assert np.allclose(result_in_weight, expected_in_weight_result)
+        assert np.allclose(result_out_weights[0], expected_out_weights_result[0])
 
-    def test_create_decision_tree_basic(self):
+    @staticmethod
+    def test_create_decision_tree_basic():
         labels = [0, 1]
         cardinalities = [2, 2]
         data = [0.3 + 0j, 0.1 + 0j, 0.01 + 0j, 0.5 + 0j]
@@ -99,13 +102,14 @@ class TestMicroDD(TestCase):
         assert round(root.children[1].children[1].weight.real, 3) == 1.0
         assert len(root.children[1].children[1].children) == 1
 
-    def test_dd_approximation(self):
+    @staticmethod
+    def test_dd_approximation():
         labels = [0, 1]
         cardinalities = [2, 2]
         data = [np.sqrt(1 - 0.02 - 0.01), np.sqrt(0.02), np.sqrt(0.005), np.sqrt(0.005)]
 
         root, _number_of_nodes = create_decision_tree(labels, cardinalities, data)
-        contributions = getNodeContributions(root, labels)
+        contributions = get_node_contributions(root, labels)
         cut_branches(contributions, 0.02)
         normalize_all(root, cardinalities)
 
@@ -134,7 +138,8 @@ class TestMicroDD(TestCase):
         assert round(root.children[0].children[1].weight.real, 4) == 0.1421
         assert len(root.children[0].children[1].children) == 1
 
-    def test_dd_reduction(self):
+    @staticmethod
+    def test_dd_reduction():
         labels = [0, 1]
         cardinalities = [2, 2]
         data = [np.sqrt(1 - 0.02 - 0.01), np.sqrt(0.02), np.sqrt(0.005), np.sqrt(0.005)]

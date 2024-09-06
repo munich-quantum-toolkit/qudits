@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestH(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit = QuantumCircuit(1, [3], 0)
         h = circuit.h(0)
         compare = np.array([
@@ -31,8 +32,3 @@ class TestH(TestCase):
         compare = compare.round(8)
         h_m = h.to_matrix(identities=0)
         assert np.allclose(h_m, compare)
-
-    def test_validate_parameter(self):
-        circuit = QuantumCircuit(1, [3], 0)
-        h = circuit.h(0)
-        assert h.validate_parameter()

@@ -113,7 +113,8 @@ nb_mime_priority_overrides = [
 class CDAStyle(UnsrtStyle):
     """Custom style for including PDF links."""
 
-    def format_url(self, _e: Entry) -> HRef:
+    @staticmethod
+    def format_url(_e: Entry) -> HRef:
         """Format URL field as a link to the PDF."""
         url = field("url", raw=True)
         return href()[url, "[PDF]"]

@@ -14,7 +14,8 @@ class TestPhyLocAdaPass(TestCase):
 
 
 class TestPhyAdaptiveDecomposition(TestCase):
-    def test_execute(self):
+    @staticmethod
+    def test_execute():
         dim = 5
         test_sample_edges = [
             (0, 4, {"delta_m": 0, "sensitivity": 1}),
@@ -30,26 +31,30 @@ class TestPhyAdaptiveDecomposition(TestCase):
         circuit_5 = QuantumCircuit(1, [5], 0)
         graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0], 0, circuit_5)
 
-        Htest = circuit_5.h(0)
+        htest = circuit_5.h(0)
         graph_1.phase_storing_setup()
 
-        QR = PhyQrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = PhyQrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
-        _decomp, _algorithmic_cost, _total_cost = QR.execute()
+        _decomp, _algorithmic_cost, _total_cost = qr.execute()
 
-        ADA = PhyAdaptiveDecomposition(
-            Htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost), dimension=5, Z_prop=False
+        v = UnitaryVerifier(_decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, test_sample_nodes_map)
+        assert len(_decomp) == 30
+        assert v.verify()
+
+        ada = PhyAdaptiveDecomposition(
+            htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost), dimension=5, z_prop=False
         )
         # gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False
-        matrices_decomposed, _best_cost, final_graph = ADA.execute()
+        matrices_decomposed, _best_cost, final_graph = ada.execute()
         # ##############################################
 
-        V = UnitaryVerifier(
-            matrices_decomposed, Htest, [dim], test_sample_nodes, test_sample_nodes_map, final_graph.log_phy_map
+        v = UnitaryVerifier(
+            matrices_decomposed, htest, [dim], test_sample_nodes, test_sample_nodes_map, final_graph.log_phy_map
         )
         assert len(matrices_decomposed) == 17
-        assert V.verify()
+        assert v.verify()
 
     def test_dfs(self):
         pass

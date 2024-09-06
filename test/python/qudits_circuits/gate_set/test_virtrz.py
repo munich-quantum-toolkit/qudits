@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestVirtRz(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit_3 = QuantumCircuit(1, [3], 0)
         vrz = circuit_3.virtrz(0, [1, np.pi / 3])
         # Rz(np.pi / 3, 1, 3)
@@ -49,18 +50,21 @@ class TestVirtRz(TestCase):
 
         assert np.allclose(vrz.dag().to_matrix(identities=0), vrz1_test_dag)
 
-    def test_regulate_theta(self):
+    @staticmethod
+    def test_regulate_theta():
         circuit_4 = QuantumCircuit(1, [4], 0)
         vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
         # Rz(0.01 * np.pi, 1, 4)
-        self.assertAlmostEqual(round(vrz.phi, 4), 12.5978)
+        assert round(vrz.phi, 4) == 12.5978
 
-    def test_cost(self):
+    @staticmethod
+    def test_cost():
         circuit_4 = QuantumCircuit(1, [4], 0)
         vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
         assert round(vrz.cost, 4) == 0.0004
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit_4 = QuantumCircuit(1, [4], 0)
         vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
         assert vrz.validate_parameter([1, np.pi])
