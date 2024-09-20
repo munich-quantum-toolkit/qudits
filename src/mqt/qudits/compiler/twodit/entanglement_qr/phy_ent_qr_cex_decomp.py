@@ -4,10 +4,10 @@ import gc
 from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.compiler import CompilerPass
-from mqt.qudits.compiler.onedit import PhyLocAdaPass
+from mqt.qudits.compiler.onedit import PhyLocQRPass
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
-from mqt.qudits.quantum_circuit.gates import Perm
+from mqt.qudits.quantum_circuit.gates import CEx, Perm
 
 if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -29,15 +29,27 @@ class PhyEntQRCEXPass(CompilerPass):
         energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]
 
-        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < dimensions[target_qudits[0]]]
-        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < dimensions[target_qudits[1]]]
+        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < dimensions[0]]
+        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < dimensions[1]]
+
+        if isinstance(gate, CEx):
+            parent_circ = gate.parent_circuit
+            new_ctrl_lev = lp_map_0[gate.ctrl_lev]
+            new_la = lp_map_1[gate.lev_a]
+            new_lb = lp_map_1[gate.lev_b]
+            if new_la < new_lb:
+                new_parameters = [new_la, new_lb, new_ctrl_lev, gate.phi]
+            else:
+                new_parameters = [new_lb, new_la, new_ctrl_lev, gate.phi]
+            tcex = CEx(parent_circ, "CEx_t" + str(target_qudits), target_qudits, new_parameters, dimensions, None)
+            return [tcex]
 
         perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0])
         perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1])
         perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0]).dag()
         perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1]).dag()
 
-        phyloc = PhyLocAdaPass(self.backend)
+        phyloc = PhyLocQRPass(self.backend)
         perm_0_seq = phyloc.transpile_gate(perm_0)
         perm_1_seq = phyloc.transpile_gate(perm_1)
         perm_0_d_seq = phyloc.transpile_gate(perm_0_dag)

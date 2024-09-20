@@ -34,6 +34,19 @@ def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     return state
 
 
+def phy_sdit_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
+    assert circuit.mappings is not None
+    dim = circuit.dimensions[0]
+    permutation = np.eye(dim)[:, circuit.mappings[0]]
+    state = np.array(dim * [0.0 + 0.0j])
+    state[0] = 1.0 + 0.0j
+    state = permutation @ state
+
+    for gate in circuit.instructions:
+        state = gate.to_matrix(identities=2) @ state
+    return state
+
+
 class UnitaryVerifier:
     """Verifies unitary matrices.
 
@@ -86,6 +99,7 @@ class UnitaryVerifier:
 
         for rotation in self.decomposition:
             target = rotation.to_matrix(identities=0) @ target
+            target.round(3)
 
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target

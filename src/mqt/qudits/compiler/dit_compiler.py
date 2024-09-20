@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from typing import Optional
 
 from ..core.lanes import Lanes
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
@@ -47,14 +48,20 @@ class QuditCompiler:
             elif "Multi" in str(compiler_pass):
                 passes_dict[GateTypes.MULTI] = decomposition
         for gate in circuit.instructions:
-            decomposer = typing.cast(CompilerPass, passes_dict.get(gate.gate_type))
-            new_instructions = decomposer.transpile_gate(gate)
-            new_instr.extend(new_instructions)
+            decomposer = typing.cast(Optional[CompilerPass], passes_dict.get(gate.gate_type))
+            if decomposer is not None:
+                new_instructions = decomposer.transpile_gate(gate)
+                new_instr.extend(new_instructions)
+            else:
+                new_instr.append(gate)
 
-        circuit.set_instructions(new_instr)
-        circuit.set_mapping([graph.log_phy_map for graph in backend.energy_level_graphs])
-
-        return circuit
+        transpiled_circuit = circuit.copy()
+        mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_mapping(mappings)
+        return transpiled_circuit.set_instructions(new_instr)
 
     def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
@@ -62,12 +69,37 @@ class QuditCompiler:
 
         mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
-            mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+            if i < circuit.num_qudits:
+                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
         compiled.set_mapping(mappings)
         return compiled
 
     @staticmethod
     def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
+        phyloc = PhyLocQRPass(backend)
+        phyent = PhyEntQRCEXPass(backend)
+        resynth = NaiveLocResynthOptPass(backend)
+
+        circuit = resynth.transpile(circuit)
+        new_instructions = []
+        for gate in circuit.instructions:
+            ins: list[Gate] = []
+            if gate.gate_type is GateTypes.SINGLE:
+                ins = phyloc.transpile_gate(gate)
+                new_instructions.extend(ins)
+            else:
+                ins = phyent.transpile_gate(gate)
+                new_instructions.extend(ins)
+        transpiled_circuit = circuit.copy()
+        mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_mapping(mappings)
+        return transpiled_circuit.set_instructions(new_instructions)
+
+    @staticmethod
+    def compile_O2(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         phyent = PhyEntQRCEXPass(backend)
 
         lanes = Lanes(circuit)
@@ -84,6 +116,7 @@ class QuditCompiler:
         transpiled_circuit = circuit.copy()
         mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
-            mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+            if i < circuit.num_qudits:
+                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
         transpiled_circuit.set_mapping(mappings)
         return transpiled_circuit.set_instructions(new_instructions)

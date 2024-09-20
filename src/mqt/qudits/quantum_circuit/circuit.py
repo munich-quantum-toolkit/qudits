@@ -409,7 +409,17 @@ class QuantumCircuit:
         result = job.result()
         return result.get_state_vector()
 
-    def compile(self, backend_name: str) -> QuantumCircuit:
+    def compileO0(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+        from mqt.qudits.compiler import QuditCompiler
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        qudit_compiler = QuditCompiler()
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend(backend_name)
+
+        return qudit_compiler.compile_O0(backend_ion, self)
+
+    def compileO1(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 

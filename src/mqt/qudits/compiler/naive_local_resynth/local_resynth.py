@@ -53,5 +53,10 @@ class NaiveLocResynthOptPass(CompilerPass):
 
         new_instructions = self.lanes.extract_instructions()
 
-        transpiled_circuit = self.circuit.copy()
+        transpiled_circuit = circuit.copy()
+        mappings = []
+        for i, graph in enumerate(self.backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_mapping(mappings)
         return transpiled_circuit.set_instructions(new_instructions)

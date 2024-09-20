@@ -33,7 +33,7 @@ class LogEntQRCEXPass(CompilerPass):
     def transpile_gate(gate: Gate) -> list[Gate]:
         eqr = EntangledQRCEX(gate)
         decomp, _countcr, _countpsw = eqr.execute()
-        return decomp
+        return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
@@ -109,7 +109,6 @@ class EntangledQRCEX:
                     for rotation in sequence_rotation_involved:
                         gate_matrix = self.get_gate_matrix(rotation, self.qudit_indices, self.dimensions)
                         u_ = gate_matrix @ u_
-
                     decomp += sequence_rotation_involved
 
         diag_u = np.diag(u_)

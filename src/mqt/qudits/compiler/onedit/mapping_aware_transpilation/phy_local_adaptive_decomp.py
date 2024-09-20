@@ -30,7 +30,6 @@ if TYPE_CHECKING:
     from ....quantum_circuit.gate import Gate
     from ....simulation.backends.backendv2 import Backend
 
-
 np.seterr(all="ignore")
 
 
