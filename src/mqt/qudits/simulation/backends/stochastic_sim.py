@@ -54,8 +54,8 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray 
             args_tn = [(backend, factory) for _ in range(shots)]
             results = pool.map(stochastic_execution_tn, args_tn)
         elif isinstance(backend, MISim):
-            args_mis = [(backend, circuit, noise_model) for _ in range(shots)]
-            results = pool.map(stochastic_execution_mi, args_mis)
+            args_misim = [(backend, circuit, noise_model) for _ in range(shots)]
+            results = pool.map(stochastic_execution_mi, args_misim)
         else:
             msg = "Unsupported backend type"
             raise TypeError(msg)
