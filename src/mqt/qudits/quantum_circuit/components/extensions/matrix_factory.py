@@ -36,11 +36,11 @@ class MatrixFactory:
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
 
-            matrix = MatrixFactory.apply_identites_and_controls(
+            matrix = MatrixFactory.apply_identities_and_controls(
                 matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
         elif self.ids > 0:
-            matrix = MatrixFactory.apply_identites_and_controls(
+            matrix = MatrixFactory.apply_identities_and_controls(
                 matrix, self.gate.target_qudits, dimensions_slice, ref_slice
             )
 
@@ -50,7 +50,7 @@ class MatrixFactory:
         return matrix
 
     @classmethod
-    def apply_identites_and_controls(
+    def apply_identities_and_controls(
         cls,
         matrix: NDArray[np.complex128],
         qudits_applied: int | list[int],

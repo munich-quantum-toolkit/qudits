@@ -354,10 +354,10 @@ class QuantumCircuit:
         for op in self.instructions:
             text += op.__qasm__()
 
-        cregs_indeces = iter(list(range(len(self.dimensions))))
+        cregs_indices = iter(list(range(len(self.dimensions))))
         for qreg in self.quantum_registers:
             for i in range(qreg.size):
-                text += f"measure {qreg.label}[{i}] -> meas[{next(cregs_indeces)}];\n"
+                text += f"measure {qreg.label}[{i}] -> meas[{next(cregs_indices)}];\n"
 
         return text
 
