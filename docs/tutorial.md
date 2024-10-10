@@ -11,7 +11,7 @@ mystnb:
 %config InlineBackend.figure_formats = ['svg']
 ```
 
-# MQT Qudits Tutorial 🌌
+# MQT Qudits Tutorial
 
 _Discover a New Dimension in Quantum Computing._
 Embark on a journey with MQT Qudits, a framework for Mixed-Dimensional Quantum Computing.
@@ -42,7 +42,7 @@ $ source .venv/bin/activate
 This requires a C++17 compiler, a minimum CMake version of 3.19, and Python 3.9+.
 ````
 
-## User Inputs 💻
+## User Inputs
 
 ```{code-cell} ipython3
 import numpy as np
@@ -50,7 +50,7 @@ import numpy as np
 from mqt.qudits.quantum_circuit import QuantumCircuit
 ```
 
-### 🚀 **New QASM Extension:**
+### **New QASM Extension:**
 
 Dive into a language meticulously designed to express quantum algorithms and circuits.
 MQT Qudits extends the OpenQASM 2.0 grammar, effortlessly adapting to mixed-dimensional registers.
@@ -94,7 +94,7 @@ print(f"Number of qudits in the circuit: {circuit.num_qudits}")
 print(f"Dimensions: {circuit.dimensions}")
 ```
 
-### 🐍 **Python Interface**
+### **Python Interface**
 
 Constructing and manipulating quantum programs becomes a breeze with Python. You have the flexibility to:
 
@@ -227,13 +227,13 @@ Two- and multi-qudit gates follow the rule:
 r_c1.reference_lines
 ```
 
-## Simulation 🚀
+## Simulation
 
 After crafting your quantum circuit with precision, take it for a spin using two distinct engines, each flaunting its unique set of data structures.
 
 - **External Tensor-Network Simulator:** Delve into the quantum realm with a robust external tensor-network simulator. Can simulate all the gate-set.
 
-- **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for a fluid and efficient experience. 🌐💡Can only simulate the machine following machine gate set:
+- **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for a fluid and efficient experience. Can only simulate the machine following machine gate set:
 
   - csum
   - cx
@@ -301,7 +301,7 @@ Enhance your quantum simulation experience by extending the engines with a noise
 By combining a noise model and carefully tuned properties, you can craft a FakeBackend that closely emulates the performance of the best quantum machines in experimental laboratories.
 This allows for more realistic and insightful quantum simulations.
 
-Experiment, iterate, and simulate quantum circuits with the sophistication of real-world conditions, all within the controlled environment of your simulation. 🛠️🔬
+Experiment, iterate, and simulate quantum circuits with the sophistication of real-world conditions, all within the controlled environment of your simulation.
 
 ```{code-cell} ipython3
 from mqt.qudits.simulation.noise_tools.noise import Noise, NoiseModel
@@ -384,7 +384,7 @@ counts = result.get_counts()
 plot_counts(counts, circuit)
 ```
 
-## Compilation ⚙️
+## Compilation
 
 Tailor your quantum compilation process to achieve optimal performance and emulate the intricacies of experimental setups.
 
@@ -399,7 +399,7 @@ Tailor your quantum compilation process to achieve optimal performance and emula
 Emulate the features of the best experimental laboratories in your compilation process.
 Leverage modern compiler passes to customize optimization, gate decomposition, and noise-aware strategies, creating compiled circuits that closely resemble the challenges and advantages of cutting-edge quantum hardware.
 
-Customize, compile, and push the boundaries of quantum algorithms with a tailored approach to quantum compilation. 🛠️🔧🚀
+Customize, compile, and push the boundaries of quantum algorithms with a tailored approach to quantum compilation.
 
 ```{code-cell} ipython3
 from mqt.qudits.compiler import QuditCompiler

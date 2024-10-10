@@ -58,8 +58,8 @@ extensions = [
     "sphinx_inline_tabs",
     "sphinxext.opengraph",
     "sphinx.ext.viewcode",
+    "sphinx.ext.imgconverter",
     "sphinxcontrib.bibtex",
-    "sphinxcontrib.inkscapeconverter",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -191,6 +191,7 @@ latex_elements = {
     "releasename": "Version",
     "printindex": r"\footnotesize\raggedright\printindex",
     "tableofcontents": "",
+    "sphinxsetup": "iconpackage=fontawesome",
     "extrapackages": r"\usepackage{qrcode,graphicx,calc,amsthm}",
     "preamble": r"""
 \newtheorem{example}{Example}
