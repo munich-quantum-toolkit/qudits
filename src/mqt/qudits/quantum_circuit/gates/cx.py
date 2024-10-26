@@ -93,9 +93,9 @@ class CEx(Gate):
             assert isinstance(parameter[1], int)
             assert isinstance(parameter[2], int)
             assert isinstance(parameter[3], float)
-            assert (
-                0 <= parameter[0] < parameter[1]
-            ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
+            assert 0 <= parameter[0] < parameter[1], (
+                f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
+            )
             assert 0 <= parameter[3] <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[2]}"
 
             return True

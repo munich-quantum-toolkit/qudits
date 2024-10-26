@@ -73,9 +73,9 @@ class MS(Gate):
             return False
 
         if isinstance(parameter, list):
-            assert (
-                0 <= cast(float, parameter[0]) <= 2 * np.pi
-            ), f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
+            assert 0 <= cast(float, parameter[0]) <= 2 * np.pi, (
+                f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
+            )
             return True
         if isinstance(parameter, np.ndarray):
             # Add validation for numpy array if needed

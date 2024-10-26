@@ -50,9 +50,9 @@ class Perm(Gate):
             """Verify that the input is a list of indices"""
             dims = self.dimensions
             p = cast(list[int], parameter)
-            assert all(
-                (0 <= num < len(parameter) and num < dims) for num in p
-            ), "Numbers are not within the range of the list length"
+            assert all((0 <= num < len(parameter) and num < dims) for num in p), (
+                "Numbers are not within the range of the list length"
+            )
 
             return True
 
