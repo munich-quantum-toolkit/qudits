@@ -13,6 +13,8 @@ from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
+from .noise_x import NoiseX
+from .noise_y import NoiseY
 from .perm import Perm
 from .r import R
 from .randu import RandU
@@ -35,6 +37,8 @@ __all__ = [
     "GateTypes",
     "GellMann",
     "H",
+    "NoiseX",
+    "NoiseY",
     "Perm",
     "R",
     "RandU",

@@ -8,6 +8,7 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
+from mqt.qudits.simulation.noise_tools.noise import SubspaceNoise
 
 from .._qudits.test_pymisim import is_quantum_state
 
@@ -404,6 +405,48 @@ class TestTNSim(TestCase):
         # Local Gates
         noise_model.add_quantum_error_locally(local_error, ["rh", "h", "rxy", "s", "x", "z"])
         noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+
+        print("Start execution")
+        job = backend.run(circuit, noise_model=noise_model, shots=100)
+        result = job.result()
+        state_vector = result.get_state_vector()
+        counts = result.get_counts()
+        assert len(counts) == 100
+        assert len(state_vector.squeeze()) == 5**3
+        assert is_quantum_state(state_vector)
+
+    @staticmethod
+    def test_stochastic_simulation_physical():
+        provider = MQTQuditProvider()
+        backend = provider.get_backend("tnsim")
+
+        qreg_example = QuantumRegister("reg", 3, 3 * [5])
+        circuit = QuantumCircuit(qreg_example)
+        circuit.rz(0, [0, 2, np.pi / 13])
+        circuit.x(1).dag()
+        circuit.s(2)
+        circuit.csum([2, 1]).dag()
+        circuit.h(2)
+        circuit.r(2, [0, 1, np.pi / 5 + np.pi, np.pi / 7])
+        circuit.rh(1, [1, 3])
+        circuit.x(1).control([0], [2])
+        circuit.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
+        circuit.csum([0, 1])
+
+        # Define Physical Noise
+        sub1 = SubspaceNoise(0.999, 0.999, (0, 1))
+        sub2 = SubspaceNoise(0.0, 0.999, [(1, 2), (2, 3)])
+        sub3 = SubspaceNoise(0.999, 0.0, [(1, 2), (2, 3)])
+
+        # Add errors to noise_tools model
+
+        noise_model = NoiseModel()  # We know that the architecture is only two qudits
+        # Very noisy gate_matrix
+        noise_model.add_all_qudit_quantum_error(sub1, ["csum"])
+        # Local Gates
+        noise_model.add_quantum_error_locally(sub1, ["z"])
+        noise_model.add_quantum_error_locally(sub2, ["rh", "h", "rxy", "x"])
+        noise_model.add_quantum_error_locally(sub3, ["s"])
 
         print("Start execution")
         job = backend.run(circuit, noise_model=noise_model, shots=100)

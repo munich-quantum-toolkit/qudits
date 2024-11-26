@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import Unpack
 
+from mqt.qudits.simulation.noise_tools.noise import Noise
+
 from ....core import LevelGraph
-from ...noise_tools import Noise, NoiseModel
+from ...noise_tools import NoiseModel
 from ..tnsim import TNSim
 
 if TYPE_CHECKING:

@@ -4,6 +4,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
@@ -37,7 +38,7 @@ class TestNoisyCircuitFactory(TestCase):
         noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
         # Local Gates
         noise_model.add_quantum_error_locally(local_error, ["rh", "h", "rxy", "s", "x", "z"])
-        noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+        noise_model.add_quantum_error_locally(local_error_rz, ["rz"])
         self.noise_model = noise_model
 
     def test_generate_circuit(self):
@@ -84,15 +85,17 @@ class TestNoisyCircuitFactory(TestCase):
             insts_new += 1
             tag_counts_list2[gate.qasm_tag] += 1
 
-        keys_to_check = ["x", "z", "rxy", "rz"]
+        keys_to_check = ["x", "z", "virtrz"]
         valid_stochasticity = True
         # Iterate over all keys
         for key in tag_counts_list1.keys() | tag_counts_list2.keys():
             if key in keys_to_check:
                 if tag_counts_list1.get(key, 0) > tag_counts_list2.get(key, 0):
                     valid_stochasticity = False
+                    print(key, "error")
             elif tag_counts_list1.get(key, 0) != tag_counts_list2.get(key, 0):
                 valid_stochasticity = False
+                print(key, "error")
 
         assert valid_stochasticity
         assert insts == circ.number_gates
@@ -102,14 +105,20 @@ class TestNoisyCircuitFactory(TestCase):
     def test_generate_circuit_isolated(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
         circ = QuantumCircuit(qreg_example)
-        x = circ.x(0)
-        x.control([1], [2])
+        circ.x(0)
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
         new_circ = factory.generate_circuit()
-
-        assert circ.number_gates == 1
-        assert new_circ.number_gates == 5
+        assert circ.number_gates == 1  # original x only
         assert [i.qasm_tag for i in instructions_og] == ["x"]
-        assert ["x", "x", "x", "z", "z"]
+        for tag in [i.qasm_tag for i in new_circ.instructions]:
+            assert tag in {"x", "z", "virtrz"}
+
+    @staticmethod
+    def test_error():
+        noise_model = NoiseModel()
+        local_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
+        with pytest.raises(ValueError, match="Mathematical noise has been defined multiple times!"):
+            noise_model.add_all_qudit_quantum_error(local_error, ["csum"])

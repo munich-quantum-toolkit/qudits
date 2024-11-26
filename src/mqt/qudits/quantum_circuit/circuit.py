@@ -18,6 +18,8 @@ from .gates import (
     CustomTwo,
     GellMann,
     H,
+    NoiseX,
+    NoiseY,
     Perm,
     R,
     RandU,
@@ -267,6 +269,20 @@ class QuantumCircuit:
     @add_gate_decorator
     def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
         return Rz(self, "Rz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
+    def noisex(self, qudit: int, parameters: list[int], controls: ControlData | None = None) -> NoiseX:
+        return NoiseX(self, "NoiseX" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
+    def noisey(self, qudit: int, parameters: list[int], controls: ControlData | None = None) -> NoiseY:
+        return NoiseY(self, "NoiseY" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
+    def noisez(self, qudit: int, level: int, controls: ControlData | None = None) -> VirtRz:
+        return VirtRz(
+            self, "NoiseZ" + str(self.dimensions[qudit]), qudit, [level, np.pi], self.dimensions[qudit], controls
+        )
 
     @add_gate_decorator
     def virtrz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> VirtRz:
