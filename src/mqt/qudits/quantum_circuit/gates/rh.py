@@ -46,7 +46,7 @@ class Rh(Gate):
     def __array__(self) -> NDArray:  # noqa: PLW3201
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
         dimension = self.dimensions
-        qudit_targeted: int = cast(int, self.target_qudits)
+        qudit_targeted: int = cast("int", self.target_qudits)
 
         pi_x = R(self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, -np.pi, 0.0], dimension).to_matrix()
         rotate = R(

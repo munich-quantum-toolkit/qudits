@@ -30,7 +30,7 @@ class ZPropagationOptPass(CompilerPass):
     def propagate_z(circuit: QuantumCircuit, line: list[R | VirtRz], back: bool) -> tuple[list[R], list[VirtRz]]:
         z_angles: dict[int, float] = {}
         list_of_x_yrots: list[R] = []
-        qudit_index = cast(int, line[0].target_qudits)
+        qudit_index = cast("int", line[0].target_qudits)
         dimension = line[0].dimensions
 
         for i in range(dimension):
@@ -111,9 +111,7 @@ class ZPropagationOptPass(CompilerPass):
 
         for interval in intervals:
             if len(interval) > 1:
-                from ....quantum_circuit.gates import R, VirtRz
-
-                sequence = cast(list[Union[R, VirtRz]], circuit.instructions[interval[0] : interval[-1] + 1])
+                sequence = cast("list[Union[R, VirtRz]]", circuit.instructions[interval[0] : interval[-1] + 1])
                 fixed_seq: list[R] = []
                 z_tail: list[VirtRz] = []
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)

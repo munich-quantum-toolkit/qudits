@@ -27,7 +27,7 @@ def fidelity_on_operator(a: NDArray[np.complex128, np.complex128], b: NDArray[np
     numerator = np.abs(np.trace(adag @ b))
     denominator = np.sqrt(np.trace(a @ adag) * np.trace(b @ bdag))
 
-    return typing.cast(float, (numerator / denominator))
+    return typing.cast("float", (numerator / denominator))
 
 
 def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
@@ -37,7 +37,7 @@ def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np
 
     dimension = a.shape[0]
 
-    return typing.cast(float, np.abs(np.trace(a.T.conj() @ b)) / dimension)
+    return typing.cast("float", np.abs(np.trace(a.T.conj() @ b)) / dimension)
 
 
 def fidelity_on_density_operator(
@@ -50,7 +50,7 @@ def fidelity_on_density_operator(
     numerator = np.abs(np.trace(a @ b))
     denominator = np.sqrt(np.trace(a @ a) * np.trace(b @ b))
 
-    return typing.cast(float, (numerator / denominator))
+    return typing.cast("float", (numerator / denominator))
 
 
 def naive_state_fidelity(state1: ArrayLike, state2: ArrayLike) -> float:

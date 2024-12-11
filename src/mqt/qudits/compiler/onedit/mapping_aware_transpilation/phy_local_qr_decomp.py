@@ -25,7 +25,7 @@ class PhyLocQRPass(CompilerPass):
         super().__init__(backend)
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
-        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
+        energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
         qr = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = qr.execute()
         return [op.dag() for op in reversed(decomp)]
@@ -51,8 +51,8 @@ class PhyQrDecomp:
     def __init__(self, gate: Gate, graph_orig: LevelGraph, z_prop: bool = False, not_stand_alone: bool = True) -> None:
         self.gate: Gate = gate
         self.circuit: QuantumCircuit = gate.parent_circuit
-        self.dimension: int = cast(int, gate.dimensions)
-        self.qudit_index: int = cast(int, gate.target_qudits)
+        self.dimension: int = cast("int", gate.dimensions)
+        self.qudit_index: int = cast("int", gate.target_qudits)
         self.U: NDArray = gate.to_matrix(identities=0)
         self.graph: LevelGraph = graph_orig
         self.phase_propagation: bool = z_prop
@@ -77,9 +77,9 @@ class PhyQrDecomp:
                         phase_gate = gates.VirtRz(
                             self.gate.parent_circuit,
                             "VRz",
-                            cast(int, self.gate.target_qudits),
+                            cast("int", self.gate.target_qudits),
                             [self.graph.nodes[i]["lpmap"], theta_z],
-                            cast(int, self.gate.dimensions),
+                            cast("int", self.gate.dimensions),
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension)
                         decomp.append(phase_gate)
                     recover_dict[i] = theta_z
@@ -151,9 +151,9 @@ class PhyQrDecomp:
                 phase_gate = gates.VirtRz(
                     self.gate.parent_circuit,
                     "VRz",
-                    cast(int, self.gate.target_qudits),
+                    cast("int", self.gate.target_qudits),
                     [phy_n_i, np.angle(diag_u[i])],
-                    cast(int, self.gate.dimensions),
+                    cast("int", self.gate.dimensions),
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 
                 decomp.append(phase_gate)

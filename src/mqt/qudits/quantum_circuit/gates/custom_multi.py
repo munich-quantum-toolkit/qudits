@@ -47,6 +47,7 @@ class CustomMulti(Gate):
     def validate_parameter(parameter: NDArray | None = None) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
-        return isinstance(parameter, np.ndarray) and (
-            parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)
+        return bool(
+            isinstance(parameter, np.ndarray)
+            and (parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number))
         )

@@ -108,8 +108,8 @@ class QuantumCircuit:
         if len(args) > 1:
             # case 1
             # num_qudits: int, dimensions_slice: List[int]|None, numcl: int
-            num_qudits: int = cast(int, args[0])
-            dims: list[int] = cast(list[int], num_qudits * [2] if args[1] is None else args[1])
+            num_qudits: int = cast("int", args[0])
+            dims: list[int] = cast("list[int]", num_qudits * [2] if args[1] is None else args[1])
             self.append(QuantumRegister("q", num_qudits, dims))
             # self.num_cl = args[2]
         elif isinstance(args[0], QuantumRegister):
@@ -120,7 +120,7 @@ class QuantumCircuit:
 
     @classmethod
     def get_qasm_set(cls) -> dict[str, str]:
-        return cast(dict[str, str], cls.qasm_to_gate_set_dict)
+        return cast("dict[str, str]", cls.qasm_to_gate_set_dict)
 
     @property
     def dimensions(self) -> list[int]:

@@ -49,7 +49,7 @@ class Perm(Gate):
         if isinstance(parameter, list):
             """Verify that the input is a list of indices"""
             dims = self.dimensions
-            p = cast(list[int], parameter)
+            p = cast("list[int]", parameter)
             assert all((0 <= num < len(parameter) and num < dims) for num in p), (
                 "Numbers are not within the range of the list length"
             )
@@ -64,4 +64,4 @@ class Perm(Gate):
 
     @property
     def dimensions(self) -> int:
-        return cast(int, self._dimensions)
+        return cast("int", self._dimensions)

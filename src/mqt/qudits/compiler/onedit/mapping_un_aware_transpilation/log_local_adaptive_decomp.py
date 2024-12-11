@@ -30,20 +30,20 @@ class LogLocAdaPass(CompilerPass):
         super().__init__(backend)
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
-        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
+        energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
 
         qr = QrDecomp(gate, energy_graph_i)
 
         _decomp, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = LogAdaptiveDecomposition(
-            gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions)
+            gate, energy_graph_i, (algorithmic_cost, total_cost), cast("int", gate.dimensions)
         )
 
         (
             matrices_decomposed,
             _best_cost,
-            self.backend.energy_level_graphs[cast(int, gate.target_qudits)],
+            self.backend.energy_level_graphs[cast("int", gate.target_qudits)],
         ) = adaptive.execute()
 
         return matrices_decomposed
@@ -74,7 +74,7 @@ class LogAdaptiveDecomposition:
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: NDArray = gate.to_matrix(identities=0)
-        self.qudit_index: int = cast(int, gate.target_qudits)
+        self.qudit_index: int = cast("int", gate.target_qudits)
         self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
         self.cost_limit: tuple[float, float] = cost_limit

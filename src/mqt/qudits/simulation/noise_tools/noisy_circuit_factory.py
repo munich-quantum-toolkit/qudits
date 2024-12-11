@@ -141,7 +141,7 @@ class NoisyCircuitFactory:
 
     def _get_control_qudits(self, instruction: Gate) -> list[int]:
         self._validate_two_qudit_gate(instruction)
-        qudits_targeted = cast(list[int], instruction.target_qudits)
+        qudits_targeted = cast("list[int]", instruction.target_qudits)
         return qudits_targeted[:1]
 
     @staticmethod
@@ -161,7 +161,7 @@ class NoisyCircuitFactory:
             qudits_targeted = instruction.reference_lines
             return qudits_targeted[1:]
 
-        return [cast(int, instruction.target_qudits)]
+        return [cast("int", instruction.target_qudits)]
 
     @staticmethod
     def _validate_two_qudit_gate(instruction: Gate) -> None:

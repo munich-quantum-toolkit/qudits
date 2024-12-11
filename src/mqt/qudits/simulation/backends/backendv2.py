@@ -61,7 +61,7 @@ class Backend(ABC):
 
     @property
     def options(self) -> dict[str, Any]:
-        return cast(dict[str, Any], self._options)
+        return cast("dict[str, Any]", self._options)
 
     @property
     def provider(self) -> MQTQuditProvider:

@@ -64,7 +64,7 @@ class LS(Gate):
             return False
 
         if isinstance(param, list):
-            assert 0 <= cast(float, param[0]) <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {param[0]}"
+            assert 0 <= cast("float", param[0]) <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {param[0]}"
             return True
 
         if isinstance(param, np.ndarray):
@@ -75,4 +75,4 @@ class LS(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(list[int], self._dimensions)
+        return cast("list[int]", self._dimensions)

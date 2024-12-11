@@ -37,9 +37,9 @@ class Rz(Gate):
             qasm_tag="rz",
         )
         if self.validate_parameter(parameters):
-            self.original_lev_a: int = cast(int, parameters[0])
-            self.original_lev_b: int = cast(int, parameters[1])
-            self.phi: float = cast(float, parameters[2])
+            self.original_lev_a: int = cast("int", parameters[0])
+            self.original_lev_b: int = cast("int", parameters[1])
+            self.phi: float = cast("float", parameters[2])
             self.phi = regulate_theta(self.phi)
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
@@ -47,7 +47,7 @@ class Rz(Gate):
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
         dimension = self.dimensions
         phi = self.phi
-        qudit_targeted: int = cast(int, self.target_qudits)
+        qudit_targeted: int = cast("int", self.target_qudits)
 
         pi_there = R(
             self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension

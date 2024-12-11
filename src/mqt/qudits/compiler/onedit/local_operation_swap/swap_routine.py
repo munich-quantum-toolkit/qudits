@@ -79,7 +79,7 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
     return gates.R(
         gate.parent_circuit,
         "R",
-        cast(int, gate.target_qudits),
+        cast("int", gate.target_qudits),
         [g_lev_a, g_lev_b, gate.theta, new_g_phi],
         gate.dimensions,
     )
@@ -117,7 +117,7 @@ def gate_chain_condition(previous_gates: list[R], current: R) -> R:
     return gates.R(
         current.parent_circuit,
         "R",
-        cast(int, current.target_qudits),
+        cast("int", current.target_qudits),
         [current.lev_a, current.lev_b, theta, phi],
         current.dimensions,
     )  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
@@ -142,7 +142,11 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
         pi_gate_phy = gates.R(
-            gate.parent_circuit, "R", cast(int, gate.target_qudits), [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+            gate.parent_circuit,
+            "R",
+            cast("int", gate.target_qudits),
+            [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2],
+            dimension,
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)
@@ -152,7 +156,7 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
         pi_gate_logic = gates.R(
             gate.parent_circuit,
             "R",
-            cast(int, gate.target_qudits),
+            cast("int", gate.target_qudits),
             [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
             dimension,
         )  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)

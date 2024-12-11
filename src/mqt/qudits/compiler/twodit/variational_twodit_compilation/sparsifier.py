@@ -36,7 +36,7 @@ def apply_rotations(
 def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: list[float]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
-    dims = typing.cast(list[int], gate.dimensions)
+    dims = typing.cast("list[int]", gate.dimensions)
     params = params_splitter(params_list, dims)
 
     decomposition: list[Gate] = []
@@ -56,7 +56,7 @@ def density(m_prime: NDArray[np.float64, np.float64]) -> float:
     non_zero_elements = m_prime[m_prime > 1e-8]
     if len(non_zero_elements) == 0:
         return 0
-    return typing.cast(float, non_zero_elements.size / m_prime.size)
+    return typing.cast("float", non_zero_elements.size / m_prime.size)
 
 
 def manhattan_norm(matrix: NDArray[np.complex128, np.complex128]) -> float:
@@ -64,7 +64,7 @@ def manhattan_norm(matrix: NDArray[np.complex128, np.complex128]) -> float:
 
 
 def frobenius_norm(matrix: NDArray[np.complex128, np.complex128]) -> float:
-    return typing.cast(float, np.sqrt(np.sum(np.abs(matrix) ** 2)))
+    return typing.cast("float", np.sqrt(np.sum(np.abs(matrix) ** 2)))
 
 
 def compute_f(x: NDArray[np.complex128, np.complex128]) -> float:
@@ -121,7 +121,7 @@ def objective_function(thetas: list[float], m: NDArray[np.complex128, np.complex
 
 def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
     m = gate.to_matrix()
-    dims = typing.cast(list[int], gate.dimensions)
+    dims = typing.cast("list[int]", gate.dimensions)
 
     Optimizer.set_class_variables(m, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()

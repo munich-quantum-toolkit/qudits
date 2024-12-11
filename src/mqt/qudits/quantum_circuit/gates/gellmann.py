@@ -36,11 +36,11 @@ class GellMann(Gate):
             dimensions=dimensions,
             control_set=controls,
             qasm_tag="gell",
-            lev_a=cast(int, parameters[0]),
-            lev_b=cast(int, parameters[1]),
+            lev_a=cast("int", parameters[0]),
+            lev_b=cast("int", parameters[1]),
             params=parameters,
         )
-        self.type_m = cast(str, parameters[2])
+        self.type_m = cast("str", parameters[2])
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         d = self._dimensions
@@ -74,7 +74,7 @@ class GellMann(Gate):
             return False
 
         if isinstance(param, list):
-            parameter = cast(list[Union[int, str]], param)
+            parameter = cast("list[Union[int, str]]", param)
             assert isinstance(parameter[0], int)
             assert isinstance(parameter[1], int)
             assert isinstance(parameter[2], str)

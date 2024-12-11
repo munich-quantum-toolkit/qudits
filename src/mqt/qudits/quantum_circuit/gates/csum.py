@@ -37,7 +37,7 @@ class CSum(Gate):
         )
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
-        qudits_targeted = cast(list[int], self.target_qudits)
+        qudits_targeted = cast("list[int]", self.target_qudits)
         qudit_targeted_0: int = qudits_targeted[0]
         qudit_targeted_1: int = qudits_targeted[1]
         ctrl_size = self.parent_circuit.dimensions[qudit_targeted_0]

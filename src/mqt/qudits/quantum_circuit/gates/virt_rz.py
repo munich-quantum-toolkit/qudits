@@ -36,8 +36,8 @@ class VirtRz(Gate):
             qasm_tag="virtrz",
         )
         if self.validate_parameter(parameters):
-            self.lev_a: int = cast(int, parameters[0])
-            self.phi: float = cast(float, parameters[1])
+            self.lev_a: int = cast("int", parameters[0])
+            self.phi: float = cast("float", parameters[1])
             self.phi = regulate_theta(self.phi)
             self._params = parameters
 

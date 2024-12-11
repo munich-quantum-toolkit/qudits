@@ -47,7 +47,7 @@ class MS(Gate):
         dimension_0 = self.dimensions[0]
         dimension_1 = self.dimensions[1]
         ps: list[int | str] = [0, 1, "s"]
-        qudits_targeted = cast(list[int], self.target_qudits)
+        qudits_targeted = cast("list[int]", self.target_qudits)
         qudit_targeted_0: int = qudits_targeted[0]
         qudit_targeted_1: int = qudits_targeted[1]
 
@@ -73,7 +73,7 @@ class MS(Gate):
             return False
 
         if isinstance(parameter, list):
-            assert 0 <= cast(float, parameter[0]) <= 2 * np.pi, (
+            assert 0 <= cast("float", parameter[0]) <= 2 * np.pi, (
                 f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
             )
             return True
@@ -85,4 +85,4 @@ class MS(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(list[int], self._dimensions)
+        return cast("list[int]", self._dimensions)

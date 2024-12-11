@@ -23,8 +23,8 @@ class PhyEntQRCEXPass(CompilerPass):
         self.circuit = QuantumCircuit()
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
-        target_qudits = cast(list[int], gate.target_qudits)
-        dimensions = cast(list[int], gate.dimensions)
+        target_qudits = cast("list[int]", gate.target_qudits)
+        dimensions = cast("list[int]", gate.dimensions)
 
         energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]

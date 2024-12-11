@@ -73,7 +73,7 @@ def get_node_contributions(root: MicroDDNode, labels: list[int]) -> NodeContribu
 
     for node, probability in probs.items():
         if node.value not in {"r", "zero", "one"}:
-            qq[cast(int, node.value)].append((node, probability))
+            qq[cast("int", node.value)].append((node, probability))
 
     for i in range(len(qq)):
         qq[i] = sorted(qq[i], key=operator.itemgetter(1))

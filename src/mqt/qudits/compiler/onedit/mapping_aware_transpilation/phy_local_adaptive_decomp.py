@@ -39,18 +39,18 @@ class PhyLocAdaPass(CompilerPass):
         self.vrz_prop = vrz_prop
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
-        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
+        energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
 
         qr = PhyQrDecomp(gate, energy_graph_i)
 
         _decomp, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = PhyAdaptiveDecomposition(
-            gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions), z_prop=self.vrz_prop
+            gate, energy_graph_i, (algorithmic_cost, total_cost), cast("int", gate.dimensions), z_prop=self.vrz_prop
         )
         (matrices_decomposed, _best_cost, new_energy_level_graph) = adaptive.execute()
 
-        self.backend.energy_level_graphs[cast(int, gate.target_qudits)] = new_energy_level_graph
+        self.backend.energy_level_graphs[cast("int", gate.target_qudits)] = new_energy_level_graph
         return [op.dag() for op in reversed(matrices_decomposed)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
@@ -80,12 +80,12 @@ class PhyAdaptiveDecomposition:
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: NDArray = gate.to_matrix(identities=0)
-        self.qudit_index: int = cast(int, gate.target_qudits)
+        self.qudit_index: int = cast("int", gate.target_qudits)
         self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
-        self.cost_limit: tuple[float, float] = cast(tuple[float, float], cost_limit)
-        self.dimension: int = cast(int, dimension)
-        self.phase_propagation: bool = cast(bool, z_prop)
+        self.cost_limit: tuple[float, float] = cast("tuple[float, float]", cost_limit)
+        self.dimension: int = cast("int", dimension)
+        self.phase_propagation: bool = cast("bool", z_prop)
         self.TREE: NAryTree = NAryTree()
 
     def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph]:

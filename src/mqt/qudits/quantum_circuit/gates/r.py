@@ -38,10 +38,10 @@ class R(Gate):
         )
 
         if self.validate_parameter(parameters):
-            self.original_lev_a: int = cast(int, parameters[0])
-            self.original_lev_b: int = cast(int, parameters[1])
-            self.theta: float = cast(float, parameters[2])
-            self.phi: float = cast(float, parameters[3])
+            self.original_lev_a: int = cast("int", parameters[0])
+            self.original_lev_b: int = cast("int", parameters[1])
+            self.theta: float = cast("float", parameters[2])
+            self.phi: float = cast("float", parameters[3])
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self.theta = regulate_theta(self.theta)
             self._params = parameters
@@ -58,7 +58,7 @@ class R(Gate):
         cosine_matrix = matrix
         pa: list[int | str] = [self.lev_a, self.lev_b, "a"]
         ps: list[int | str] = [self.lev_a, self.lev_b, "s"]
-        qudit_targeted = cast(int, self.target_qudits)
+        qudit_targeted = cast("int", self.target_qudits)
 
         return cosine_matrix - 1j * np.sin(theta / 2) * (
             np.sin(phi)

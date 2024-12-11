@@ -27,7 +27,7 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
     ) -> None:
         super().__init__()
         self.og_circuit = og_circuit
-        self.qudit_index: int = cast(int, qudit_index)
+        self.qudit_index: int = cast("int", qudit_index)
         self.logic_nodes: list[int] | NodesWithAttributes = nodes
         self.add_nodes_from(self.logic_nodes)
 
@@ -104,7 +104,7 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
                 substituter[1] = num_b
             elif mod_index[i][1] == 2:
                 substituter[1] = num_a
-            new_lst.append(cast(tuple[int, int], tuple(substituter)))
+            new_lst.append(cast("tuple[int, int]", tuple(substituter)))
 
         return new_lst
 
@@ -129,7 +129,7 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
         raise ValueError(msg)
 
     def swap_node_attributes(self, node_a: int, node_b: int) -> NodesWithAttributes:
-        nodelistcopy = cast(NodesWithAttributes, self.deep_copy_func(list(self.nodes(data=True))))
+        nodelistcopy = cast("NodesWithAttributes", self.deep_copy_func(list(self.nodes(data=True))))
         node_a_index = self.index(nodelistcopy, node_a)
         node_b_index = self.index(nodelistcopy, node_b)
 
@@ -166,7 +166,7 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
         attribute_list = [self.get_edge_data(*e).copy() for e in edges]
 
         swapped_nodes_edges: list[tuple[int, int]] = self.update_list(
-            cast(list[tuple[int, int]], edges), node_a, node_b
+            cast("list[tuple[int, int]]", edges), node_a, node_b
         )
 
         new_edge_list = []

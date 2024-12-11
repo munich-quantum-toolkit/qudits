@@ -41,23 +41,23 @@ class CEx(Gate):
         )
         # if customized
         if parameters is not None and self.validate_parameter(parameters):
-            self.lev_a: int = cast(int, parameters[0])
-            self.lev_b: int = cast(int, parameters[1])
-            self.ctrl_lev: int = cast(int, parameters[2])
-            self.phi: float = cast(float, parameters[3])
+            self.lev_a: int = cast("int", parameters[0])
+            self.lev_b: int = cast("int", parameters[1])
+            self.ctrl_lev: int = cast("int", parameters[2])
+            self.phi: float = cast("float", parameters[3])
             # self.lev_a, self.lev_b, self.ctrl_lev, self.phi = parameters
             self._params: list[int | float] = parameters
         else:
             self.ctrl_lev = 1
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
-        levels_swap_low: int = cast(int, self._params[0])
-        levels_swap_high: int = cast(int, self._params[1])
-        ctrl_level: int = cast(int, self._params[2])
-        ang: float = cast(float, self._params[3])
+        levels_swap_low: int = cast("int", self._params[0])
+        levels_swap_high: int = cast("int", self._params[1])
+        ctrl_level: int = cast("int", self._params[2])
+        ang: float = cast("float", self._params[3])
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
-        qudits_targeted = cast(list[int], self.target_qudits)
+        qudits_targeted = cast("list[int]", self.target_qudits)
         result = np.zeros((dimension, dimension), dtype="complex")
 
         for i in range(dimension_ctrl):
@@ -108,4 +108,4 @@ class CEx(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(list[int], self._dimensions)
+        return cast("list[int]", self._dimensions)

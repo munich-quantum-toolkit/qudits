@@ -130,7 +130,7 @@ class QASM:
                 for match in matches:
                     if match:
                         namectl = match[0]
-                        reg_qudit_indexctl = cast(str, match[1])
+                        reg_qudit_indexctl = cast("str", match[1])
                         number = re.search(r"\[(\d+)\]", reg_qudit_indexctl)
                         if number:
                             extracted = number.groups()

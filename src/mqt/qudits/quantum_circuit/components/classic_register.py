@@ -20,7 +20,7 @@ class ClassicRegister:
 
         registers_from_qasm = []
         for label, data in registers_map.items():
-            global_indexing_dict: dict[int, int] = cast(dict[int, int], data[0])
+            global_indexing_dict: dict[int, int] = cast("dict[int, int]", data[0])
             temp = ClassicRegister(label, len(global_indexing_dict))
             temp.local_sitemap = global_indexing_dict
             registers_from_qasm.append(temp)
