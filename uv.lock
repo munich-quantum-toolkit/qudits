@@ -1134,7 +1134,7 @@ wheels = [
 
 [[package]]
 name = "mqt-qudits"
-version = "0.3.1.dev37+g116e157"
+version = "0.3.1.dev33+g9316263"
 source = { editable = "." }
 dependencies = [
     { name = "h5py", marker = "python_full_version >= '3.11'" },
