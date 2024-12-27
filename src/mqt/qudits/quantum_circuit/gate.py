@@ -65,6 +65,7 @@ class Gate(Instruction):
         self.theta: float = theta
         self.phi: float = phi
         self.qasm_tag = qasm_tag
+        self.is_susceptible = True
 
     @property
     def reference_lines(self) -> list[int]:
@@ -237,3 +238,6 @@ class Gate(Instruction):
         file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
         np.save(file_path, self._params)
         return f"({file_path}) "
+
+    def turn_off_noise(self):
+        self.is_susceptible = False
