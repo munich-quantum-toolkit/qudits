@@ -100,8 +100,13 @@ class Operation:
 
 
 class StatePrep:
-    def __init__(self, quantum_circuit: QuantumCircuit, state: NDArray[np.complex128],
-                 not_noisy: bool = True, approx: bool = False) -> None:
+    def __init__(
+        self,
+        quantum_circuit: QuantumCircuit,
+        state: NDArray[np.complex128],
+        not_noisy: bool = True,
+        approx: bool = False,
+    ) -> None:
         self.circuit = quantum_circuit
         self.state = state
         self.not_noisy = not_noisy
@@ -195,6 +200,5 @@ class StatePrep:
                     r = new_circuit.r(op.qudit, [op.levels[0], op.levels[1], op.theta, op.phi]).control(nodes, levels)
                     if self.not_noisy:
                         r.turn_off_noise()
-
 
         return new_circuit
