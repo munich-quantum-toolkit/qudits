@@ -47,11 +47,11 @@ class PhyMultiSimplePass(CompilerPass):
         physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
         pi_backs = [
             R(
-                    self.circuit,
-                    "R",
-                    cast("int", gate.target_qudits),
-                    [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
-                    gate.dimensions,
+                self.circuit,
+                "R",
+                cast("int", gate.target_qudits),
+                [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
+                gate.dimensions,
             )
             for pi_g in reversed(pi_pulses_routing)
         ]
