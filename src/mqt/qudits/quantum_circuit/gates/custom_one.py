@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
+    from ..gate import Parameter
 
 
 class CustomOne(Gate):
@@ -44,10 +45,14 @@ class CustomOne(Gate):
         return self.__array_storage
 
     @staticmethod
-    def validate_parameter(parameter: NDArray | None = None) -> bool:
+    def validate_parameter(parameter: Parameter) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
         return bool(
             isinstance(parameter, np.ndarray)
             and (parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number))
         )
+
+    def _dagger_properties(self) -> None:
+        self.__array_storage = self.__array_storage.conj().T
+        self.update_params(self.__array_storage)

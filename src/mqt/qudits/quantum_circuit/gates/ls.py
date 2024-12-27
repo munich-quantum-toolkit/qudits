@@ -58,13 +58,19 @@ class LS(Gate):
 
         return expm(-1j * self.theta * exp_matrix)
 
+    def _dagger_properties(self) -> None:
+        self.theta *= -1
+        self.update_params([self.theta])
+
     @staticmethod
     def validate_parameter(param: Parameter) -> bool:
         if param is None:
             return False
 
         if isinstance(param, list):
-            assert 0 <= cast("float", param[0]) <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {param[0]}"
+            """assert -2 * np.pi <= cast(float, param[0]) <= 2 * np.pi, (
+                f"Angle should be in the range [-2*pi, 2*pi]: {param[0]}"
+            )"""
             return True
 
         if isinstance(param, np.ndarray):

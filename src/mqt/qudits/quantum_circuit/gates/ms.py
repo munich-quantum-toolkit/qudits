@@ -67,15 +67,19 @@ class MS(Gate):
         )
         return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
 
+    def _dagger_properties(self) -> None:
+        self.theta *= -1
+        self.update_params([self.theta])
+
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:
         if parameter is None:
             return False
 
         if isinstance(parameter, list):
-            assert 0 <= cast("float", parameter[0]) <= 2 * np.pi, (
-                f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
-            )
+            """assert -2 * np.pi <= cast(float, parameter[0]) <= 2 * np.pi, (
+                f"Angle should be in the range [-2*pi, 2*pi]: {parameter[0]}"
+            )"""
             return True
         if isinstance(parameter, np.ndarray):
             # Add validation for numpy array if needed

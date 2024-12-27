@@ -45,9 +45,19 @@ class H(Gate):
             array0[e0] = 1
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
-        return matrix * (1 / np.sqrt(self.dimensions))
+
+        matrix *= 1 / np.sqrt(self.dimensions)
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @property
     def dimensions(self) -> int:
         assert isinstance(self._dimensions, int), "Dimensions must be an integer"
         return self._dimensions
+
+    def to_qasm(self) -> str:
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

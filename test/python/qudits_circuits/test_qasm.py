@@ -15,8 +15,8 @@ class TestQASM(TestCase):
                 qreg matter [2];
                 creg meas [2];
                 creg fieldc [7];
-                x field[0];
-                h matter[0] ctl field[0] field[1] [0,0];
+                inv @ x field[0];
+                inv @ h matter[0] ctl field[0] field[1] [0,0];
                 cx (0, 1, 1, pi/2) field[2], matter[0];
                 cx (1, 2, 0, pi ) field[2], matter[1];
                 rxy (0, 1, pi, pi/2) field[3];
@@ -25,7 +25,7 @@ class TestQASM(TestCase):
                 rh (0, 1) field[3];
                 ls (pi/3) field[2], matter[0];
                 ms (pi/3) field[5], matter[1];
-                rz (0, 1, pi) field[3];
+                inv@rz (0, 1, pi) field[3];
                 s field[6];
                 virtrz (1, pi/5) field[6];
                 z field[4];
@@ -60,3 +60,5 @@ class TestQASM(TestCase):
             "z",
             "rdu",
         ]
+        assert sum(1 if s.dagger else 0 for s in circuit.instructions) == 3  # checking that there are three dagger
+        # ops

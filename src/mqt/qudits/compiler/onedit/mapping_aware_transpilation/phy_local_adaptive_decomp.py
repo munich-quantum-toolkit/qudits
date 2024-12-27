@@ -3,11 +3,13 @@ from __future__ import annotations
 import contextlib
 import gc
 import itertools
+from random import shuffle
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from ....core import NAryTree
+from ....core.custom_python_utils import append_to_front
 from ....exceptions import SequenceFoundError
 from ....quantum_circuit import gates
 from ....quantum_circuit.components.extensions.gate_types import GateTypes
@@ -56,15 +58,15 @@ class PhyLocAdaPass(CompilerPass):
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit: QuantumCircuit = circuit
         instructions: list[Gate] = circuit.instructions
-        new_instructions = []
+        new_instructions: list[Gate] = []
 
-        for gate in instructions:
+        for gate in reversed(instructions):
             if gate.gate_type == GateTypes.SINGLE:
                 gate_trans = self.transpile_gate(gate)
-                new_instructions.extend(gate_trans)
+                append_to_front(new_instructions, gate_trans)
                 gc.collect()
             else:
-                new_instructions.append(gate)
+                append_to_front(new_instructions, gate)
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)
 
@@ -111,10 +113,6 @@ class PhyAdaptiveDecomposition:
             matrices_decomposed_m, final_graph = self.z_extraction(
                 matrices_decomposed, final_graph, self.phase_propagation
             )
-        else:
-            pass
-
-        self.TREE.print_tree(self.TREE.root, "TREE: ")
 
         return matrices_decomposed_m, best_cost, final_graph
 
@@ -129,7 +127,7 @@ class PhyAdaptiveDecomposition:
             matrices = [*matrices, d.rotation]
 
         u_ = decomposition[-1].u_of_level  # take U of last elaboration which should be the diagonal matrix found
-
+        u_.round(4)
         # check if close to diagonal
         ucopy = u_.copy()
 
@@ -157,13 +155,14 @@ class PhyAdaptiveDecomposition:
                         placement.nodes[i]["phase_storage"] = new_mod(placement.nodes[i]["phase_storage"])
                 else:
                     phy_n_i = placement.nodes[i]["lpmap"]
-
+                    angle_phy = new_mod(np.angle(diag_u[i]))
                     phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
-                    )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
-                    # dimension)
-
-                    u_ = phase_gate.to_matrix(identities=0) @ u_  # matmul(phase_gate.to_matrix(identities=0), U_)
+                        self.circuit, "VRz", self.qudit_index, [phy_n_i, angle_phy], self.dimension
+                    )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
+                    log_phase_gate = gates.VirtRz(self.circuit, "VRz", self.qudit_index, [i, angle_phy], self.dimension)
+                    log_phase_gate.to_matrix(identities=0)
+                    u_ = log_phase_gate.to_matrix(identities=0) @ u_
+                    u_.round(4)
 
                     matrices.append(phase_gate)
 
@@ -224,7 +223,7 @@ class PhyAdaptiveDecomposition:
                 )  # R(theta, phi, r, r2, dimension)
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
-
+                u_temp.round(4)
                 non_zeros = np.count_nonzero(abs(u_temp) > 1.0e-4)
 
                 (
@@ -281,6 +280,30 @@ class PhyAdaptiveDecomposition:
                         pi_pulses_routing,
                     )
 
+        def calculate_sparsity(matrix: NDArray) -> float:
+            total_elements = matrix.size
+            non_zero_elements = np.count_nonzero(np.abs(matrix) > 1e-8)  # np.count_nonzero(matrix)
+            return cast("float", non_zero_elements / total_elements)
+
+        def change_kids(lst: list[TreeNode]) -> list[TreeNode]:
+            # Check if the list is non-empty
+            if not lst:
+                return lst
+            vals = [calculate_sparsity(obj.u_of_level) for obj in lst]
+            # Calculate the range of values in the list
+            min_val, _max_val = min(vals), max(vals)
+            min_from_one = 1 - min_val
+            dim = lst[0].u_of_level.shape[0]
+            threshold = (dim - 3) ** 2 / dim**2
+            # If the spread is below the threshold, shuffle the list
+            if min_from_one < threshold and len(lst) > dim**2 * 0.6:
+                shuffle(lst)
+            else:
+                lst = sorted(lst, key=lambda obj: calculate_sparsity(obj.u_of_level))
+
+            return lst
+
         if current_root.children is not None:
-            for child in current_root.children:
+            new_kids = change_kids(current_root.children)
+            for child in new_kids:
                 self.dfs(child, level + 1)

@@ -62,13 +62,14 @@ class TestCEx(TestCase):
             matrix_dag,
         )
 
-        # control on 2 but swap 1 and 2, change agle
+        # control on 2 but swap 1 and 2, change angle
         circuit_33 = QuantumCircuit(2, [3, 3], 0)
         cx = circuit_33.cx([0, 1], [1, 2, 2, np.pi / 6])
         matrix = cx.to_matrix(identities=0)
         ang = np.pi / 6
         val1 = -1j * np.cos(ang) - np.sin(ang)
         val2 = -1j * np.cos(ang) + np.sin(ang)
+
         assert np.allclose(
             np.array([
                 [1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -202,6 +203,32 @@ class TestCEx(TestCase):
                 [0, 0, 0, 1, 0, 0],
                 [0, -1j, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 1],
+            ]),
+            matrix,
+        )
+
+        matrix_dag = cx.dag().to_matrix(identities=0)
+        assert np.allclose(
+            matrix.conj().T,
+            matrix_dag,
+        )
+
+        # control on 2 but swap 1 and 2, change angle
+        circuit_23 = QuantumCircuit(2, [2, 3], 0)
+        cx = circuit_23.cx([0, 1], [1, 2, 1, np.pi / 6])
+        matrix = cx.to_matrix(identities=0)
+        ang = np.pi / 6
+        val1 = -1j * np.cos(ang) - np.sin(ang)
+        val2 = -1j * np.cos(ang) + np.sin(ang)
+
+        assert np.allclose(
+            np.array([
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, val1],
+                [0, 0, 0, 0, val2, 0],
             ]),
             matrix,
         )

@@ -46,7 +46,7 @@ class Lanes:
                     self.index_dict[index] = []
                 self.index_dict[index].append(gate_tuple)
             elif gate.gate_type in {GateTypes.TWO, GateTypes.MULTI}:
-                indices: list[int] = cast("list[int]", gate.target_qudits)
+                indices = gate.reference_lines
                 for index in indices:
                     if index not in self.index_dict:
                         self.index_dict[index] = []
@@ -90,7 +90,7 @@ class Lanes:
                 else:
                     consecutive_groups[target_qudits] = [[gate_tuple]]
             else:
-                qudits_targeted: list[int] = cast("list[int]", gate.target_qudits)
+                qudits_targeted = gate.reference_lines
                 for qudit in qudits_targeted:
                     consecutive_groups[qudit].append([gate_tuple])
                     consecutive_groups[qudit].append([])

@@ -42,6 +42,11 @@ class Perm(Gate):
     def __array__(self) -> NDArray:  # noqa: PLW3201
         return np.eye(self.dimensions)[:, self.perm_data]
 
+    def _dagger_properties(self) -> None:
+        dagm = self.__array__().T
+        self.perm_data = np.argmax(dagm, axis=0)
+        self.update_params(self.perm_data)
+
     def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
             return False

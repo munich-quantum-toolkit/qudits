@@ -51,6 +51,9 @@ dependencies = [
     "matplotlib>=3.7; python_version < '3.12'",
     "matplotlib>=3.8; python_version >= '3.12'",
     "typing-extensions>=4.1",
+    "urllib3>=2.0.0",
+    "requests>=2.31.0",
+    "pytest>=8.3.4"
 ]
 dynamic = ["version"]
 

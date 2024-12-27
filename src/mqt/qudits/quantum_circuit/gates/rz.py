@@ -61,6 +61,10 @@ class Rz(Gate):
 
         return np.matmul(np.matmul(pi_back, rotate), pi_there)  # pi_back @ rotate @ pi_there
 
+    def _dagger_properties(self) -> None:
+        self.phi *= -1
+        self.update_params([self.lev_a, self.lev_b, self.phi])
+
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:
         if la < lb:

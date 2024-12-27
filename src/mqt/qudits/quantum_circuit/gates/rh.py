@@ -57,7 +57,10 @@ class Rh(Gate):
             dimension,
         ).to_matrix()
 
-        return np.matmul(pi_x, rotate)
+        matrix = np.matmul(pi_x, rotate)
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:
@@ -93,3 +96,9 @@ class Rh(Gate):
     def dimensions(self) -> int:
         assert isinstance(self._dimensions, int), "Dimensions must be an integer"
         return self._dimensions
+
+    def to_qasm(self) -> str:
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

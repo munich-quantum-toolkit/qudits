@@ -32,7 +32,6 @@ class TestMISimAndTNSim(TestCase):
         # Compare results from both backends
         # assert np.allclose(results["misim"], results["tnsim"]), "Results from misim and tnsim do not match"
         assert True
-        print("Results from misim and tnsim match.")
 
     def test_execute(self):
         # H gate
@@ -220,7 +219,6 @@ class TestMISimAndTNSim(TestCase):
         # Long range gates
         for d1 in range(2, 8):
             for d2 in range(2, 8):
-                print("Test long range CSUM")
                 qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 2])
                 circuit = QuantumCircuit(qreg_example)
                 h = circuit.h(0)
@@ -256,7 +254,6 @@ class TestMISimAndTNSim(TestCase):
                 for clev in range(d1):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
-                            print("Test long range CEX")
                             angle = rng.uniform(0, 2 * np.pi)
 
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
@@ -275,7 +272,6 @@ class TestMISimAndTNSim(TestCase):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
                             angle = rng.uniform(0, 2 * np.pi)
-                            print("Test long range Cex inverted")
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
                             circuit = QuantumCircuit(qreg_example)
                             h = circuit.h(2)

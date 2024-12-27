@@ -46,9 +46,11 @@ class MISim(Backend):
 
         if self.noise_model is not None:
             assert self.shots >= 50, "Number of shots should be above 50"
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
+            job.set_result(
+                JobResult(job.job_id, state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit))
+            )
         else:
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
+            job.set_result(JobResult(job.job_id, state_vector=self.execute(circuit), counts=[]))
 
         return job
 

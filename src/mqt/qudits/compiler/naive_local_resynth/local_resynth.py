@@ -58,5 +58,5 @@ class NaiveLocResynthOptPass(CompilerPass):
         for i, graph in enumerate(self.backend.energy_level_graphs):
             if i < circuit.num_qudits:
                 mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_mapping(mappings)
+        transpiled_circuit.set_final_mappings(mappings)
         return transpiled_circuit.set_instructions(new_instructions)

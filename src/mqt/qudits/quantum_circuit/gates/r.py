@@ -67,6 +67,10 @@ class R(Gate):
             * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
         )
 
+    def _dagger_properties(self) -> None:
+        self.theta *= -1
+        self.update_params([self.lev_a, self.lev_b, self.theta, self.phi])
+
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:
         if la < lb:
@@ -83,9 +87,17 @@ class R(Gate):
             assert isinstance(parameter[2], float)
             assert isinstance(parameter[3], float)
             assert parameter[0] >= 0
-            assert parameter[0] < self.dimensions
+            assert parameter[0] < self.dimensions, (
+                "Choice of levels is non-physical, or "
+                "logic states require routing through an ancilla state in the "
+                "energy-level-graph, due to long-range interactions."
+            )
             assert parameter[1] >= 0
-            assert parameter[1] < self.dimensions
+            assert parameter[1] < self.dimensions, (
+                "Choice of levels is non-physical, or "
+                "logic states require routing through an ancilla state in the "
+                "energy-level-graph, due to long-range interactions."
+            )
             assert parameter[0] != parameter[1]
             # Useful to remember direction of the rotation
             self.original_lev_a = parameter[0]

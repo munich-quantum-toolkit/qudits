@@ -253,7 +253,6 @@ class TestTNSim(TestCase):
         # Long range gates
         for d1 in range(2, 8):
             for d2 in range(2, 8):
-                print("Test long range CSUM")
                 qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 2])
                 circuit = QuantumCircuit(qreg_example)
                 h = circuit.h(0)
@@ -297,7 +296,6 @@ class TestTNSim(TestCase):
                 for clev in range(d1):
                     for level_a in range(d2 - 1):
                         for level_b in range(level_a + 1, d2):
-                            print("Test long range CEX")
                             angle = rng.uniform(0, 2 * np.pi)
 
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
@@ -320,7 +318,6 @@ class TestTNSim(TestCase):
                     for level_a in range(d1 - 1):
                         for level_b in range(level_a + 1, d1):
                             angle = rng.uniform(0, 2 * np.pi)
-                            print("Test long range Cex inverted")
                             qreg_example = QuantumRegister("reg", 4, [d1, 2, d2, 3])
                             circuit = QuantumCircuit(qreg_example)
                             h = circuit.h(2)
@@ -383,30 +380,33 @@ class TestTNSim(TestCase):
         circuit.cx([1, 2], [0, 1, 1, np.pi / 2]).dag()
         circuit.csum([0, 1])
 
-        # Depolarizing quantum errors
-        local_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        local_error_rz = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_extra = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_on_target = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_on_control = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        basic_error = Noise(probability_depolarizing=0.005, probability_dephasing=0.005)
+        basic_subspace_dynamic_error = SubspaceNoise(
+            probability_depolarizing=2e-4, probability_dephasing=2e-4, levels=[]
+        )
+
+        basic_subspace_dynamic_error_rz = SubspaceNoise(
+            probability_depolarizing=6e-4, probability_dephasing=4e-4, levels=[]
+        )
+        subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005, levels=(0, 1))
+        subspace_error_01_cex = SubspaceNoise(
+            probability_depolarizing=0.010, probability_dephasing=0.010, levels=(0, 1)
+        )
 
         # Add errors to noise_tools model
-
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
-        # Very noisy gate
-        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        # Entangling gates
-        noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
-        noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
-        noise_model.add_nonlocal_quantum_error_on_control(entangling_error_on_control, ["csum", "cx", "ls", "ms"])
-        # Super noisy Entangling gates
-        noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
-        # Local Gates
-        noise_model.add_quantum_error_locally(local_error, ["rh", "h", "rxy", "s", "x", "z"])
-        noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+        # Very noisy gate_matrix
+        noise_model.add_nonlocal_quantum_error(basic_error, ["csum", "ls"])
+        noise_model.add_quantum_error_locally(
+            basic_error, ["cuone", "cutwo", "cumulti", "h", "perm", "rdu", "s", "x", "z"]
+        )
 
-        print("Start execution")
+        # Physical gates
+        noise_model.add_nonlocal_quantum_error(subspace_error_01, ["ms"])
+        noise_model.add_nonlocal_quantum_error(subspace_error_01_cex, ["cx"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error, ["rxy", "rh"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error_rz, ["rz"])
+
         job = backend.run(circuit, noise_model=noise_model, shots=100)
         result = job.result()
         state_vector = result.get_state_vector()
@@ -448,7 +448,6 @@ class TestTNSim(TestCase):
         noise_model.add_quantum_error_locally(sub2, ["rh", "h", "rxy", "x"])
         noise_model.add_quantum_error_locally(sub3, ["s"])
 
-        print("Start execution")
         job = backend.run(circuit, noise_model=noise_model, shots=100)
         result = job.result()
         state_vector = result.get_state_vector()

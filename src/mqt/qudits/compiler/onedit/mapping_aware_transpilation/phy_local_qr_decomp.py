@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import gc
 from typing import TYPE_CHECKING, cast
 
@@ -54,7 +55,7 @@ class PhyQrDecomp:
         self.dimension: int = cast("int", gate.dimensions)
         self.qudit_index: int = cast("int", gate.target_qudits)
         self.U: NDArray = gate.to_matrix(identities=0)
-        self.graph: LevelGraph = graph_orig
+        self.graph: LevelGraph = copy.deepcopy(graph_orig)
         self.phase_propagation: bool = z_prop
         self.not_stand_alone: bool = not_stand_alone
 

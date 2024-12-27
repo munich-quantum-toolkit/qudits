@@ -86,6 +86,9 @@ class QuantumCircuit:
         "s": "s",
         "x": "x",
         "z": "z",
+        "noisex": "noisex",
+        "noisey": "noisey",
+        "noisez": "noisez",
     }
 
     def __init__(self, *args: int | QuantumRegister | list[int] | None) -> None:
@@ -100,7 +103,8 @@ class QuantumCircuit:
         self.num_cl: int = 0
         self._num_qudits: int = 0
         self._dimensions: list[int] = []
-        self.mappings: list[list[int]] | None = None
+        self.final_mappings: list[list[int]] | None = None
+        self.initial_mappings: list[list[int]] | None = None
         self.path_save: str | None = None
 
         if len(args) == 0:
@@ -157,10 +161,14 @@ class QuantumCircuit:
         self._dimensions += qreg.dimensions
 
         num_lines_stored = len(self.sitemap)
-        for i in range(qreg.size):
-            qreg.local_sitemap[i] = num_lines_stored + i
-            self.sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
-            self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
+        try:
+            for i in range(qreg.size):
+                qreg.local_sitemap[i] = num_lines_stored + i
+                self.sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
+                self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
+        except IndexError:
+            msg = "Check your Quantum Register to have the right number of lines and number of dimensions"
+            raise IndexError(msg) from None
 
     def append_classic(self, creg: ClassicRegister) -> None:
         self.classic_registers.append(creg)
@@ -310,8 +318,12 @@ class QuantumCircuit:
         self.number_gates = len(sequence)
         return self
 
-    def set_mapping(self, mappings: list[list[int]]) -> QuantumCircuit:
-        self.mappings = mappings
+    def set_final_mappings(self, mappings: list[list[int]]) -> QuantumCircuit:
+        self.final_mappings = mappings
+        return self
+
+    def set_initial_mappings(self, mappings: list[list[int]]) -> QuantumCircuit:
+        self.initial_mappings = mappings
         return self
 
     def from_qasm(self, qasm_prog: str) -> None:
@@ -348,16 +360,18 @@ class QuantumCircuit:
                         qudits_call = [t[0] for t in list(tuples_qudits)]
                     if is_not_none_or_empty(op["params"]):
                         if op["controls"]:
-                            function(qudits_call, op["params"], op["controls"])
+                            gate = function(qudits_call, op["params"], op["controls"])
                         else:
-                            function(qudits_call, op["params"])
+                            gate = function(qudits_call, op["params"])
                     elif op["controls"]:
-                        function(qudits_call, op["controls"])
+                        gate = function(qudits_call, op["controls"])
                     else:
-                        function(qudits_call)
+                        gate = function(qudits_call)
                 else:
                     msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
+                if op["dagger"]:
+                    gate.dag()
 
     def to_qasm(self) -> str:
         text = ""
@@ -368,7 +382,9 @@ class QuantumCircuit:
         text += f"creg meas[{len(self.dimensions)}];\n"
 
         for op in self.instructions:
-            text += op.__qasm__()
+            if op.to_qasm() is None:
+                pass
+            text += op.to_qasm()
 
         cregs_indices = iter(list(range(len(self.dimensions))))
         for qreg in self.quantum_registers:
@@ -435,7 +451,7 @@ class QuantumCircuit:
 
         return qudit_compiler.compile_O0(backend_ion, self)
 
-    def compileO1(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+    def compileO1(self, backend_name: str, mode: str = "resynth") -> QuantumCircuit:  # noqa: N802
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 
@@ -443,7 +459,25 @@ class QuantumCircuit:
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend(backend_name)
 
-        return qudit_compiler.compile_O1(backend_ion, self)
+        if mode == "adapt":
+            new_circuit = qudit_compiler.compile_O1_adaptive(backend_ion, self)
+        elif mode == "resynth":
+            new_circuit = qudit_compiler.compile_O1_resynth(backend_ion, self)
+        else:
+            msg = f"mode {mode} not supported"
+            raise ValueError(msg)
+
+        return new_circuit
+
+    def compileO2(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+        from mqt.qudits.compiler import QuditCompiler
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        qudit_compiler = QuditCompiler()
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend(backend_name)
+
+        return qudit_compiler.compile_O2(backend_ion, self)
 
     def set_initial_state(self, state: ArrayLike, approx: bool = False) -> QuantumCircuit:
         from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep

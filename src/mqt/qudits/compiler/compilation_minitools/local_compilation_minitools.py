@@ -11,6 +11,13 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
+def check_lev(lev: int, dim: int) -> int:
+    if lev < dim:
+        return lev
+    msg = "Mapping Not Compatible with Circuit."
+    raise IndexError(msg)
+
+
 def swap_elements(list_nodes: list[T], i: int, j: int) -> list[T]:
     a = list_nodes[i]
     b = list_nodes[j]

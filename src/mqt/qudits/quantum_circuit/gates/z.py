@@ -44,9 +44,18 @@ class Z(Gate):
             result = omega * np.outer(array, array)
             matrix += result
 
+        if self.dagger:
+            return matrix.conj().T
+
         return matrix
 
     @property
     def dimensions(self) -> int:
         assert isinstance(self._dimensions, int), "Dimensions must be an integer in Z gate"
         return self._dimensions
+
+    def to_qasm(self) -> str:
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

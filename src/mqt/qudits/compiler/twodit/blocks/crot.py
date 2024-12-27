@@ -42,17 +42,7 @@ class CRotGen:
         frame_there = gates.R(self.circuit, "R", index_target, [0, 1, np.pi / 2, -phi - np.pi / 2], dim_target)
         # on1(R(np.pi / 2, -phi - np.pi / 2, 0, 1, d).matrix, d)
 
-        if CEX_SEQUENCE is None:
-            cex = gates.CEx(
-                self.circuit,
-                "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                self.indices,
-                None,
-                [self.circuit.dimensions[i] for i in self.indices],
-                None,
-            )
-            # Cex().cex_101(d, 0)
-        else:
+        if CEX_SEQUENCE is not None:
             cex_s = CEX_SEQUENCE
 
         #############
@@ -60,14 +50,32 @@ class CRotGen:
         compose: list[Gate] = [frame_there]
 
         if CEX_SEQUENCE is None:
-            compose.append(cex)
+            compose.append(
+                gates.CEx(
+                    self.circuit,
+                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                    self.indices,
+                    None,
+                    [self.circuit.dimensions[i] for i in self.indices],
+                    None,
+                )
+            )
         else:
             compose += cex_s
         compose.append(single_excitation)
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
-            compose.append(cex)
+            compose.append(
+                gates.CEx(
+                    self.circuit,
+                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                    self.indices,
+                    None,
+                    [self.circuit.dimensions[i] for i in self.indices],
+                    None,
+                )
+            )
         else:
             compose += cex_s
 
@@ -112,8 +120,8 @@ class CRotGen:
             perm = [permute_there_10, permute_there_11]  # matmul(permute_there_10, permute_there_11)
             perm_back = [permute_there_11_dag, permute_there_10_dag]  # perm.conj().T
 
-            rot_there += perm
-            rot_back += perm_back
+            rot_there = perm
+            rot_back = perm_back
 
         if q0_i != 1:
             permute_there_00 = gates.R(self.circuit, "R", index_ctrl, [1, q0_i, np.pi, -np.pi / 2], dim_ctrl)

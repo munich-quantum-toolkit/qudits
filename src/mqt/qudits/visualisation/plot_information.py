@@ -19,10 +19,10 @@ def remap_result(
 ) -> NDArray[np.complex128] | list[int] | NDArray[int]:
     new_result = np.array(result) if isinstance(result, list) else result.copy()
 
-    if circuit.mappings:
-        permutation = np.eye(circuit.dimensions[0])[:, circuit.mappings[0]]
-        for i in range(1, len(circuit.mappings)):
-            permutation = np.kron(permutation, np.eye(circuit.dimensions[i])[:, circuit.mappings[i]])
+    if circuit.final_mappings:
+        permutation = np.eye(circuit.dimensions[0])[:, circuit.final_mappings[0]]
+        for i in range(1, len(circuit.final_mappings)):
+            permutation = np.kron(permutation, np.eye(circuit.dimensions[i])[:, circuit.final_mappings[i]])
         return new_result @ np.linalg.inv(permutation)
     return new_result
 

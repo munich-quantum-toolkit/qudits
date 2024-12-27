@@ -20,6 +20,12 @@ class TestZ(TestCase):
         matrix_0 = z_0.to_matrix(identities=0)
         assert np.allclose(np.array([[1, 0], [0, -1]]), matrix_0)
 
+        matrix_0_dag = z_0.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_0_dag, matrix_0.conj().T)
+
         z_1 = self.circuit_23.z(1)
         matrix_1 = z_1.to_matrix(identities=0)
         assert np.allclose(np.array([[1, 0, 0], [0, omega_d(3), 0], [0, 0, (omega_d(3) ** 2)]]), matrix_1)
+
+        matrix_1_dag = z_1.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_1_dag, matrix_1.conj().T)

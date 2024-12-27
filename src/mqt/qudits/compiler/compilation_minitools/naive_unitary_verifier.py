@@ -17,10 +17,19 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
 
 
-def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
+def permute_according_to_mapping(circuit: QuantumCircuit, mappings: list[list[int]]) -> NDArray:
+    lines = list(range(circuit.num_qudits))
+    dimensions = circuit.dimensions
+    permutation = np.eye(dimensions[0])[:, mappings[0]]
+    for line in lines[1:]:
+        permutation = np.kron(permutation, np.eye(dimensions[line])[:, mappings[line]])
+    return permutation
+
+
+def mini_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.complex128]:
     size = reduce(operator.mul, circuit.dimensions)
     id_mat = np.identity(size)
-    for gate in list_of_op:
+    for gate in circuit.instructions:
         id_mat = gate.to_matrix(identities=2) @ id_mat
     return id_mat
 
@@ -34,17 +43,41 @@ def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     return state
 
 
-def phy_sdit_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
-    assert circuit.mappings is not None
-    dim = circuit.dimensions[0]
-    permutation = np.eye(dim)[:, circuit.mappings[0]]
-    state = np.array(dim * [0.0 + 0.0j])
+def mini_phy_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.complex128]:
+    assert circuit.final_mappings is not None
+    assert circuit.initial_mappings is not None
+
+    dimensions = circuit.dimensions
+    size = reduce(operator.mul, dimensions)
+    id_mat = np.identity(size)
+
+    final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
+    init_permutation = permute_according_to_mapping(circuit, circuit.initial_mappings)
+
+    id_mat = init_permutation @ id_mat
+    for gate in circuit.instructions:
+        id_mat = gate.to_matrix(identities=2) @ id_mat
+
+    return final_permutation.T @ id_mat
+
+
+def naive_phy_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
+    assert circuit.final_mappings is not None
+    assert circuit.initial_mappings is not None
+
+    dimensions = circuit.dimensions
+    state = np.array(np.prod(dimensions) * [0.0 + 0.0j])
     state[0] = 1.0 + 0.0j
-    state = permutation @ state
+
+    final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
+    init_permutation = permute_according_to_mapping(circuit, circuit.initial_mappings)
+
+    state = init_permutation @ state
 
     for gate in circuit.instructions:
         state = gate.to_matrix(identities=2) @ state
-    return state
+
+    return final_permutation.T @ state
 
 
 class UnitaryVerifier:
@@ -103,7 +136,9 @@ class UnitaryVerifier:
 
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target
+            target.round(3)
 
         target /= target[0][0]
+        target.round(3)
 
         return bool((abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all())

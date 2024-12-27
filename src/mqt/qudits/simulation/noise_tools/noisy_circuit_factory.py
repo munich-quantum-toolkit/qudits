@@ -44,7 +44,8 @@ class NoisyCircuitFactory:
             noisy_circuit.instructions.append(copied_instruction)
             noisy_circuit.number_gates += 1
 
-            self._apply_noise(noisy_circuit, instruction)
+            if instruction.is_susceptible:
+                self._apply_noise(noisy_circuit, instruction)
 
         return noisy_circuit
 

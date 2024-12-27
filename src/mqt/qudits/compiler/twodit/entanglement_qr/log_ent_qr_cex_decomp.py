@@ -154,10 +154,17 @@ class EntangledQRCEX:
                         gate_matrix = r___.to_matrix()
 
                     u_ = gate_matrix @ u_
-                u_.round(3)
                 #######################
 
                 decomp += sequence_rotation_involved
+        global_phase = u_[0][0]
+        from mqt.qudits.quantum_circuit.gates import VirtRz
+
+        for lev in range(self.dimensions[1]):
+            gatez = VirtRz(
+                self.circuit, "VirtRzGlobal", self.qudit_indices[1], [lev, np.angle(global_phase)], self.dimensions[1]
+            )
+            decomp.append(gatez)
 
         self.decomposition = decomp
         return decomp, crot_counter, pswap_counter

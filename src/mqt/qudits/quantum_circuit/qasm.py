@@ -95,13 +95,15 @@ class QASM:
     ) -> bool:
         match = rgxs["gate_matrix"].search(line)
         if match:
-            label = match.group(1)
-            params = match.group(2)
-            qudits = match.group(3)
-            ctl_pattern = match.group(5)
-            ctl_qudits = match.group(6)
-            ctl_levels = match.group(8)
+            inv = match.group(1)
+            label = match.group(2)
+            params = match.group(3)
+            qudits = match.group(4)
+            ctl_pattern = match.group(6)
+            ctl_qudits = match.group(7)
+            ctl_levels = match.group(9)
 
+            gate_is_dagger = inv is not None
             # Evaluate params using NumPy and NumExpr
             if params:
                 if ".npy" in params:
@@ -145,7 +147,13 @@ class QASM:
                 controls = None
             else:
                 controls = ControlData(qudits_control_list, qudits_levels_list)
-            gate_dict = {"name": label, "params": params, "qudits": qudits_list, "controls": controls}
+            gate_dict = {
+                "name": label,
+                "params": params,
+                "qudits": qudits_list,
+                "controls": controls,
+                "dagger": gate_is_dagger,
+            }
 
             gates.append(gate_dict)
 
@@ -182,9 +190,8 @@ class QASM:
             # "gate_matrix":
             # re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
             "gate_matrix": re.compile(
-                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                r"\s*;"
+                r"^(inv\s*@\s*)?(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)"
+                r"\s*(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?\s*;"
             ),
             "error": re.compile(r"^(gate_matrix|if)"),
             "ignore": re.compile(r"^(measure|barrier)"),

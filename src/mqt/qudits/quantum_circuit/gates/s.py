@@ -40,15 +40,20 @@ class S(Gate):
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         if self.dimensions == 2:
-            return np.array([[1, 0], [0, 1j]])
-        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
-        for i in range(self.dimensions):
-            omega = np.e ** (2 * np.pi * 1j / self.dimensions)
-            omega **= np.mod(i * (i + 1) / 2, self.dimensions)
-            array = np.zeros(self.dimensions, dtype="complex")
-            array[i] = 1
-            result = omega * np.outer(array, array)
-            matrix += result
+            matrix = np.array([[1, 0], [0, 1j]])
+        else:
+            matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+            for i in range(self.dimensions):
+                omega = np.e ** (2 * np.pi * 1j / self.dimensions)
+                omega **= np.mod(i * (i + 1) / 2, self.dimensions)
+                array = np.zeros(self.dimensions, dtype="complex")
+                array[i] = 1
+                result = omega * np.outer(array, array)
+                matrix += result
+
+        if self.dagger:
+            return matrix.conj().T
+
         return matrix
 
     @staticmethod
@@ -75,3 +80,9 @@ class S(Gate):
     def dimensions(self) -> int:
         assert isinstance(self._dimensions, int), "Dimensions must be an integer"
         return self._dimensions
+
+    def to_qasm(self) -> str:
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

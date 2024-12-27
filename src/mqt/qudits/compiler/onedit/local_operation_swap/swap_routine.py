@@ -20,13 +20,18 @@ if TYPE_CHECKING:
 
 
 def find_logic_from_phys(lev_a: int, lev_b: int, graph: LevelGraph) -> list[int]:
+    counter = 0
     # find node by physical level associated
     logic_nodes = [-1, -1]
     for node, node_data in graph.nodes(data=True):
+        if counter == 2:
+            break
         if node_data["lpmap"] == lev_a:
             logic_nodes[0] = node
-        if node_data["lpmap"] == lev_b:
+            counter += 1
+        elif node_data["lpmap"] == lev_b:
             logic_nodes[1] = node
+            counter += 1
 
     return logic_nodes
 

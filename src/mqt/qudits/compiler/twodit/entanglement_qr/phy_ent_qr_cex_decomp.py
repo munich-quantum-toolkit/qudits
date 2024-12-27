@@ -4,10 +4,9 @@ import gc
 from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.compiler import CompilerPass
-from mqt.qudits.compiler.onedit import PhyLocQRPass
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
+from mqt.qudits.core.custom_python_utils import append_to_front
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
-from mqt.qudits.quantum_circuit.gates import CEx, Perm
 
 if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -22,59 +21,63 @@ class PhyEntQRCEXPass(CompilerPass):
 
         self.circuit = QuantumCircuit()
 
-    def transpile_gate(self, gate: Gate) -> list[Gate]:
-        target_qudits = cast("list[int]", gate.target_qudits)
-        dimensions = cast("list[int]", gate.dimensions)
+    def __transpile_local_ops(self, gate: Gate) -> list[Gate]:
+        from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyQrDecomp
 
-        energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
-        energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]
+        energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
+        qr = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
+        decomp, _algorithmic_cost, _total_cost = qr.execute()
+        return decomp
 
-        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < dimensions[0]]
-        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < dimensions[1]]
+    @staticmethod
+    def __transpile_two_ops(backend: Backend, gate: Gate) -> tuple[bool, list[Gate]]:
+        assert gate.gate_type == GateTypes.TWO
+        from mqt.qudits.compiler.twodit.transpile.phy_two_control_transp import PhyEntSimplePass
 
-        if isinstance(gate, CEx):
-            parent_circ = gate.parent_circuit
-            new_ctrl_lev = lp_map_0[gate.ctrl_lev]
-            new_la = lp_map_1[gate.lev_a]
-            new_lb = lp_map_1[gate.lev_b]
-            if new_la < new_lb:
-                new_parameters = [new_la, new_lb, new_ctrl_lev, gate.phi]
-            else:
-                new_parameters = [new_lb, new_la, new_ctrl_lev, gate.phi]
-            tcex = CEx(parent_circ, "CEx_t" + str(target_qudits), target_qudits, new_parameters, dimensions, None)
-            return [tcex]
+        phy_two_simple = PhyEntSimplePass(backend)
+        transpiled = phy_two_simple.transpile_gate(gate)
+        return (len(transpiled) > 0), transpiled
 
-        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0])
-        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1])
-        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0]).dag()
-        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1]).dag()
+    def transpile_gate(self, orig_gate: Gate) -> list[Gate]:
+        simple_gate, simple_gate_decomp = self.__transpile_two_ops(self.backend, orig_gate)
+        if simple_gate:
+            return simple_gate_decomp
 
-        phyloc = PhyLocQRPass(self.backend)
-        perm_0_seq = phyloc.transpile_gate(perm_0)
-        perm_1_seq = phyloc.transpile_gate(perm_1)
-        perm_0_d_seq = phyloc.transpile_gate(perm_0_dag)
-        perm_1_d_seq = phyloc.transpile_gate(perm_1_dag)
-
-        eqr = EntangledQRCEX(gate)
+        eqr = EntangledQRCEX(orig_gate)
         decomp, _countcr, _countpsw = eqr.execute()
-        perm_0_d_seq.extend(perm_1_d_seq)
-        perm_0_d_seq.extend(decomp)
-        perm_0_d_seq.extend(perm_0_seq)
-        perm_0_d_seq.extend(perm_1_seq)
 
-        return [op.dag() for op in reversed(decomp)]
+        # Full sequence of logical operations to be implemented to reconstruct
+        # the logical operation on the device
+        full_logical_sequence = [op.dag() for op in reversed(decomp)]
+
+        # Actual implementation of the gate in the device based on the mapping
+        physical_sequence: list[Gate] = []
+        for gate in reversed(full_logical_sequence):
+            if gate.gate_type == GateTypes.SINGLE:
+                loc_gate = self.__transpile_local_ops(gate)
+                append_to_front(physical_sequence, [op.dag() for op in reversed(loc_gate)])
+            elif gate.gate_type == GateTypes.TWO:
+                _, ent_gate = self.__transpile_two_ops(self.backend, gate)
+                append_to_front(physical_sequence, ent_gate)
+            elif gate.gate_type == GateTypes.MULTI:
+                msg = "Multi not supposed to be in decomposition!"
+                raise RuntimeError(msg)
+
+        return physical_sequence
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         instructions = circuit.instructions
-        new_instructions = []
+        new_instructions: list[Gate] = []
 
-        for gate in instructions:
+        for gate in reversed(instructions):
             if gate.gate_type == GateTypes.TWO:
                 gate_trans = self.transpile_gate(gate)
-                new_instructions.extend(gate_trans)
+                append_to_front(new_instructions, gate_trans)
+                # new_instructions.extend(gate_trans)
                 gc.collect()
             else:
-                new_instructions.append(gate)
+                append_to_front(new_instructions, gate)
+                # new_instructions.append(gate)
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)

@@ -21,8 +21,6 @@ class MatrixFactory:
 
     def generate_matrix(self) -> NDArray[np.complex128]:
         matrix = self.gate.__array__()
-        if self.gate.dagger:
-            matrix = matrix.conj().T
 
         control_info = typing.cast("typing.Optional[ControlData]", self.gate.control_info["controls"])
         lines = self.gate.reference_lines.copy()

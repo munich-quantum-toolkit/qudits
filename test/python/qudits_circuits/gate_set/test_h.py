@@ -21,6 +21,9 @@ class TestH(TestCase):
         h_m = h.to_matrix(identities=0)
         assert np.allclose(h_m, compare)
 
+        matrix_1_dag = h.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_1_dag, compare.conj().T)
+
         circuit = QuantumCircuit(1, [4], 0)
         h = circuit.h(0)
         compare = np.array([
@@ -32,3 +35,6 @@ class TestH(TestCase):
         compare = compare.round(8)
         h_m = h.to_matrix(identities=0)
         assert np.allclose(h_m, compare)
+
+        matrix_1_dag = h.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_1_dag, compare.conj().T)

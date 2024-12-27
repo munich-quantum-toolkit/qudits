@@ -16,6 +16,12 @@ class TestX(TestCase):
         matrix_0 = x_0.to_matrix(identities=0)
         assert np.allclose(np.array([[0, 1], [1, 0]]), matrix_0)
 
+        matrix_0_dag = x_0.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_0_dag, matrix_0.conj().T)
+
         x_1 = self.circuit_23.x(1)
         matrix_1 = x_1.to_matrix(identities=0)
         assert np.allclose(np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]), matrix_1)
+
+        matrix_1_dag = x_1.dag().to_matrix(identities=0)
+        assert np.allclose(matrix_1_dag, matrix_1.conj().T)

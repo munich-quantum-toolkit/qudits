@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import Unpack
 
-from mqt.qudits.simulation.noise_tools.noise import Noise
+from mqt.qudits.simulation.noise_tools.noise import Noise, SubspaceNoise
 
 from ....core import LevelGraph
 from ...noise_tools import NoiseModel
@@ -49,7 +49,7 @@ class FakeIonTraps2Trits(TNSim):
             nodes = [0, 1, 2]
             # declare physical levels in order of mapping of the logic states just declared .
             # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap = [0, 2, 1]
+            nmap = [1, 2, 0]
             # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
             # calibrations of the operations. note: only the first is one counts in our current cost function.
             graph_0 = LevelGraph(edges, nodes, nmap, [1])
@@ -62,7 +62,7 @@ class FakeIonTraps2Trits(TNSim):
             nodes = [0, 1, 2]
             # declare physical levels in order of mapping of the logic states just declared .
             # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap = [0, 2, 1]
+            nmap = [0, 1, 2]
             # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
             # calibrations of the operations. note: only the first is one counts in our current cost function.
             graph_1 = LevelGraph(edges, nodes, nmap, [1])
@@ -72,29 +72,32 @@ class FakeIonTraps2Trits(TNSim):
         return self._energy_level_graphs
 
     def __noise_model(self) -> NoiseModel:
-        """Noise model coded in plain sight, just for prototyping reasons."""
-        # Depolarizing quantum errors
-        local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
-        local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
-        entangling_error = Noise(probability_depolarizing=0.1, probability_dephasing=0.001)
-        entangling_error_extra = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        entangling_error_on_target = Noise(probability_depolarizing=0.1, probability_dephasing=0.0)
-        entangling_error_on_control = Noise(probability_depolarizing=0.01, probability_dephasing=0.0)
+        # Depolarizing and Dephasing quantum errors
+        basic_error = Noise(probability_depolarizing=0.005, probability_dephasing=0.005)
+        basic_subspace_dynamic_error = SubspaceNoise(
+            probability_depolarizing=2e-4, probability_dephasing=2e-4, levels=[]
+        )
+
+        basic_subspace_dynamic_error_rz = SubspaceNoise(
+            probability_depolarizing=6e-4, probability_dephasing=4e-4, levels=[]
+        )
+        subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005, levels=(0, 1))
+        subspace_error_01_cex = SubspaceNoise(
+            probability_depolarizing=0.010, probability_dephasing=0.010, levels=(0, 1)
+        )
 
         # Add errors to noise_tools model
-
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate_matrix
-        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        # Entangling gates
-        noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
-        noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
-        noise_model.add_nonlocal_quantum_error_on_control(entangling_error_on_control, ["csum", "cx", "ls", "ms"])
-        # Super noisy Entangling gates
-        noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
-        # Local Gates
-        noise_model.add_quantum_error_locally(local_error, ["h", "rxy", "s", "x", "z"])
-        noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+        noise_model.add_nonlocal_quantum_error(basic_error, ["csum", "ls"])
+        noise_model.add_quantum_error_locally(
+            basic_error, ["cuone", "cutwo", "cumulti", "h", "perm", "rdu", "s", "x", "z"]
+        )
 
+        # Physical gates
+        noise_model.add_nonlocal_quantum_error(subspace_error_01, ["ms"])
+        noise_model.add_nonlocal_quantum_error(subspace_error_01_cex, ["cx"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error, ["rxy", "rh"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error_rz, ["rz"])
         self.noise_model = noise_model
         return noise_model

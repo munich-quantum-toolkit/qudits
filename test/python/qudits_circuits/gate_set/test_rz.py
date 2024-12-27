@@ -11,57 +11,58 @@ class TestRz(TestCase):
     @staticmethod
     def test___array__():
         circuit_3 = QuantumCircuit(1, [3], 0)
-        vrz = circuit_3.virtrz(0, [1, np.pi / 3])
+        rz = circuit_3.rz(0, [1, 2, np.pi / 3])
+
         # Rz(np.pi / 3, 1, 3)
-        vrz1_test = np.array([
+        rz1_test = np.array([
             [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.5 - 0.8660254j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+            [0.0 + 0.0j, 0.8660254 - 0.5j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.8660254 + 0.5j],
         ])
 
-        assert np.allclose(vrz.to_matrix(identities=0), vrz1_test)
+        assert np.allclose(rz.to_matrix(identities=0), rz1_test)
 
-        vrz1_test_dag = np.array([
+        rz1_test_dag = np.array([
             [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.5 + 0.8660254j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+            [0.0 + 0.0j, 0.8660254 + 0.5j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.8660254 - 0.5j],
         ])
 
-        assert np.allclose(vrz.dag().to_matrix(identities=0), vrz1_test_dag)
+        assert np.allclose(rz.dag().to_matrix(identities=0), rz1_test_dag)
 
         circuit_4 = QuantumCircuit(1, [4], 0)
-        vrz = circuit_4.virtrz(0, [1, np.pi / 3])
+        rz = circuit_4.rz(0, [1, 3, np.pi / 3])
         # Rz(np.pi / 3, 1, 3)
-        vrz1_test = np.array([
+        rz1_test = np.array([
             [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.5 - 0.8660254j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.8660254 - 0.5j, 0.0 + 0.0j, 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.8660254 + 0.5j],
         ])
 
-        assert np.allclose(vrz.to_matrix(identities=0), vrz1_test)
+        assert np.allclose(rz.to_matrix(identities=0), rz1_test)
 
-        vrz1_test_dag = np.array([
+        rz1_test_dag = np.array([
             [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.5 + 0.8660254j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.8660254 + 0.5j, 0.0 + 0.0j, 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.8660254 - 0.5j],
         ])
 
-        assert np.allclose(vrz.dag().to_matrix(identities=0), vrz1_test_dag)
+        assert np.allclose(rz.dag().to_matrix(identities=0), rz1_test_dag)
 
     @staticmethod
     def test_regulate_theta():
         circuit_4 = QuantumCircuit(1, [4], 0)
-        vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
+        rz = circuit_4.rz(0, [1, 2, 0.01 * np.pi])
         # Rz(0.01 * np.pi, 1, 4)
-        assert round(vrz.phi, 4) == 12.5978
+        assert round(rz.phi, 4) == 12.5978
 
     @staticmethod
     def test_cost():
         circuit_4 = QuantumCircuit(1, [4], 0)
-        vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
-        assert round(vrz.cost, 4) == 0.0004
+        rz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
+        assert round(rz.cost, 4) == 0.0004
 
     @staticmethod
     def test_validate_parameter():

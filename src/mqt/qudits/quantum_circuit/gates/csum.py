@@ -54,4 +54,14 @@ class CSum(Gate):
                 matrix += np.kron(mapmat, x_mat_i)
             else:
                 matrix += np.kron(x_mat_i, mapmat)
+
+        if self.dagger:
+            return matrix.conj().T
+
         return matrix
+
+    def to_qasm(self) -> str:
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

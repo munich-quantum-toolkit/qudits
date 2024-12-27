@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import copy
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from ....quantum_circuit import gates
 from ... import CompilerPass
@@ -24,14 +23,48 @@ class ZPropagationOptPass(CompilerPass):
         return [gate]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
-        return self.remove_z(circuit, self.back)
+        from ....core.lanes import Lanes
+        from ....quantum_circuit.components.extensions.gate_types import GateTypes
+
+        self.circuit = circuit
+        self.lanes = Lanes(self.circuit)
+
+        final_mappings = []
+        for i, graph in enumerate(self.backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+
+        for line in sorted(self.lanes.index_dict.keys()):
+            extracted_line: list[tuple[int, Gate]] = self.lanes.index_dict[line]
+            grouped_line: dict[int, list[list[tuple[int, Gate]]]] = self.lanes.find_consecutive_singles(extracted_line)
+            new_line: list[tuple[int, Gate]] = []
+            for group in grouped_line[line]:
+                if group[0][1].gate_type == GateTypes.SINGLE:
+                    new_line.extend(self.propagate_z(circuit, group, self.back))
+                else:
+                    new_line.append(group[0])
+
+            self.lanes.index_dict[line] = new_line
+
+        new_instructions = self.lanes.extract_instructions()
+        transpiled_circuit = circuit.copy()
+        initial_mappings = []
+        for i, graph in enumerate(self.backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
+        transpiled_circuit.set_final_mappings(final_mappings)
+
+        return transpiled_circuit.set_instructions(new_instructions)
 
     @staticmethod
-    def propagate_z(circuit: QuantumCircuit, line: list[R | VirtRz], back: bool) -> tuple[list[R], list[VirtRz]]:
+    def propagate_z(circuit: QuantumCircuit, group: list[tuple[int, Gate]], back: bool) -> list[tuple[int, R | VirtRz]]:
+        tag = group[0][0]
+        line = [couple[1] for couple in group]
         z_angles: dict[int, float] = {}
         list_of_x_yrots: list[R] = []
         qudit_index = cast("int", line[0].target_qudits)
-        dimension = line[0].dimensions
+        dimension = cast("int", line[0].dimensions)
 
         for i in range(dimension):
             z_angles[i] = 0.0
@@ -43,8 +76,6 @@ class ZPropagationOptPass(CompilerPass):
 
         for gate_index in range(len(line)):
             if isinstance(line[gate_index], R):
-                # line[gate_index].lev_b
-                # object is R
                 if back:
                     new_phi = pi_mod(
                         line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
@@ -62,7 +93,7 @@ class ZPropagationOptPass(CompilerPass):
                         dimension,
                     )
                 )
-            elif isinstance(line[gate_index], VirtRz):  # except AttributeError:
+            elif isinstance(line[gate_index], VirtRz):
                 z_angles[line[gate_index].lev_a] = pi_mod(z_angles[line[gate_index].lev_a] + line[gate_index].phi)
         if back:
             list_of_x_yrots.reverse()
@@ -71,10 +102,10 @@ class ZPropagationOptPass(CompilerPass):
         zseq.extend([
             gates.VirtRz(circuit, "VRz", qudit_index, [e_lev, z_angles[e_lev]], dimension) for e_lev in z_angles
         ])
-        # Zseq.append(Rz(Z_angles[e_lev], e_lev, QC.dimension))
+        combined_seq = zseq + list_of_x_yrots if back else list_of_x_yrots + zseq
+        return [(tag, gate) for gate in combined_seq]
 
-        return list_of_x_yrots, zseq
-
+    """
     @staticmethod
     def find_intervals_with_same_target_qudits(instructions: list[Gate]) -> list[tuple[int, ...]]:
         intervals: list[tuple[int, ...]] = []
@@ -111,13 +142,17 @@ class ZPropagationOptPass(CompilerPass):
 
         for interval in intervals:
             if len(interval) > 1:
+                from ....quantum_circuit.gates import R, VirtRz
+
+                sequence = cast(list[Union[R, VirtRz]], circuit.instructions[interval[0]: interval[-1] + 1])
                 sequence = cast("list[Union[R, VirtRz]]", circuit.instructions[interval[0] : interval[-1] + 1])
                 fixed_seq: list[R] = []
                 z_tail: list[VirtRz] = []
-                fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)
+                combined_seq = self.propagate_z(circuit, sequence, back)
 
-                combined_seq = z_tail + fixed_seq if back else fixed_seq + z_tail
-                new_instructions[interval[0] : interval[-1] + 1] = []
+                # combined_seq = z_tail + fixed_seq if back else fixed_seq + z_tail
+                new_instructions[interval[0]: interval[-1] + 1] = []
                 new_instructions.extend(combined_seq)
 
         return circuit.set_instructions(new_instructions)
+    """

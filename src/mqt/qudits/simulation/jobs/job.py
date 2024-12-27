@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import os
-import time
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING
 
-from ...exceptions import JobError, JobTimeoutError
 from .jobstatus import JobStatus
 
 if TYPE_CHECKING:
@@ -12,106 +9,76 @@ if TYPE_CHECKING:
 
     from ..backends.backendv2 import Backend
     from . import JobResult
+    from .client_api import APIClient
 
 
 class Job:
-    """Class to handle jobs.
-
-    This first version of the Backend abstract class is written to be mostly
-    backwards compatible with the legacy providers interface. This was done to ease
-    the transition for users and provider maintainers to the new versioned providers.
-    Expect future versions of this abstract class to change the data model and
-    interface.
-    """
-
-    version = 1
-    _async = True
-
-    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs: dict[str, Any]) -> None:
-        """Initializes the asynchronous job.
-
-        Args:
-            backend: the backend used to run the job.
-            job_id: a unique id in the context of the backend used to run the job.
-            kwargs: Any key-value metadata to associate with this job.
-        """
-        if job_id == "auto":
-            current_time = int(time.time() * 1000)
-            self._job_id = str(hash((os.getpid(), current_time)))
-        else:
-            self._job_id = job_id
+    def __init__(self, backend: Backend, job_id: str = "local_sim", api_client: APIClient | None = None) -> None:
         self._backend = backend
-        self.metadata = kwargs
+        self._job_id = job_id
+        self._api_client = api_client
+        self.set_status(JobStatus.INITIALIZING)
+        self._result: JobResult | None = None
 
+    @property
     def job_id(self) -> str:
-        """Return a unique id identifying the job."""
         return self._job_id
 
+    @property
     def backend(self) -> Backend:
-        """Return the backend where this job was executed."""
-        if self._backend is None:
-            msg = "The job does not have any backend."
-            raise JobError(msg)
         return self._backend
 
-    def done(self) -> bool:
-        """Return whether the job has successfully run."""
-        return self.status() == JobStatus.DONE
-
-    def running(self) -> bool:
-        """Return whether the job is actively running."""
-        return self.status() == JobStatus.RUNNING
-
-    def cancelled(self) -> bool:
-        """Return whether the job has been cancelled."""
-        return self.status() == JobStatus.CANCELLED
-
-    def in_final_state(self) -> bool:
-        """Return whether the job is in a final job state such as DONE or ERROR."""
-        return self.status() in {JobStatus.DONE, JobStatus.ERROR}
-
-    def wait_for_final_state(
-        self, timeout: float | None = None, wait: float = 5, callback: Callable[[str, str, Job], None] | None = None
-    ) -> None:
-        """Poll the job status until it progresses to a final state such as DONE or ERROR.
-
-        Args:
-            timeout: Seconds to wait for the job. If None, wait indefinitely.
-            wait: Seconds between queries.
-            callback: Callback function invoked after each query.
-
-        Raises:
-            JobTimeoutError: If the job does not reach a final state before the specified timeout.
-        """
-        if not self._async:
-            return
-        start_time = time.time()
-        status = self.status()
-        while status not in {JobStatus.DONE, JobStatus.ERROR}:
-            elapsed_time = time.time() - start_time
-            if timeout is not None and elapsed_time >= timeout:
-                msg = f"Timeout while waiting for job {self.job_id()}."
-                raise JobTimeoutError(msg)
-            if callback:
-                callback(self.job_id(), status, self)
-            time.sleep(wait)
-            status = self.status()
-
-    def submit(self) -> NoReturn:
-        """Submit the job to the backend for execution."""
-        raise NotImplementedError
+    def status(self) -> JobStatus:
+        if self._api_client:
+            self.set_status(self._api_client.get_job_status(self._job_id))
+        else:
+            # For local simulation, we assume the job is done immediately
+            self.set_status(JobStatus.DONE)
+        return self._status
 
     def result(self) -> JobResult:
-        """Return the results of the job."""
+        cached_result = self._result
+        if cached_result is not None:
+            return cached_result
+
+        self._wait_for_final_state()
+
+        if self._api_client:
+            self._result = self._api_client.get_job_result(self._job_id)
+        else:
+            msg = "If the job is not run on the machine, then the result should be given by the simulation already. "
+            raise RuntimeError(msg)
+
         return self._result
+
+    def _wait_for_final_state(self, callback: Callable[[str, JobStatus], None] | None = None) -> None:
+        if self._api_client:
+            try:
+                # Using a synchronous wait implementation
+                self._api_client.wait_for_job_completion(self._job_id, callback)
+            except Exception as e:
+                msg = f"Error while waiting for job {self._job_id}: {e!s}"
+                raise RuntimeError(msg) from e
+        else:
+            # For local simulation, we assume the job is done immediately
+            self.set_status(JobStatus.DONE)
+            if callback:
+                callback(self._job_id, self._status)
+
+    def cancelled(self) -> bool:
+        return self._status == JobStatus.CANCELLED
+
+    def done(self) -> bool:
+        return self._status == JobStatus.DONE
+
+    def running(self) -> bool:
+        return self._status == JobStatus.RUNNING
+
+    def in_final_state(self) -> bool:
+        return self._status.is_final
 
     def set_result(self, result: JobResult) -> None:
         self._result = result
 
-    def cancel(self) -> NoReturn:
-        """Attempt to cancel the job."""
-        raise NotImplementedError
-
-    def status(self) -> str:
-        """Return the status of the job, among the values of BackendStatus."""
-        raise NotImplementedError
+    def set_status(self, new_status: JobStatus) -> None:
+        self._status = new_status
