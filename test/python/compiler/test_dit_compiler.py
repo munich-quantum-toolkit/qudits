@@ -13,7 +13,6 @@ from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import (
     naive_phy_sim,
 )
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_random_quantum_state
-from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import fidelity_on_unitares
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import naive_state_fidelity
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import (
     random_sparse_unitary,
