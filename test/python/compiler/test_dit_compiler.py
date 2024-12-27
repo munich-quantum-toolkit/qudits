@@ -206,10 +206,7 @@ class TestQuditCompiler(TestCase):
 
         uni_l = mini_unitary_sim(circuit).round(10)
         uni_cl = mini_phy_unitary_sim(new_circuit).round(10)
-        # assert np.allclose(uni_l, uni_cl, rtol=1e-6, atol=1e-6)
-
-        norm_diff = fidelity_on_unitares(uni_l, uni_cl)
-        assert (1 - norm_diff) < 1e-6
+        assert np.allclose(uni_l, uni_cl, rtol=1e-5, atol=1e-5)
 
         og_state = circuit.simulate()
         compiled_state = naive_phy_sim(new_circuit)
