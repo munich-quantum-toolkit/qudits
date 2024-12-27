@@ -239,5 +239,5 @@ class Gate(Instruction):
         np.save(file_path, self._params)
         return f"({file_path}) "
 
-    def turn_off_noise(self):
+    def turn_off_noise(self) -> None:
         self.is_susceptible = False

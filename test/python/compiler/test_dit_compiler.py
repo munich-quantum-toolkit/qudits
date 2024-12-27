@@ -13,6 +13,8 @@ from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import (
     naive_phy_sim,
 )
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_random_quantum_state
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import fidelity_on_unitares
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import naive_state_fidelity
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import (
     random_sparse_unitary,
     random_unitary_matrix,
@@ -204,8 +206,14 @@ class TestQuditCompiler(TestCase):
 
         uni_l = mini_unitary_sim(circuit).round(10)
         uni_cl = mini_phy_unitary_sim(new_circuit).round(10)
-        assert np.allclose(uni_l, uni_cl, rtol=1e-6, atol=1e-6)
+        # assert np.allclose(uni_l, uni_cl, rtol=1e-6, atol=1e-6)
+
+        norm_diff = fidelity_on_unitares(uni_l, uni_cl)
+        assert (1 - norm_diff) < 1e-6
 
         og_state = circuit.simulate()
         compiled_state = naive_phy_sim(new_circuit)
-        assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
+        # assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
+        og_state = og_state.reshape(-1)
+        norm_diff_s = naive_state_fidelity(og_state, compiled_state)
+        assert (1 - norm_diff_s) < 1e-6

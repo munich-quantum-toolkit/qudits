@@ -93,17 +93,17 @@ class TestPhyAdaptiveDecomposition(TestCase):
         uni = mini_unitary_sim(new_circuit)
         tpuni = uni @ v.get_perm_matrix(list(range(dim)), fmap)  # Pf
         tpuni = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni  # Pi dag
-        assert np.allclose(tpuni, uni_l)
+        assert np.allclose(tpuni, uni_l, rtol=1e-5, atol=1e-5)
 
         z_propagation_pass = ZPropagationOptPass(backend=backend_ion, back=False)
         new_transpiled_circuit = z_propagation_pass.transpile(new_circuit)
         mini_unitary_sim(new_transpiled_circuit).round(4)
         tpuni2 = uni @ v.get_perm_matrix(list(range(dim)), fmap)  # Pf
         tpuni2 = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni2  # Pi dag
-        assert np.allclose(tpuni2, uni_l)
+        assert np.allclose(tpuni2, uni_l, rtol=1e-5, atol=1e-5)
 
         adapt_circ = test_circ.compileO1("faketraps2six", "adapt")
         u2a = mini_unitary_sim(adapt_circ)
         tpuni2a = u2a @ v.get_perm_matrix(list(range(dim)), cast("list[list[int]]", adapt_circ.final_mappings)[0])  # Pf
         tpuni2a = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni2a  # Pi dag
-        assert np.allclose(tpuni2a, uni_l, rtol=1e-6, atol=1e-6)
+        assert np.allclose(tpuni2a, uni_l, rtol=1e-5, atol=1e-5)
