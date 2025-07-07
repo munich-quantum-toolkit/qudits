@@ -234,7 +234,6 @@ After crafting your quantum circuit with precision, take it for a spin using two
 - **External Tensor-Network Simulator:** Delve into the quantum realm with a robust external tensor-network simulator. Can simulate all the gate-set.
 
 - **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for a fluid and efficient experience. Can only simulate the machine following machine gate set:
-
   - csum
   - cx
   - h
