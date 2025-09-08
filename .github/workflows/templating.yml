@@ -25,3 +25,4 @@ jobs:
           organization: ${{ github.repository_owner }}
           project-type: c++-python
           repository: ${{ github.event.repository.name }}
+          has-changelog-and-upgrade-guide: false
