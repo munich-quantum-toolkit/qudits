@@ -14,4 +14,6 @@ if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
 
   # add MQT alias
   add_library(MQT::Qudits ALIAS ${MQT_QUDITS_TARGET_NAME})
+
+  target_compile_features(${MQT_QUDITS_TARGET_NAME} INTERFACE cxx_std_20)
 endif()
