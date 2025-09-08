@@ -50,8 +50,14 @@ include(cmake/ExternalDependencies.cmake)
 # set the include directory for the build tree
 set(MQT_QUDITS_INCLUDE_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+set(MQT_QUDITS_TARGET_NAME "mqt-qudits")
+
 # add main library code
 add_subdirectory(src)
+
+if(BUILD_MQT_QUDITS_BINDINGS)
+  add_subdirectory(bindings)
+endif()
 
 # add test code
 if(BUILD_MQT_QUDITS_TESTS)

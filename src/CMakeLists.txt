@@ -1,5 +1,3 @@
-set(MQT_QUDITS_TARGET_NAME "mqt-qudits")
-
 if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
   # collect headers
   file(GLOB_RECURSE MQT_QUDITS_HEADERS ${MQT_QUDITS_INCLUDE_BUILD_DIR}/dd/*.hpp)
@@ -16,8 +14,4 @@ if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
 
   # add MQT alias
   add_library(MQT::Qudits ALIAS ${MQT_QUDITS_TARGET_NAME})
-endif()
-
-if(BUILD_MQT_QUDITS_BINDINGS)
-  add_subdirectory(python)
 endif()

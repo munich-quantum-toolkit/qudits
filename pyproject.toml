@@ -90,16 +90,16 @@ ninja.version = ">=1.10"
 build-dir = "build/{wheel_tag}/{build_type}"
 
 # Explicitly set the package directory
-wheel.packages = ["src/mqt"]
+wheel.packages = ["python/mqt"]
 
 # Only build the Python bindings target
-build.targets = ["_qudits"]
+build.targets = ["mqt-qudits-bindings"]
 
 # Only install the Python package component
 install.components = ["mqt-qudits_Python"]
 
 metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
-sdist.include = ["src/mqt/qudits/_version.py"]
+sdist.include = ["python/mqt/qudits/_version.py"]
 sdist.exclude = [
     "**/.github",
     "**/doc",
@@ -124,7 +124,7 @@ cmake.define.DISABLE_GIL = "1"
 
 
 [tool.check-sdist]
-sdist-only = ["src/mqt/core/_version.py"]
+sdist-only = ["python/mqt/core/_version.py"]
 git-only = [
     "docs/*",
     "extern/*",
@@ -133,7 +133,7 @@ git-only = [
 
 
 [tool.setuptools_scm]
-write_to = "src/mqt/qudits/_version.py"
+write_to = "python/mqt/qudits/_version.py"
 
 
 [tool.pytest.ini_options]
@@ -158,7 +158,7 @@ report.exclude_also = [
 
 
 [tool.mypy]
-files = ["src/mqt", "test/python", "noxfile.py"]
+files = ["python/mqt", "test/python", "noxfile.py"]
 mypy_path = ["$MYPY_CONFIG_FILE_DIR/src"]
 python_version = "3.10"
 warn_unused_configs = true
@@ -242,7 +242,7 @@ isort.required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.per-file-ignores]
 "test/python/**" = ["T20", "ANN"]
-"src/mqt/qudits/visualisation/**" = ["T20"]
+"python/mqt/qudits/visualisation/**" = ["T20"]
 "docs/**" = ["T20"]
 "noxfile.py" = ["T20", "TID251"]
 "*.pyi" = ["D418", "PYI021"]  # pydocstyle
