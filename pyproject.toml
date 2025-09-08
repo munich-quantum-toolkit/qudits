@@ -122,14 +122,21 @@ write_to = "python/mqt/qudits/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "7.2"
-addopts = ["-ra", "--strict-markers", "--strict-config"]
+testpaths = ["test/python"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--showlocals",
+  "--numprocesses=auto", # Automatically use all available CPU cores for parallel testing
+]
+log_cli_level = "INFO"
 xfail_strict = true
 filterwarnings = [
     "error",
     'ignore:.*datetime\.datetime\.utcfromtimestamp.*:DeprecationWarning:',
 ]
-log_cli_level = "info"
-testpaths = ["test/python"]
+
 
 [tool.coverage]
 run.source = ["mqt.qudits"]
@@ -138,6 +145,9 @@ report.exclude_also = [
     'if TYPE_CHECKING:',
     'raise AssertionError',
     'raise NotImplementedError',
+]
+run.disable_warnings = [
+  "no-sysmon",
 ]
 
 
@@ -313,6 +323,8 @@ docs = [
 test = [
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
+    "pytest-sugar>=1.0.0",
+    "pytest-xdist>=3.7.0",
 ]
 dev = [
     {include-group = "build"},
