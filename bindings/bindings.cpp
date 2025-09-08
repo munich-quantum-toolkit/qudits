@@ -40,6 +40,8 @@
 namespace py = pybind11;
 using namespace py::literals;
 
+namespace {
+
 using Instruction = std::tuple<std::string, bool, std::vector<int>, std::string,
                                std::vector<int>, py::object,
                                std::tuple<std::vector<dd::QuantumRegister>,
@@ -819,6 +821,8 @@ py::list stateVectorSimulation(py::object& circ, py::object& noiseModel) {
 
   return result;
 }
+
+} // namespace
 
 PYBIND11_MODULE(MQT_QUDITS_MODULE_NAME, m, py::mod_gil_not_used()) {
   auto misim = m.def_submodule("misim");
