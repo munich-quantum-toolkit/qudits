@@ -74,10 +74,11 @@ To support this endeavor, please consider:
 ```console
 (.venv) $ pip install mqt.qudits
 ```
+
 **Detailed documentation and examples are available at [ReadTheDocs](https://mqt.readthedocs.io/projects/qudits).**
 
 > [!NOTE]
-> Some of the functionalities of MQT Qudits are illustarted in [this video](https://www.youtube.com/watch?v=due_CX7H85A).
+> Some of the functionalities of MQT Qudits are illustrated in [this video](https://www.youtube.com/watch?v=due_CX7H85A).
 
 ## System Requirements and Building
 
