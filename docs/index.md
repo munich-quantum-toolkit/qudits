@@ -18,8 +18,10 @@ self
 ```
 
 ```{toctree}
-:maxdepth: 2
 :caption: User Guide
+:glob:
+:hidden:
+:maxdepth: 1
 
 installation
 tutorial
@@ -37,8 +39,10 @@ support
 ```
 
 ```{toctree}
-:maxdepth: 3
 :caption: API Reference
+:glob:
+:hidden:
+:maxdepth: 3
 
 api/mqt/qudits/index
 ```
