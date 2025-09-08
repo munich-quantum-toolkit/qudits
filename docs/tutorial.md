@@ -14,33 +14,10 @@ mystnb:
 # MQT Qudits Tutorial
 
 _Discover a New Dimension in Quantum Computing._
-Embark on a journey with MQT Qudits, a framework for Mixed-Dimensional Quantum Computing.
-
-Delve into the realm of mixed-dimensional quantum computing with NeQST—a project funded by the European Union and developed developed as part of the {doc}`Munich Quantum Toolkit (MQT) <mqt:index>` by the [Chair for Design Automation](https://www.cda.cit.tum.de/) at the [Technical University of Munich](https://www.tum.de/).
-Our team is focused on creating design automation methods and software for quantum computing.
-The following tutorial will guide you through the initial tools and contributions we have made to advance Quantum Information Processing for Science and Technology.
+Embark on a journey with MQT Qudits, a framework for mixed-dimensional quantum computing.
+The following tutorial will guide you through the initial tools and contributions we have made to advance quantum information processing for science and technology.
 
 +++
-
-## Installation Steps:
-
-```bash
-(.venv) $ pip install mqt.qudits
-```
-
-For those seeking hands-on customization, simply clone the corresponding repository and perform a local installation.
-
-````bash
-$ git clone https://github.com/munich-quantum-toolkit/qudits.git
-$ cd mqt-qudits
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-(.venv) $ pip install -ve .
-+++
-
-```{note}
-This requires a C++17 compiler, a minimum CMake version of 3.19, and Python 3.9+.
-````
 
 ## User Inputs
 
