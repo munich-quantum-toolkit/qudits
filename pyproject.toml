@@ -323,6 +323,7 @@ docs = [
     "nbsphinx>=0.9.7",
     "sphinx-autodoc-typehints>=2.3.0",
     "myst-nb>=1.2.0",
+    "sphinx_inline_tabs>=2023.4.21",
 ]
 test = [
     "pytest>=8.3.5",
