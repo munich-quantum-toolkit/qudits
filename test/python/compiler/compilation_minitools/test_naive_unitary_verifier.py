@@ -25,11 +25,11 @@ class TestUnitaryVerifier(TestCase):
         dimension = 2
 
         sequence = [
-            self.circuit.cu_one(1, np.identity(dimension, dtype="complex")),
+            self.circuit.cu_one(1, np.identity(dimension, dtype=np.complex128)),
             self.circuit.h(1),
             self.circuit.h(1),
         ]
-        target = self.circuit.cu_one(1, np.identity(dimension, dtype="complex"))
+        target = self.circuit.cu_one(1, np.identity(dimension, dtype=np.complex128))
 
         nodes = [0, 1]
         initial_map = [0, 1]
@@ -48,7 +48,7 @@ class TestUnitaryVerifier(TestCase):
         final_map_3 = [0, 2, 1]
 
         sequence_3 = [
-            self.circuit.cu_one(2, np.identity(dimension, dtype="complex")),
+            self.circuit.cu_one(2, np.identity(dimension, dtype=np.complex128)),
             self.circuit.h(2),
             self.circuit.x(2),
             self.circuit.x(2),

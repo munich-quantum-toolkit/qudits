@@ -17,15 +17,15 @@ if TYPE_CHECKING:
 
 
 def get_density_matrix_from_counts(
-    results: list[int] | NDArray[int], circuit: QuantumCircuit
-) -> NDArray[np.complex128, np.complex128]:
+    results: list[int] | NDArray[np.int_], circuit: QuantumCircuit
+) -> NDArray[np.complex128]:
     num_kets = reduce(operator.mul, circuit.dimensions)
     number_counts = Counter(results)
     probabilities = [(number_counts[num] / len(results)) for num in range(num_kets)]
-    kets: list[NDArray[complex]] = [
+    kets: list[NDArray[np.complex128]] = [
         from_dirac_to_basis([int(char) for char in state], circuit.dimensions) for state in state_labels(circuit)
     ]
-    density_matrix: NDArray[np.complex128] = np.zeros((num_kets, num_kets))
+    density_matrix: NDArray[np.complex128] = np.zeros((num_kets, num_kets)).astype(np.complex128)
     for k, p in zip(kets, probabilities, strict=False):
         density_matrix += p * np.outer(k, k.conj())
 
@@ -39,32 +39,33 @@ def partial_trace(
 
     p_a = Tr_b(p)
 
-    Parameters
-    ----------
-    p : 2D array
-        Matrix to trace
-    qudits2keep : array
-        An array of indices of the spaces to keep after
-        being traced. For instance, if the space is
-        A x B x C x D and we want to trace out B and D,
-        keep = [0,2]
-    dims : array
-        An array of the dimensions of each space.
-        For instance, if the space is A x B x C x D,
-        dims = [dim_A, dim_B, dim_C, dim_D]
+    Args:
+        rho: Matrix to trace
+        qudits2keep: An array of indices of the spaces to keep after being traced.
+            For instance, if the space is A x B x C x D and we want to trace out B and D, keep = [0, 2].
+        dims: An array of the dimensions of each space.
+            For instance, if the space is A x B x C x D, dims = [dim_A, dim_B, dim_C, dim_D]
+        optimize: Whether to optimize the einsum operation. Defaults to False.
 
     Returns:
-    -------
-    p_a : 2D array
-        Traced matrix
+        The traced matrix
     """
     qudits2keep_array: NDArray[np.int_] = np.asarray(qudits2keep, dtype=np.int_)
     dims_array: NDArray[np.int_] = np.asarray(dims, dtype=np.int_)
     ndim: int = dims_array.size
     nkeep: int = int(np.prod(dims_array[qudits2keep_array]))
 
-    idx1: list[int] = list(range(ndim))
-    idx2: list[int] = [ndim + i if i in qudits2keep_array else i for i in range(ndim)]
-    rho_reshaped: NDArray[np.complex128] = rho.reshape(np.tile(dims_array, 2))
-    rho_traced: NDArray[np.complex128] = np.einsum(rho_reshaped, idx1 + idx2, optimize=optimize)
+    letters = [chr(ord("a") + i) for i in range(2 * ndim)]
+    subscripts_in = ""
+    subscripts_out = ""
+    for i in range(ndim):
+        if i in qudits2keep_array:
+            subscripts_in += letters[i] + letters[ndim + i]
+            subscripts_out += letters[i]
+        else:
+            subscripts_in += letters[i] + letters[i]
+    einsum_str = f"{subscripts_in}->{subscripts_out}"
+
+    rho_reshaped = rho.reshape(np.tile(dims_array, 2))
+    rho_traced: NDArray[np.complex128] = np.einsum(einsum_str, rho_reshaped, optimize=optimize)
     return rho_traced.reshape(nkeep, nkeep)

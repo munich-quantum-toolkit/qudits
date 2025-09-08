@@ -18,16 +18,14 @@ if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def apply_rotations(
-    m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
-) -> NDArray[np.complex128, np.complex128]:
+def apply_rotations(m: NDArray[np.complex128], params_list: list[float], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(params_list, dims)
     r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
     r2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
     r3 = gate_expand_to_circuit(generic_sud(params[2], dims[0]), circuits_size=2, target=0, dims=dims)
     r4 = gate_expand_to_circuit(generic_sud(params[3], dims[1]), circuits_size=2, target=1, dims=dims)
 
-    result: NDArray[np.complex128, np.complex128] = np.matmul(np.matmul(np.matmul(np.matmul(r1, r2), m), r3), r4)
+    result: NDArray[np.complex128] = np.matmul(np.matmul(np.matmul(np.matmul(r1, r2), m), r3), r4)
     return result
 
 
@@ -50,22 +48,22 @@ def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: list
     return decomposition
 
 
-def density(m_prime: NDArray[np.float64, np.float64]) -> float:
+def density(m_prime: NDArray[np.float64]) -> float:
     non_zero_elements = m_prime[m_prime > 1e-8]
     if len(non_zero_elements) == 0:
         return 0
-    return typing.cast("float", non_zero_elements.size / m_prime.size)
+    return non_zero_elements.size / m_prime.size
 
 
-def manhattan_norm(matrix: NDArray[np.complex128, np.complex128]) -> float:
-    return np.sum(np.abs(matrix))
+def manhattan_norm(matrix: NDArray[np.complex128]) -> float:
+    return typing.cast("float", np.sum(np.abs(matrix)))
 
 
-def frobenius_norm(matrix: NDArray[np.complex128, np.complex128]) -> float:
+def frobenius_norm(matrix: NDArray[np.complex128]) -> float:
     return typing.cast("float", np.sqrt(np.sum(np.abs(matrix) ** 2)))
 
 
-def compute_f(x: NDArray[np.complex128, np.complex128]) -> float:
+def compute_f(x: NDArray[np.complex128]) -> float:
     # Hoyer's sparsity measure on matrices
     # 0<=H<=1 , 0 is non sparse, 1 is very sparse
     # sparsity is then 1 when non sparse , 0 when sparse
@@ -93,7 +91,7 @@ def compute_f(x: NDArray[np.complex128, np.complex128]) -> float:
     return 1 - f_x
 
 
-def objective_function(thetas: list[float], m: NDArray[np.complex128, np.complex128], dims: list[int]) -> float:
+def objective_function(thetas: list[float], m: NDArray[np.complex128], dims: list[int]) -> float:
     """Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
     Args:

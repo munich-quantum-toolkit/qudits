@@ -42,9 +42,11 @@ class GellMann(Gate):
         )
         self.type_m = cast("str", parameters[2])
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         d = self._dimensions
-        matrix = np.zeros((d, d), dtype=complex)
+        assert isinstance(d, int)
+
+        matrix = np.zeros((d, d), dtype=np.complex128)
 
         if self.type_m == "s":
             matrix[self.lev_a, self.lev_b] = 1
@@ -53,7 +55,7 @@ class GellMann(Gate):
             matrix[self.lev_a, self.lev_b] -= 1j
             matrix[self.lev_b, self.lev_a] += 1j
         else:
-            m = np.zeros((d, d), dtype=complex)
+            m = np.zeros((d, d), dtype=np.complex128)
 
             for j_ind in range(self.lev_b):
                 m[j_ind, j_ind] += 1
@@ -69,12 +71,12 @@ class GellMann(Gate):
         return matrix
 
     @staticmethod
-    def validate_parameter(param: Parameter) -> bool:
-        if param is None:
+    def validate_parameter(parameter: Parameter) -> bool:
+        if parameter is None:
             return False
 
-        if isinstance(param, list):
-            parameter = cast("list[int | str]", param)
+        if isinstance(parameter, list):
+            parameter = cast("list[int | str]", parameter)
             assert isinstance(parameter[0], int)
             assert isinstance(parameter[1], int)
             assert isinstance(parameter[2], str)
@@ -85,7 +87,7 @@ class GellMann(Gate):
 
             return True
 
-        if isinstance(param, np.ndarray):
+        if isinstance(parameter, np.ndarray):
             # Add validation for numpy array if needed
             return False
 

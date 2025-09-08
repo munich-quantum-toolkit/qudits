@@ -44,7 +44,7 @@ class Rz(Gate):
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         dimension = self.dimensions
         phi = self.phi
         qudit_targeted: int = cast("int", self.target_qudits)
@@ -59,7 +59,9 @@ class Rz(Gate):
             self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
         ).to_matrix()
 
-        return np.matmul(np.matmul(pi_back, rotate), pi_there)  # pi_back @ rotate @ pi_there
+        return np.asarray(
+            np.matmul(np.matmul(pi_back, rotate), pi_there), dtype=np.complex128
+        )  # pi_back @ rotate @ pi_there
 
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:

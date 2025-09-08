@@ -53,7 +53,7 @@ class PhyQrDecomp:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.dimension: int = cast("int", gate.dimensions)
         self.qudit_index: int = cast("int", gate.target_qudits)
-        self.U: NDArray = gate.to_matrix(identities=0)
+        self.U: NDArray[np.complex128] = gate.to_matrix(identities=0)
         self.graph: LevelGraph = graph_orig
         self.phase_propagation: bool = z_prop
         self.not_stand_alone: bool = not_stand_alone
@@ -105,7 +105,7 @@ class PhyQrDecomp:
 
                     u_ = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
-                    non_zeros = np.count_nonzero(abs(u_) > 1.0e-4)
+                    non_zeros = int(np.count_nonzero(abs(u_) > 1.0e-4))
 
                     estimated_cost, pi_pulses_routing, temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
                         rotation_involved, self.graph, non_zeros

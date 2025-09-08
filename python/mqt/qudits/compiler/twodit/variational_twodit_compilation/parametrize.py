@@ -16,14 +16,14 @@ def params_splitter(params: list[float] | NDArray[np.float64], dims: list[int]) 
     """Split a list of parameters into sublists based on given dimensions.
 
     Args:
-    params (Union[List[float], np.ndarray]): The input parameters to be split.
-    dims (Tuple[int, int]): A tuple of two integers representing the dimensions.
+        params: The input parameters to be split.
+        dims: The dimensions.
 
     Returns:
-    List[Union[List[float], np.ndarray]]: A list of sublists of split parameters.
+        A list of sublists of split parameters.
 
     Raises:
-    ValueError: If the length of params is not compatible with the given dimensions.
+        ValueError: If the length of params is not compatible with the given dimensions.
     """
     if len(dims) != 2:
         msg = "dims must be a tuple of two integers"
@@ -36,6 +36,10 @@ def params_splitter(params: list[float] | NDArray[np.float64], dims: list[int]) 
         msg = f"Length of params ({len(params)}) is not compatible with the given dimensions"
         raise ValueError(msg)
 
+    if isinstance(params, np.ndarray):
+        params = params.tolist()
+    assert isinstance(params, list)
+
     split_params = []
     for i in range(0, len(params), step_size):
         split_params.extend([params[i : i + n], params[i + n : i + step_size]])
@@ -45,7 +49,7 @@ def params_splitter(params: list[float] | NDArray[np.float64], dims: list[int]) 
 
 def generic_sud(params: list[float] | NDArray[np.float64], dimension: int) -> NDArray[np.complex128]:
     # required well-structured d2 -1 params
-    c_unitary = np.identity(dimension, dtype="complex")
+    c_unitary = np.identity(dimension, dtype=np.complex128)
 
     for diag_index in range(dimension - 1):
         l_vec = from_dirac_to_basis([diag_index], dimension)

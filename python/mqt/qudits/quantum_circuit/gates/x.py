@@ -33,12 +33,12 @@ class X(Gate):
             qasm_tag="x",
         )
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for i in range(self.dimensions):
             i_plus_1 = np.mod(i + 1, self.dimensions)
-            array1 = np.zeros(self.dimensions, dtype="complex")
-            array2 = np.zeros(self.dimensions, dtype="complex")
+            array1 = np.zeros(self.dimensions, dtype=np.complex128)
+            array2 = np.zeros(self.dimensions, dtype=np.complex128)
             array1[i_plus_1] = 1
             array2[i] = 1
             matrix += np.outer(array1, array2)

@@ -55,11 +55,11 @@ class EntangledQRCEX:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.dimensions: list[int] = itemgetter(*gate.reference_lines)(self.circuit.dimensions)
         self.qudit_indices: list[int] = gate.reference_lines
-        self.u: NDArray = gate.to_matrix(identities=0)
+        self.u: NDArray[np.complex128] = gate.to_matrix(identities=0)
         self.decomposition: list[Gate] = []
 
     @staticmethod
-    def get_gate_matrix(rotation: Gate, qudit_indices: list[int], dimensions: list[int]) -> NDArray:
+    def get_gate_matrix(rotation: Gate, qudit_indices: list[int], dimensions: list[int]) -> NDArray[np.complex128]:
         if rotation.gate_type != GateTypes.SINGLE:
             return rotation.to_matrix()
 

@@ -42,7 +42,7 @@ class MS(Gate):
             self.theta = parameters[0]
             self._params = parameters
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         theta = self.theta
         dimension_0 = self.dimensions[0]
         dimension_1 = self.dimensions[1]
@@ -52,20 +52,20 @@ class MS(Gate):
         qudit_targeted_1: int = qudits_targeted[1]
 
         gate_part_1 = np.kron(
-            np.identity(dimension_0, dtype="complex"),
+            np.identity(dimension_0, dtype=np.complex128),
             GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
         ) + np.kron(
             GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
-            np.identity(dimension_1, dtype="complex"),
+            np.identity(dimension_1, dtype=np.complex128),
         )
         gate_part_2 = np.kron(
-            np.identity(dimension_0, dtype="complex"),
+            np.identity(dimension_0, dtype=np.complex128),
             GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
         ) + np.kron(
             GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
-            np.identity(dimension_1, dtype="complex"),
+            np.identity(dimension_1, dtype=np.complex128),
         )
-        return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
+        return np.asarray(expm(-1j * theta * gate_part_1 @ gate_part_2 / 4), dtype=np.complex128)
 
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:

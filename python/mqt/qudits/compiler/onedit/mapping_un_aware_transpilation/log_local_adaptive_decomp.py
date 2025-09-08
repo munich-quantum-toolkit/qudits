@@ -73,7 +73,7 @@ class LogAdaptiveDecomposition:
         z_prop: bool = False,
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
-        self.U: NDArray = gate.to_matrix(identities=0)
+        self.U: NDArray[np.complex128] = gate.to_matrix(identities=0)
         self.qudit_index: int = cast("int", gate.target_qudits)
         self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
@@ -86,7 +86,7 @@ class LogAdaptiveDecomposition:
         self.TREE.add(
             0,
             gates.CustomOne(
-                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype=np.complex128), self.dimension
             ),
             self.U,
             self.graph,

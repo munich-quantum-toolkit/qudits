@@ -34,18 +34,18 @@ class H(Gate):
             qasm_tag="h",
         )
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for e0, e1 in itertools.product(range(self.dimensions), repeat=2):
             omega = np.mod(2 / self.dimensions * (e0 * e1), 2)
             omega = omega * np.pi * 1j
             omega = np.e**omega
-            array0 = np.zeros(self.dimensions, dtype="complex")
-            array1 = np.zeros(self.dimensions, dtype="complex")
+            array0 = np.zeros(self.dimensions, dtype=np.complex128)
+            array1 = np.zeros(self.dimensions, dtype=np.complex128)
             array0[e0] = 1
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
-        return matrix * (1 / np.sqrt(self.dimensions))
+        return np.asarray(matrix * (1 / np.sqrt(self.dimensions)), dtype=np.complex128)
 
     @property
     def dimensions(self) -> int:

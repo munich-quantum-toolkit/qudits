@@ -9,14 +9,14 @@ import numpy as np
 from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 
 if typing.TYPE_CHECKING:
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import NDArray
 
 
-def size_check(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> bool:
+def size_check(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> bool:
     return bool(a.shape == b.shape and a.shape[0] == a.shape[1])
 
 
-def fidelity_on_operator(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
+def fidelity_on_operator(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -29,7 +29,7 @@ def fidelity_on_operator(a: NDArray[np.complex128, np.complex128], b: NDArray[np
     return typing.cast("float", (numerator / denominator))
 
 
-def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
+def fidelity_on_unitares(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -39,9 +39,7 @@ def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np
     return typing.cast("float", np.abs(np.trace(a.T.conj() @ b)) / dimension)
 
 
-def fidelity_on_density_operator(
-    a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
-) -> float:
+def fidelity_on_density_operator(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -52,7 +50,7 @@ def fidelity_on_density_operator(
     return typing.cast("float", (numerator / denominator))
 
 
-def naive_state_fidelity(state1: ArrayLike, state2: ArrayLike) -> float:
+def naive_state_fidelity(state1: NDArray[np.complex128], state2: NDArray[np.complex128]) -> float:
     """Calculates fidelity between two state vectors."""
     # Ensure both states have the same dimension
     if state1.shape != state2.shape:

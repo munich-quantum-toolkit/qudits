@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING, Any, TypedDict, cast
 from typing_extensions import Unpack
 
 if TYPE_CHECKING:
+    import numpy as np
+    from numpy.typing import NDArray
+
     from ...core import LevelGraph
     from ...quantum_circuit import QuantumCircuit
     from .. import MQTQuditProvider
@@ -71,5 +74,6 @@ class Backend(ABC):
     def run(self, circuit: QuantumCircuit, **options: Unpack[DefaultOptions]) -> Job:
         pass
 
-    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
+    @abstractmethod
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128] | None:
         raise NotImplementedError

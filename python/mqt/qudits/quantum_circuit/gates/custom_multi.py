@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
+    from ..gate import Parameter
 
 
 class CustomMulti(Gate):
@@ -36,15 +37,19 @@ class CustomMulti(Gate):
             params=parameters,
             qasm_tag="cumulti",
         )
-        self.__array_storage: NDArray = None
+        self.__array_storage: NDArray[np.complex128] | None = None
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        if self.__array_storage is None:
+            msg = "The gate does not have a matrix assigned."
+            raise ValueError(msg)
+
         return self.__array_storage
 
     @staticmethod
-    def validate_parameter(parameter: NDArray | None = None) -> bool:
+    def validate_parameter(parameter: Parameter | None = None) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
         return bool(

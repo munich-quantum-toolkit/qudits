@@ -36,11 +36,11 @@ class NaiveLocResynthOptPass(CompilerPass):
             new_line: list[tuple[int, Gate]] = []
             for group in grouped_line[line]:
                 if group[0][1].gate_type == GateTypes.SINGLE:
-                    matrix = np.identity(self.circuit.dimensions[line])
+                    matrix = np.identity(self.circuit.dimensions[line], dtype=np.complex128)
                     for gate_tuple in group:
                         gate = gate_tuple[1]
                         gm = gate.to_matrix()
-                        matrix = np.matmul(gm, matrix)
+                        matrix = np.asarray(np.matmul(gm, matrix), dtype=np.complex128)
                     new_line.append((
                         group[0][0],
                         CustomOne(self.circuit, "CUm", line, matrix, self.circuit.dimensions[line]),

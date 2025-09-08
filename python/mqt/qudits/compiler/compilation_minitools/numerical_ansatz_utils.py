@@ -11,16 +11,16 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def on1(gate: NDArray[np.complex128, np.complex128], other_size: int) -> NDArray[np.complex128, np.complex128]:
-    return np.kron(np.identity(other_size, dtype=np.complex128), gate)
+def on1(gate: NDArray[np.complex128], other_size: int) -> NDArray[np.complex128]:
+    return np.kron(np.identity(other_size, dtype=np.complex128), gate).astype(np.complex128)
 
 
-def on0(gate: NDArray[np.complex128, np.complex128], other_size: int) -> NDArray[np.complex128, np.complex128]:
-    return np.kron(gate, np.identity(other_size, dtype=np.complex128))
+def on0(gate: NDArray[np.complex128], other_size: int) -> NDArray[np.complex128]:
+    return np.kron(gate, np.identity(other_size, dtype=np.complex128)).astype(np.complex128)
 
 
 def gate_expand_to_circuit(
-    gate: NDArray[np.complex128, np.complex128], circuits_size: int, target: int, dims: Sequence[int] | None = None
+    gate: NDArray[np.complex128], circuits_size: int, target: int, dims: Sequence[int] | None = None
 ) -> NDArray[np.complex128]:
     if dims is None:
         dims = [2, 2]
@@ -32,13 +32,13 @@ def gate_expand_to_circuit(
         msg = "target must be integer < integer circuits_size"
         raise ValueError(msg)
 
-    upper = [np.identity(dims[i], dtype="complex") for i in range(target + 1, circuits_size)]
-    lower = [np.identity(dims[j], dtype="complex") for j in range(target)]
+    upper = [np.identity(dims[i], dtype=np.complex128) for i in range(target + 1, circuits_size)]
+    lower = [np.identity(dims[j], dtype=np.complex128) for j in range(target)]
     circ = [*lower, gate, *upper]
     res = circ[-1]
 
     for i in reversed(list(range(1, len(circ)))):
-        res = np.kron(circ[i - 1], res)
+        res = np.kron(circ[i - 1], res).astype(np.complex128)
 
     return res
 

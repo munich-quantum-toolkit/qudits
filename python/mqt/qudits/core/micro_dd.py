@@ -17,7 +17,7 @@ class MicroDDNode:
         self.terminal: bool = False
         self.dd_hash: int | None = None
         self.available: bool = True
-        self.data: NDArray[complex] | list[complex] = []
+        self.data: NDArray[np.complex128] | list[complex] = []
 
     def __lt__(self, other: MicroDDNode) -> bool:
         # Compare based on the 'value' field
@@ -46,6 +46,8 @@ one.terminal = True
 one.dd_hash = hash(1)
 
 if TYPE_CHECKING:
+    import numpy as np
+
     NodeContribution = list[list[tuple[MicroDDNode, float]]]
     from numpy.typing import NDArray
 
@@ -112,7 +114,7 @@ def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, 
 
 
 def create_decision_tree(
-    labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
+    labels: list[int], cardinalities: list[int], data: NDArray[np.complex128] | list[complex]
 ) -> tuple[MicroDDNode, list[int]]:
     root = MicroDDNode("r")
     root.data = data
@@ -126,7 +128,7 @@ def build_decision_tree(
     labels: list[int],
     node: MicroDDNode,
     cardinalities: list[int],
-    data: NDArray[complex] | list[complex],
+    data: NDArray[np.complex128] | list[complex],
     number_of_nodes: list[int],
     depth: int = 0,
 ) -> None:

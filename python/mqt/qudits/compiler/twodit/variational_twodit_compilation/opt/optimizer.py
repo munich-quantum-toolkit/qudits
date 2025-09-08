@@ -22,7 +22,7 @@ class Optimizer:
     OBJ_FIDELITY: float = 1e-4
     SINGLE_DIM_0: int = 0
     SINGLE_DIM_1: int = 0
-    TARGET_GATE: NDArray[typing.Any, typing.Any] = np.ndarray([])
+    TARGET_GATE: NDArray[typing.Any] = np.ndarray([])
     MAX_NUM_LAYERS: int = 0  # (2 * SINGLE_DIM_0 * SINGLE_DIM_1)
     X_SOLUTION: typing.ClassVar = []
     FUN_SOLUTION: typing.ClassVar = []
@@ -30,7 +30,7 @@ class Optimizer:
     @classmethod
     def set_class_variables(
         cls,
-        target: NDArray[np.complex128, np.complex128],
+        target: NDArray[np.complex128],
         obj_fid: float = 1e-4,
         dim_0: int = 0,
         dim_1: int = 0,
@@ -86,7 +86,7 @@ class Optimizer:
         return bounds
 
     @classmethod
-    def obj_fun_core(cls, ansatz: NDArray[np.complex128, np.complex128], lambdas: list[float]) -> float:
+    def obj_fun_core(cls, ansatz: NDArray[np.complex128], lambdas: list[float]) -> float:
         if (1 - fidelity_on_unitares(ansatz, cls.TARGET_GATE)) < cls.OBJ_FIDELITY:
             cls.X_SOLUTION = lambdas
             cls.FUN_SOLUTION = 1 - fidelity_on_unitares(ansatz, cls.TARGET_GATE)

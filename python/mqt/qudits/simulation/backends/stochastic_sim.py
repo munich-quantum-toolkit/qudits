@@ -31,15 +31,15 @@ def measure_state(vector_data: NDArray[np.complex128]) -> int:
     return rng.choice(len(probabilities), p=probabilities)
 
 
-def save_results(backend: Backend, results: list[int | NDArray[np.complex128]]) -> None:
+def save_results(backend: Backend, results: list[NDArray[np.complex128] | int]) -> None:
     """Save the simulation results based on backend configuration."""
     if backend.full_state_memory and backend.file_path and backend.file_name:
-        save_full_states(results, backend.file_path, backend.file_name)
+        save_full_states(results, backend.file_path, backend.file_name)  # type: ignore [arg-type]
     elif backend.memory and backend.file_path and backend.file_name:
-        save_shots(results, backend.file_path, backend.file_name)
+        save_shots(results, backend.file_path, backend.file_name)  # type: ignore [arg-type]
 
 
-def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray | list[int]:
+def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> list[NDArray[np.complex128] | int]:
     noise_model: NoiseModel = NoiseModel()
     if backend.noise_model is not None:
         noise_model = backend.noise_model
@@ -48,6 +48,7 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray 
     num_processes: int = mp.cpu_count()
     from . import MISim, TNSim
 
+    results: list[NDArray[np.complex128] | int]
     with mp.Pool(processes=num_processes) as pool:
         if isinstance(backend, TNSim):
             factory = NoisyCircuitFactory(noise_model, circuit)
@@ -64,14 +65,14 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray 
     return results
 
 
-def stochastic_execution_tn(args: tuple[TNSim, NoisyCircuitFactory]) -> NDArray | int:
+def stochastic_execution_tn(args: tuple[TNSim, NoisyCircuitFactory]) -> NDArray[np.complex128] | int:
     backend, factory = args
     circuit = factory.generate_circuit()
     vector_data = backend.execute(circuit)
     return vector_data if backend.full_state_memory else measure_state(vector_data)
 
 
-def stochastic_execution_mi(args: tuple[MISim, QuantumCircuit, NoiseModel]) -> NDArray | int:
+def stochastic_execution_mi(args: tuple[MISim, QuantumCircuit, NoiseModel]) -> NDArray[np.complex128] | int:
     backend, circuit, noise_model = args
     vector_data = backend.execute(circuit, noise_model)
     return vector_data if backend.full_state_memory else measure_state(vector_data)

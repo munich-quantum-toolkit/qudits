@@ -93,7 +93,7 @@ class MatrixFactory:
         global_states_space = [list(element) for element in itertools.product(*global_single_site_logics)]
         global_index_to_state = dict(enumerate(global_states_space))
 
-        result = np.identity(reduce(operator.mul, dimensions, 1), dtype="complex")
+        result = np.identity(reduce(operator.mul, dimensions, 1), dtype=np.complex128)
 
         for r in range(result.shape[0]):
             for c in range(result.shape[1]):
@@ -149,12 +149,12 @@ class MatrixFactory:
             raise ValueError(msg)
 
         i = 0
-        result = np.identity(sizes[i])
+        result = np.identity(sizes[i], dtype=np.complex128)
         while i < len(sizes):
             if i == indices[0]:
-                result = matrix if i == 0 else np.kron(result, matrix)
+                result = matrix if i == 0 else np.kron(result, matrix).astype(np.complex128)
             elif (i < indices[0] and i != 0) or i > indices[-1]:
-                result = np.kron(result, np.identity(sizes[i]))
+                result = np.kron(result, np.identity(sizes[i], dtype=np.complex128)).astype(np.complex128)
 
             i += 1
 
@@ -172,9 +172,9 @@ def from_dirac_to_basis(vec: list[int], d: list[int] | int) -> NDArray[np.comple
         temp[basis] = 1
         basis_vecs.append(temp)
 
-    ret = basis_vecs[0]
+    ret = np.array(basis_vecs[0], dtype=np.complex128)
     for e_i in range(1, len(basis_vecs)):
-        ret = np.kron(np.array(ret), np.array(basis_vecs[e_i]))
+        ret = np.kron(ret, np.array(basis_vecs[e_i])).astype(np.complex128)
 
     return ret
 

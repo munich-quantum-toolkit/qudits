@@ -49,7 +49,7 @@ class TNSim(Backend):
 
         if self.noise_model is not None:
             assert self.shots >= 50, "Number of shots should be above 50"
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))  # type: ignore [arg-type]
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
 
@@ -64,10 +64,10 @@ class TNSim(Backend):
         result = np.transpose(result.tensor, list(range(len(self.system_sizes))))
 
         state_size = reduce(operator.mul, self.system_sizes, 1)
-        return result.reshape(1, state_size)
+        return np.asarray(result.reshape(1, state_size), dtype=np.complex128)
 
     @staticmethod
-    def __apply_gate(qudit_edges: tn.Edge, gate: NDArray, operating_qudits: list[int]) -> None:
+    def __apply_gate(qudit_edges: tn.Edge, gate: NDArray[np.complex128], operating_qudits: list[int]) -> None:
         op = tn.Node(gate)
         for i, bit in enumerate(operating_qudits):
             tn.connect(qudit_edges[bit], op[i])
@@ -83,7 +83,7 @@ class TNSim(Backend):
             for s in system_sizes:
                 z = [0] * s
                 z[0] = 1
-                state_nodes.append(tn.Node(np.array(z, dtype="complex")))
+                state_nodes.append(tn.Node(np.array(z, dtype=np.complex128)))
 
             qudits_legs = [node[0] for node in state_nodes]
 

@@ -35,7 +35,7 @@ class CSum(Gate):
             qasm_tag="csum",
         )
 
-    def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         qudits_targeted = cast("list[int]", self.target_qudits)
         qudit_targeted_0: int = qudits_targeted[0]
         qudit_targeted_1: int = qudits_targeted[1]
@@ -44,9 +44,9 @@ class CSum(Gate):
 
         x_gate = X(self.parent_circuit, "x", qudit_targeted_1, target_size, None)
         x_mat = x_gate.to_matrix(identities=0)
-        matrix = np.zeros((ctrl_size * target_size, ctrl_size * target_size), dtype="complex")
+        matrix = np.zeros((ctrl_size * target_size, ctrl_size * target_size), dtype=np.complex128)
         for i in range(ctrl_size):
-            basis = np.array(from_dirac_to_basis([i], ctrl_size), dtype="complex")
+            basis = np.array(from_dirac_to_basis([i], ctrl_size), dtype=np.complex128)
             mapmat = np.outer(basis, basis)
             x_mat_i = np.linalg.matrix_power(x_mat, i)
             if qudit_targeted_0 < qudit_targeted_1:

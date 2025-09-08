@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class TestRandU(TestCase):
     @staticmethod
-    def is_unitary(matrix: NDArray[np.complex128, np.complex128]) -> bool:
+    def is_unitary(matrix: NDArray[np.complex128]) -> bool:
         conjugate_transpose = np.conjugate(matrix.T)
         product = np.dot(matrix, conjugate_transpose)
         identity_matrix = np.eye(matrix.shape[0])

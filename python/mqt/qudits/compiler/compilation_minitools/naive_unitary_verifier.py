@@ -16,9 +16,9 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
+def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128]:
     size = reduce(operator.mul, circuit.dimensions)
-    id_mat = np.identity(size)
+    id_mat = np.identity(size, dtype=np.complex128)
     for gate in list_of_op:
         id_mat = gate.to_matrix(identities=2) @ id_mat
     return id_mat
@@ -70,21 +70,20 @@ class UnitaryVerifier:
         self.target = target.to_matrix().copy()
         self.dimension = reduce(operator.mul, dimensions)
 
+        self.permutation_matrix_initial: NDArray[np.int_] | None = None
+        self.permutation_matrix_final: NDArray[np.int_] | None = None
         if nodes is not None and initial_map is not None and final_map is not None:
             self.permutation_matrix_initial = self.get_perm_matrix(nodes, initial_map)
             self.permutation_matrix_final = self.get_perm_matrix(nodes, final_map)
             self.target = self.permutation_matrix_initial @ self.target
-        else:
-            self.permutation_matrix_initial = None
-            self.permutation_matrix_final = None
 
-    def get_perm_matrix(self, nodes: list[int], mapping: list[int]) -> NDArray:
+    def get_perm_matrix(self, nodes: list[int], mapping: list[int]) -> NDArray[np.int_]:
         # sum ( |phy> <log| )
-        perm = np.zeros((self.dimension, self.dimension))
+        perm = np.zeros((self.dimension, self.dimension), dtype=np.int_)
 
         for i in range(self.dimension):
-            a = [0 for i in range(self.dimension)]
-            b = [0 for i in range(self.dimension)]
+            a = [0 for _ in range(self.dimension)]
+            b = [0 for _ in range(self.dimension)]
             a[nodes[i]] = 1
             b[mapping[i]] = 1
             narr = np.array(a)
@@ -105,4 +104,4 @@ class UnitaryVerifier:
 
         target /= target[0][0]
 
-        return bool((abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all())
+        return bool((abs(target - np.identity(self.dimension, dtype=np.complex128)) < 1e-4).all())

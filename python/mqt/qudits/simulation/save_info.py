@@ -40,7 +40,14 @@ def save_full_states(
         # Create a table dataset within the file to store the vectors
         dtype = [("name", "S36"), ("vector_data", np.complex128, size)]
         table_data = np.array(
-            [(vector_info["name"].encode("utf-8"), vector_info["data"]) for vector_info in list_of_vectors], dtype=dtype
+            [
+                (
+                    vector_info["name"].encode("utf-8"),  # type: ignore [union-attr]
+                    vector_info["data"],
+                )
+                for vector_info in list_of_vectors
+            ],
+            dtype=dtype,
         )
 
         hdf_file.create_dataset("vectors", data=table_data)

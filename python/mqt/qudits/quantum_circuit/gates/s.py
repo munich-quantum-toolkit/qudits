@@ -38,14 +38,14 @@ class S(Gate):
             msg = "S can be applied to prime dimensional qudits"
             raise InvalidQuditDimensionError(msg)
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         if self.dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
-        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for i in range(self.dimensions):
             omega = np.e ** (2 * np.pi * 1j / self.dimensions)
             omega **= np.mod(i * (i + 1) / 2, self.dimensions)
-            array = np.zeros(self.dimensions, dtype="complex")
+            array = np.zeros(self.dimensions, dtype=np.complex128)
             array[i] = 1
             result = omega * np.outer(array, array)
             matrix += result

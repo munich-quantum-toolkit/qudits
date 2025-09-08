@@ -69,7 +69,7 @@ class PSwapGen:
         #############################################################################################
         # START THE DECOMPOSITION
         """
-        ph1 = -1 * np.identity(self.circuit.dimensions[index_ctrl], dtype="complex")
+        ph1 = -1 * np.identity(self.circuit.dimensions[index_ctrl], dtype=np.complex128)
         ph1[0][0] = 1
         ph1[1][1] = 1
         ph1 = gates.CustomOne(

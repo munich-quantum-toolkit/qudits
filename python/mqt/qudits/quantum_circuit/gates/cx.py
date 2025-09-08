@@ -50,7 +50,7 @@ class CEx(Gate):
         else:
             self.ctrl_lev = 1
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         levels_swap_low: int = cast("int", self._params[0])
         levels_swap_high: int = cast("int", self._params[1])
         ctrl_level: int = cast("int", self._params[2])
@@ -58,24 +58,24 @@ class CEx(Gate):
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
         qudits_targeted = cast("list[int]", self.target_qudits)
-        result = np.zeros((dimension, dimension), dtype="complex")
+        result = np.zeros((dimension, dimension), dtype=np.complex128)
 
         for i in range(dimension_ctrl):
-            temp = np.zeros((dimension_ctrl, dimension_ctrl), dtype="complex")
+            temp = np.zeros((dimension_ctrl, dimension_ctrl), dtype=np.complex128)
             mapmat = temp + np.outer(
                 np.array(from_dirac_to_basis([i], dimension_ctrl)), np.array(from_dirac_to_basis([i], dimension_ctrl))
             )
 
             if i == ctrl_level:  # apply control on 1 rotation on levels 01
                 # opmat = np.array([[0, -1j * np.cos(ang) - np.sin(ang)], [-1j * np.cos(ang) + np.sin(ang), 0]])
-                embedded_op = np.identity(dimension_target, dtype="complex")
+                embedded_op = np.identity(dimension_target, dtype=np.complex128)
                 embedded_op[levels_swap_low, levels_swap_low] = 0
                 embedded_op[levels_swap_low, levels_swap_high] = -1j * np.cos(ang) - np.sin(ang)
                 embedded_op[levels_swap_high, levels_swap_low] = -1j * np.cos(ang) + np.sin(ang)
                 embedded_op[levels_swap_high, levels_swap_high] = 0
                 # embedded_op = insert_at(embedded_op, (0, 0), opmat)
             else:
-                embedded_op = np.identity(dimension_target, dtype="complex")
+                embedded_op = np.identity(dimension_target, dtype=np.complex128)
             if qudits_targeted[0] < qudits_targeted[1]:
                 result += np.kron(mapmat, embedded_op)
             else:

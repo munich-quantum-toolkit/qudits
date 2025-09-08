@@ -7,7 +7,6 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
-    import numpy as np
     from numpy.typing import NDArray
 
     from ..circuit import QuantumCircuit
@@ -15,6 +14,7 @@ if TYPE_CHECKING:
 
 import operator
 
+import numpy as np
 from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 
@@ -37,9 +37,9 @@ class RandU(Gate):
             qasm_tag="rdu",
         )
 
-    def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         dim = reduce(operator.mul, self.dimensions)
-        return unitary_group.rvs(dim)
+        return np.asarray(unitary_group.rvs(dim), dtype=np.complex128)
 
     @property
     def dimensions(self) -> list[int]:

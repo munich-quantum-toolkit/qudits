@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
 
 
-def verify_normalized_state(quantum_state: ArrayLike) -> bool:
+def verify_normalized_state(quantum_state: NDArray[np.complex128]) -> bool:
     squared_magnitudes = np.abs(quantum_state) ** 2
     sum_squared_magnitudes = float(np.sum(squared_magnitudes))
 
@@ -19,7 +19,7 @@ def verify_normalized_state(quantum_state: ArrayLike) -> bool:
     return bool(np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance))
 
 
-def generate_random_quantum_state(cardinalities: list[int]) -> ArrayLike:
+def generate_random_quantum_state(cardinalities: list[int]) -> NDArray[np.complex128]:
     length = reduce(operator.mul, cardinalities)
     # Generate random complex numbers with real and imaginary parts
     rng = np.random.default_rng()
@@ -28,7 +28,7 @@ def generate_random_quantum_state(cardinalities: list[int]) -> ArrayLike:
     complex_nums = real_parts + 1j * imag_parts
 
     # Normalize the array
-    return complex_nums / np.linalg.norm(complex_nums)
+    return np.asarray(complex_nums / np.linalg.norm(complex_nums), dtype=np.complex128)
 
 
 def generate_all_combinations(dimensions: list[int]) -> list[list[int]]:
@@ -99,7 +99,7 @@ def find_entries_indices(input_list: list[list[int]], sublist: list[list[int]]) 
     return indices
 
 
-def generate_uniform_state(dimensions: list[int], state: str) -> ArrayLike:
+def generate_uniform_state(dimensions: list[int], state: str) -> NDArray[np.complex128]:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":
@@ -113,7 +113,7 @@ def generate_uniform_state(dimensions: list[int], state: str) -> ArrayLike:
         raise ValueError(msg)
 
     complex_ = np.sqrt(1.0 / len(state_entries))
-    state_vector = np.array([0.0] * len(all_entries), dtype=complex)
+    state_vector = np.array([0.0] * len(all_entries), dtype=np.complex128)
 
     for i in find_entries_indices(all_entries, state_entries):
         state_vector[i] = complex_

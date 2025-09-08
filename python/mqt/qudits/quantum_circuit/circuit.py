@@ -35,7 +35,7 @@ from .qasm import QASM
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import NDArray
 
     from .components.extensions.controls import ControlData
     from .components.quantum_register import SiteMap
@@ -179,13 +179,15 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cu_one(self, qudits: int, parameters: NDArray, controls: ControlData | None = None) -> CustomOne:
+    def cu_one(self, qudits: int, parameters: NDArray[np.complex128], controls: ControlData | None = None) -> CustomOne:
         return CustomOne(
             self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
         )
 
     @add_gate_decorator
-    def cu_two(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomTwo:
+    def cu_two(
+        self, qudits: list[int], parameters: NDArray[np.complex128], controls: ControlData | None = None
+    ) -> CustomTwo:
         return CustomTwo(
             self,
             "CUt" + str([self.dimensions[i] for i in qudits]),
@@ -196,7 +198,9 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cu_multi(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomMulti:
+    def cu_multi(
+        self, qudits: list[int], parameters: NDArray[np.complex128], controls: ControlData | None = None
+    ) -> CustomMulti:
         return CustomMulti(
             self,
             "CUm" + str([self.dimensions[i] for i in qudits]),
@@ -416,7 +420,7 @@ class QuantumCircuit:
     def gate_set(self) -> str:
         return "\n".join(self.qasm_to_gate_set_dict.values())
 
-    def simulate(self) -> NDArray:
+    def simulate(self) -> NDArray[np.complex128]:
         from mqt.qudits.simulation import MQTQuditProvider
 
         provider = MQTQuditProvider()
@@ -445,7 +449,7 @@ class QuantumCircuit:
 
         return qudit_compiler.compile_O1(backend_ion, self)
 
-    def set_initial_state(self, state: ArrayLike, approx: bool = False) -> QuantumCircuit:
+    def set_initial_state(self, state: NDArray[np.complex128], approx: bool = False) -> QuantumCircuit:
         from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep
 
         preparation = StatePrep(self, state, approx)

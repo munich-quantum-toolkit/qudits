@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from ..exceptions import NodeNotFoundError
 
 if TYPE_CHECKING:
+    import numpy as np
     from numpy.typing import NDArray
 
     from ..quantum_circuit import gates
@@ -17,7 +18,7 @@ class Node:
         self,
         key: int,
         rotation: gates.R | CustomOne,
-        u_of_level: NDArray,
+        u_of_level: NDArray[np.complex128],
         graph_current: LevelGraph,
         current_cost: float,
         current_decomp_cost: float,
@@ -45,7 +46,7 @@ class Node:
         self,
         new_key: int,
         rotation: gates.R | CustomOne,
-        u_of_level: NDArray,
+        u_of_level: NDArray[np.complex128],
         graph_current: LevelGraph,
         current_cost: float,
         current_decomp_cost: float,
@@ -90,7 +91,7 @@ class NAryTree:
         self,
         new_key: int,
         rotation: gates.R | CustomOne,
-        u_of_level: NDArray,
+        u_of_level: NDArray[np.complex128],
         graph_current: LevelGraph,
         current_cost: float,
         current_decomp_cost: float,

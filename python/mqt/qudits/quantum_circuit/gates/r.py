@@ -46,11 +46,11 @@ class R(Gate):
             self.theta = regulate_theta(self.theta)
             self._params = parameters
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         dimension = self.dimensions
         theta = self.theta
         phi = self.phi
-        matrix = np.identity(dimension, dtype="complex")
+        matrix = np.identity(dimension, dtype=np.complex128)
 
         matrix[self.lev_a, self.lev_a] = np.cos(theta / 2) * matrix[self.lev_a, self.lev_a]
         matrix[self.lev_b, self.lev_b] = np.cos(theta / 2) * matrix[self.lev_b, self.lev_b]
@@ -60,11 +60,17 @@ class R(Gate):
         ps: list[int | str] = [self.lev_a, self.lev_b, "s"]
         qudit_targeted = cast("int", self.target_qudits)
 
-        return cosine_matrix - 1j * np.sin(theta / 2) * (
-            np.sin(phi)
-            * GellMann(self.parent_circuit, "Gellman_a", qudit_targeted, pa, self.dimensions, None).to_matrix()
-            + np.cos(phi)
-            * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
+        return np.asarray(
+            cosine_matrix
+            - 1j
+            * np.sin(theta / 2)
+            * (
+                np.sin(phi)
+                * GellMann(self.parent_circuit, "Gellman_a", qudit_targeted, pa, self.dimensions, None).to_matrix()
+                + np.cos(phi)
+                * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
+            ),
+            dtype=np.complex128,
         )
 
     @staticmethod

@@ -41,10 +41,10 @@ class VirtRz(Gate):
             self.phi = regulate_theta(self.phi)
             self._params = parameters
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         dimension = self.dimensions
         theta = self.phi
-        matrix = np.identity(dimension, dtype="complex")
+        matrix = np.identity(dimension, dtype=np.complex128)
         matrix[self.lev_a, self.lev_a] = np.exp(-1j * theta) * matrix[self.lev_a, self.lev_a]
 
         return matrix

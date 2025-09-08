@@ -14,7 +14,10 @@ if typing.TYPE_CHECKING:
 
 class TestMISimAndTNSim(TestCase):
     @staticmethod
-    def run_test_on_both_backends(circuit: QuantumCircuit, expected_state: NDArray[np.complex128]) -> None:  # noqa: ARG004
+    def run_test_on_both_backends(
+        circuit: QuantumCircuit,
+        expected_state: NDArray[np.complex128] | NDArray[np.float64],  # noqa: ARG004
+    ) -> None:
         backends = ["tnsim", "misim"]
         provider = MQTQuditProvider()
 
@@ -30,8 +33,6 @@ class TestMISimAndTNSim(TestCase):
 
         # Compare results from both backends
         # assert np.allclose(results["misim"], results["tnsim"]), "Results from misim and tnsim do not match"
-        assert True
-        print("Results from misim and tnsim match.")
 
     def test_execute(self):
         # H gate
@@ -158,7 +159,9 @@ class TestMISimAndTNSim(TestCase):
 
                 zero_state = np.zeros(d1 * d2)
                 zero_state[0] = 1
-                test_state = csum.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2))) @ zero_state
+                test_state = (
+                    csum.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2)).astype(np.complex128)) @ zero_state
+                )
 
                 self.run_test_on_both_backends(circuit, test_state)
 
@@ -172,7 +175,9 @@ class TestMISimAndTNSim(TestCase):
                 zero_state = np.zeros(d1 * d2)
                 zero_state[0] = 1
 
-                test_state = csum.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix())) @ zero_state
+                test_state = (
+                    csum.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix()).astype(np.complex128)) @ zero_state
+                )
 
                 self.run_test_on_both_backends(circuit, test_state)
 
@@ -191,7 +196,11 @@ class TestMISimAndTNSim(TestCase):
 
                             zero_state = np.zeros(d1 * d2)
                             zero_state[0] = 1
-                            test_state = cx.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2))) @ zero_state
+                            test_state = (
+                                cx.to_matrix()
+                                @ (np.kron(h.to_matrix(), np.identity(d2)).astype(np.complex128))
+                                @ zero_state
+                            )
 
                             self.run_test_on_both_backends(circuit, test_state)
 
@@ -210,7 +219,11 @@ class TestMISimAndTNSim(TestCase):
                             zero_state = np.zeros(d1 * d2)
                             zero_state[0] = 1
 
-                            test_state = cx.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix())) @ zero_state
+                            test_state = (
+                                cx.to_matrix()
+                                @ (np.kron(np.identity(d1), h.to_matrix()).astype(np.complex128))
+                                @ zero_state
+                            )
 
                             self.run_test_on_both_backends(circuit, test_state)
 

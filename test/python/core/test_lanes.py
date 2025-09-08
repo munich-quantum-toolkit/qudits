@@ -23,7 +23,11 @@ class TestLanes(TestCase):
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
             R(self.circuit, "R", 1, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[1]),
             CustomMulti(
-                self.circuit, "CUm", [0, 1, 2], np.identity(18), [self.circuit.dimensions[i] for i in [0, 1, 2]]
+                self.circuit,
+                "CUm",
+                [0, 1, 2],
+                np.identity(18, dtype=np.complex128),
+                [self.circuit.dimensions[i] for i in [0, 1, 2]],
             ),
         ]
         self.circuit.instructions = gates
@@ -42,7 +46,11 @@ class TestLanes(TestCase):
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
             R(self.circuit, "R", 1, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[1]),
             CustomMulti(
-                self.circuit, "CUm", [0, 1, 2], np.identity(18), [self.circuit.dimensions[i] for i in [0, 1, 2]]
+                self.circuit,
+                "CUm",
+                [0, 1, 2],
+                np.identity(18, dtype=np.complex128),
+                [self.circuit.dimensions[i] for i in [0, 1, 2]],
             ),
         ]
         self.circuit.instructions = gates
@@ -57,7 +65,11 @@ class TestLanes(TestCase):
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
             R(self.circuit, "R", 1, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[1]),
             CustomMulti(
-                self.circuit, "CUm", [0, 1, 2], np.identity(18), [self.circuit.dimensions[i] for i in [0, 1, 2]]
+                self.circuit,
+                "CUm",
+                [0, 1, 2],
+                np.identity(18, dtype=np.complex128),
+                [self.circuit.dimensions[i] for i in [0, 1, 2]],
             ),
         ]
         self.circuit.instructions = gates
@@ -77,7 +89,11 @@ class TestLanes(TestCase):
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             CustomMulti(
-                self.circuit, "CUm", [0, 1, 2], np.identity(18), [self.circuit.dimensions[i] for i in [0, 1, 2]]
+                self.circuit,
+                "CUm",
+                [0, 1, 2],
+                np.identity(18, dtype=np.complex128),
+                [self.circuit.dimensions[i] for i in [0, 1, 2]],
             ),
             R(self.circuit, "R", 2, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[2]),
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),

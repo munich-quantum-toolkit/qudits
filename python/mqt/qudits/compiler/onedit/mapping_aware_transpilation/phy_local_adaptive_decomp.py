@@ -79,7 +79,7 @@ class PhyAdaptiveDecomposition:
         z_prop: bool | None = False,
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
-        self.U: NDArray = gate.to_matrix(identities=0)
+        self.U: NDArray[np.complex128] = gate.to_matrix(identities=0)
         self.qudit_index: int = cast("int", gate.target_qudits)
         self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
@@ -92,7 +92,7 @@ class PhyAdaptiveDecomposition:
         self.TREE.add(
             0,
             gates.CustomOne(
-                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype=np.complex128), self.dimension
             ),
             self.U,
             self.graph,
@@ -225,7 +225,7 @@ class PhyAdaptiveDecomposition:
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
-                non_zeros = np.count_nonzero(abs(u_temp) > 1.0e-4)
+                non_zeros = int(np.count_nonzero(abs(u_temp) > 1.0e-4))
 
                 (
                     estimated_cost,

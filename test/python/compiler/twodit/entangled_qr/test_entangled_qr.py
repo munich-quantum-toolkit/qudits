@@ -14,8 +14,8 @@ if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
-    return unitary_group.rvs(n)
+def random_unitary_matrix(n: int) -> NDArray[np.complex128]:
+    return np.asarray(unitary_group.rvs(n), dtype=np.complex128)
 
 
 class TestEntangledQR(TestCase):
@@ -35,7 +35,7 @@ class TestEntangledQR(TestCase):
         for rotation in decomp:
             target = rotation.to_matrix(identities=2) @ target
         target /= target[0][0]
-        res = (abs(target - np.identity(15, dtype="complex")) < 10e-5).all()
+        res = (abs(target - np.identity(15, dtype=np.complex128)) < 10e-5).all()
         assert res
 
     @staticmethod

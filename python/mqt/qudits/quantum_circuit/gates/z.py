@@ -33,13 +33,13 @@ class Z(Gate):
             qasm_tag="z",
         )
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for i in range(self.dimensions):
             omega = np.mod(2 * i / self.dimensions, 2)
             omega = omega * np.pi * 1j
             omega = np.e**omega
-            array = np.zeros(self.dimensions, dtype="complex")
+            array = np.zeros(self.dimensions, dtype=np.complex128)
             array[i] = 1
             result = omega * np.outer(array, array)
             matrix += result

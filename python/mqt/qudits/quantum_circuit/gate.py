@@ -14,9 +14,11 @@ from .components.extensions.controls import ControlData
 from .components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import NDArray
 
-    Parameter = list[int | float] | list[int | str] | NDArray[np.complex128, np.complex128] | None
+    Parameter = NDArray[np.complex128] | NDArray[np.float64] | NDArray[np.int_] | Sequence[float | int | str] | None
     from .circuit import QuantumCircuit
 
 
@@ -79,7 +81,7 @@ class Gate(Instruction):
         return lines
 
     @abstractmethod
-    def __array__(self) -> NDArray:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
         pass
 
     def dag(self) -> Gate:
@@ -87,7 +89,7 @@ class Gate(Instruction):
         self.dagger = True
         return self
 
-    def to_matrix(self, identities: int = 0) -> NDArray:
+    def to_matrix(self, identities: int = 0) -> NDArray[np.complex128]:
         """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:
@@ -134,7 +136,7 @@ class Gate(Instruction):
         self.check_long_range()
         return self
 
-    def validate_parameter(self, param: Parameter) -> bool:  # noqa: PLR6301 ARG002
+    def validate_parameter(self, parameter: Parameter) -> bool:  # noqa: PLR6301 ARG002
         return False
 
     @property
@@ -215,7 +217,7 @@ class Gate(Instruction):
         }
 
     def return_custom_data(self) -> str:
-        if not self.parent_circuit.path_save:
+        if not self.parent_circuit.path_save or self._params is None:
             return "(custom_data) "
 
         key = "".join(random.choice(string.ascii_letters) for _ in range(4))  # noqa: S311

@@ -39,8 +39,8 @@ class Perm(Gate):
             self.perm_data = parameters
             self._params = parameters
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
-        return np.eye(self.dimensions)[:, self.perm_data]
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        return np.eye(self.dimensions, dtype=np.complex128)[:, self.perm_data]
 
     def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
