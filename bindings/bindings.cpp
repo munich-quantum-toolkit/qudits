@@ -1,14 +1,27 @@
+#include "dd/Control.hpp"
+#include "dd/Definitions.hpp"
 #include "dd/MDDPackage.hpp"
 
-#include <any>
+#include <cassert>
 #include <chrono>
 #include <cmath>
+#include <complex>
+#include <cstdint>
 #include <ctime>
+#include <exception>
 #include <iostream>
+#include <map>
+#include <numbers>
+#include <pybind11/cast.h>
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl.h> // NOLINT(misc-include-cleaner])
 #include <random>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 namespace py = pybind11;
@@ -27,11 +40,7 @@ using NoiseModel = std::map<std::string, NoiseType>;
 using CVec = std::vector<std::complex<double>>;
 
 // =======================================================================================================
-// =======================================================================================================
-// =======================================================================================================
-// ============@@@@@@@@@@@@@@@@@@@@ PRINTING FUNCTION
-// @@@@@@@@@@@@@@@@@@@@================================
-// =======================================================================================================
+// PRINTING FUNCTIONS
 // =======================================================================================================
 
 // Function to print NoiseType
@@ -44,28 +53,28 @@ void printNoiseType(const NoiseType& noiseType, int indent = 0) {
       std::cout << std::get<std::string>(key) << " -> ";
     else {
       std::cout << "[";
-      for (int val : std::get<std::vector<int>>(key))
+      for (const int val : std::get<std::vector<int>>(key))
         std::cout << val << " ";
       std::cout << "] -> ";
     }
 
     // Print the noise tuple
-    std::cout << "(" << std::get<0>(noise) << ", " << std::get<1>(noise) << ")"
-              << std::endl;
+    std::cout << "(" << std::get<0>(noise) << ", " << std::get<1>(noise)
+              << ")\n";
   }
 }
 
 // Function to print NoiseModel
 void printNoiseModel(const NoiseModel& noiseModel) {
   for (const auto& [key, noiseType] : noiseModel) {
-    std::cout << key << ":" << std::endl;
+    std::cout << key << ":\n";
     printNoiseType(noiseType, 1);
   }
 }
 
-void printCvec(CVec vector) {
+void printCvec(CVec& vector) {
   for (const auto& cn : vector) {
-    std::cout << cn << std::endl;
+    std::cout << cn << "\n";
   }
 }
 
@@ -73,19 +82,19 @@ void printCircuit(const Circuit& circuit) {
   for (const auto& instruction : circuit) {
     auto [tag, dag, dims, gate_type, target_qudits, params, control_set] =
         instruction;
-    std::cout << "Tag: " << tag << std::endl;
-    std::cout << "Dag: " << dag << std::endl;
+    std::cout << "Tag: " << tag << "\n";
+    std::cout << "Dag: " << dag << "\n";
     std::cout << "Dimensions: ";
     for (const auto& dim : dims) {
       std::cout << dim << " ";
     }
-    std::cout << std::endl;
-    std::cout << "Gate Type: " << gate_type << std::endl;
+    std::cout << "\n";
+    std::cout << "Gate Type: " << gate_type << "\n";
     std::cout << "Target Qudits: ";
     for (const auto& qubit : target_qudits) {
       std::cout << qubit << " ";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
 
     // Printing control_set
     auto [control1, control2] = control_set;
@@ -97,25 +106,21 @@ void printCircuit(const Circuit& circuit) {
     for (const auto& control : control2) {
       std::cout << control << " ";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
   }
 }
 
 // =======================================================================================================
-// =======================================================================================================
-// =======================================================================================================
-// ============================================= HELPER FUNCTION
-// =========================================
-// =======================================================================================================
+// HELPER FUNCTIONS
 // =======================================================================================================
 
-bool is_none_or_empty(const py::object& obj) {
+bool isNoneOrEmpty(const py::object& obj) {
   if (obj.is_none())
     return true;
 
   if (py::isinstance<py::sequence>(obj)) {
     auto seq = obj.cast<py::sequence>();
-    return seq.size() == 0;
+    return seq.empty();
   }
 
   // Add additional checks for other types if needed
@@ -131,23 +136,23 @@ bool checkDim(const std::vector<int>& dims,
       return false; // Different sizes, not exactly equal
     }
     return dims[0] == std::get<int>(target);
-  } else {
-    // If target is a vector
-    const auto& targetVec = std::get<std::vector<int>>(target);
-    if (dims.size() != targetVec.size()) {
-      return false; // Different sizes, not exactly equal
-    }
-    for (size_t i = 0; i < dims.size(); ++i) {
-      if (dims[i] != targetVec[i]) {
-        return false; // Different elements, not exactly equal
-      }
-    }
-    return true; // All elements are the same, exactly equal
   }
+
+  // If target is a vector
+  const auto& targetVec = std::get<std::vector<int>>(target);
+  if (dims.size() != targetVec.size()) {
+    return false; // Different sizes, not exactly equal
+  }
+  for (size_t i = 0; i < dims.size(); ++i) {
+    if (dims[i] != targetVec[i]) {
+      return false; // Different elements, not exactly equal
+    }
+  }
+  return true; // All elements are the same, exactly equal
 }
 
 // Function to convert C++ vector of complex numbers to a Python list
-py::list complex_vector_to_list(const CVec& vec) {
+py::list complexVectorToList(const CVec& vec) {
   py::list pyList;
   for (const auto& elem : vec) {
     try {
@@ -157,99 +162,92 @@ py::list complex_vector_to_list(const CVec& vec) {
       pyList.append(pyComplex);
     } catch (const std::exception& e) {
       // Handle any exceptions
-      std::cerr << "Error appending Python object: " << e.what() << std::endl;
+      std::cerr << "Error appending Python object: " << e.what() << "\n";
     }
   }
   return pyList;
 }
 
 // =======================================================================================================
-// =======================================================================================================
-// =======================================================================================================
-// ===============::::::::::::::::::::::PARSING FUNCTIONS
-// ::::::::::::::::::::::===========================
-// =======================================================================================================
+// PARSING FUNCTIONS
 // =======================================================================================================
 
 Circuit_info readCircuit(py::object& circ) {
   Circuit result;
 
-  unsigned int num_qudits = circ.attr("_num_qudits").cast<unsigned int>();
-  std::vector<size_t> dimensions =
-      circ.attr("_dimensions").cast<std::vector<size_t>>();
-
-  bool result_empty = py::isinstance<py::none>(circ.attr("instructions"));
+  const auto numQudits = circ.attr("_num_qudits").cast<unsigned int>();
+  const auto dimensions = circ.attr("_dimensions").cast<std::vector<size_t>>();
 
   // Get Python iterable
   py::iterator it = py::iter(circ.attr("instructions"));
 
   // Iterate over the Python iterable
   while (it != py::iterator::sentinel()) {
-    py::handle obj_handle = *it;
-    py::object obj = py::reinterpret_borrow<py::object>(obj_handle);
+    const py::handle objHandle = *it;
+    const auto obj = py::reinterpret_borrow<py::object>(objHandle);
 
-    std::string tag = obj.attr("qasm_tag").cast<std::string>();
+    const auto tag = obj.attr("qasm_tag").cast<std::string>();
 
-    bool dagger = obj.attr("dagger").cast<bool>();
+    const bool dagger = obj.attr("dagger").cast<bool>();
 
-    std::string gate_type =
+    const std::string gateType =
         py::cast<std::string>(obj.attr("gate_type").attr("name"));
 
     // Extracting dimensions
-    py::object dims_obj = obj.attr("_dimensions");
+    const py::object dimsObj = obj.attr("_dimensions");
     std::vector<int> dims;
-    if (py::isinstance<py::int_>(dims_obj)) {
-      dims.push_back(py::cast<int>(dims_obj));
-    } else if (py::isinstance<py::list>(dims_obj)) {
-      dims = py::cast<std::vector<int>>(dims_obj);
+    if (py::isinstance<py::int_>(dimsObj)) {
+      dims.push_back(py::cast<int>(dimsObj));
+    } else if (py::isinstance<py::list>(dimsObj)) {
+      dims = py::cast<std::vector<int>>(dimsObj);
     }
 
     // Extracting target_qudits
-    py::object target_qudits_obj = obj.attr("_target_qudits");
-    std::vector<int> target_qudits;
-    if (py::isinstance<py::int_>(target_qudits_obj)) {
-      target_qudits.push_back(py::cast<int>(target_qudits_obj));
-    } else if (py::isinstance<py::list>(target_qudits_obj)) {
-      target_qudits = py::cast<std::vector<int>>(target_qudits_obj);
+    const py::object targetQuditsObj = obj.attr("_target_qudits");
+    std::vector<int> targetQudits;
+    if (py::isinstance<py::int_>(targetQuditsObj)) {
+      targetQudits.push_back(py::cast<int>(targetQuditsObj));
+    } else if (py::isinstance<py::list>(targetQuditsObj)) {
+      targetQudits = py::cast<std::vector<int>>(targetQuditsObj);
     }
 
     py::object params;
-    if (is_none_or_empty(obj.attr("_params"))) {
+    if (isNoneOrEmpty(obj.attr("_params"))) {
     } else {
       params = obj.attr("_params");
     }
 
     std::tuple<std::vector<dd::QuantumRegister>, std::vector<dd::Control::Type>>
-        control_set = {};
-    if (is_none_or_empty(obj.attr("_controls_data"))) {
-      // std::cout << "control empty"<< std::endl;
+        controlSet = {};
+    if (isNoneOrEmpty(obj.attr("_controls_data"))) {
+      // std::cout << "control empty"<< "\n";
     } else {
-      py::object controls_data = obj.attr("_controls_data");
-      auto indices = controls_data.attr("indices")
-                         .cast<std::vector<dd::QuantumRegister>>();
-      auto ctrlStates = controls_data.attr("ctrl_states")
+      const py::object controlsData = obj.attr("_controls_data");
+      auto indices =
+          controlsData.attr("indices").cast<std::vector<dd::QuantumRegister>>();
+      auto ctrlStates = controlsData.attr("ctrl_states")
                             .cast<std::vector<dd::Control::Type>>();
 
-      control_set = std::make_tuple(indices, ctrlStates);
+      controlSet = std::make_tuple(indices, ctrlStates);
     }
 
-    result.push_back(std::make_tuple(tag, dagger, dims, gate_type,
-                                     target_qudits, params, control_set));
+    result.emplace_back(tag, dagger, dims, gateType, targetQudits, params,
+                        controlSet);
 
     // Increment the iterator
     ++it;
   }
 
-  return std::make_tuple(num_qudits, dimensions, result);
+  return std::make_tuple(numQudits, dimensions, result);
 }
 
-NoiseModel parse_noise_model(const py::dict& noise_model) {
+NoiseModel parseNoiseModel(const py::dict& noiseModel) {
   NoiseModel newNoiseModel;
 
-  for (const auto& gate : noise_model) {
+  for (const auto& gate : noiseModel) {
     auto gateName = gate.first.cast<std::string>();
 
-    py::dict gateNoise = gate.second.cast<py::dict>();
+    const auto gateNoise = gate.second.cast<py::dict>();
 
     NoiseType newNoiseType;
 
@@ -258,12 +256,11 @@ NoiseModel parse_noise_model(const py::dict& noise_model) {
 
     for (const auto& noiseTypesPair : gateNoise) {
       if (py::isinstance<py::str>(noiseTypesPair.first)) {
-        std::string noiseSpreadString =
-            noiseTypesPair.first.cast<std::string>();
+        const auto noiseSpreadString = noiseTypesPair.first.cast<std::string>();
         noiseSpread = noiseSpreadString;
         // Handle string case
       } else if (py::isinstance<py::tuple>(noiseTypesPair.first)) {
-        std::vector<int> noiseSpreadTuple =
+        const auto noiseSpreadTuple =
             noiseTypesPair.first.cast<std::vector<int>>();
         noiseSpread = noiseSpreadTuple;
       }
@@ -272,11 +269,11 @@ NoiseModel parse_noise_model(const py::dict& noise_model) {
         throw std::invalid_argument("Physical noise is not supported yet.");
       }
 
-      double depo =
+      const auto depo =
           noiseTypesPair.second.attr("probability_depolarizing").cast<double>();
-      double deph =
+      const auto deph =
           noiseTypesPair.second.attr("probability_dephasing").cast<double>();
-      std::tuple<double, double> noiseProb = std::make_tuple(depo, deph);
+      const std::tuple<double, double> noiseProb = std::make_tuple(depo, deph);
 
       newNoiseType[noiseSpread] = noiseProb;
     }
@@ -294,7 +291,8 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
   const auto& [num_qudits, dimensions, circuit] = circuitInfo;
 
   std::random_device rd;
-  std::mt19937_64 gen(rd() + currentTimeMs);
+  std::mt19937_64 gen(static_cast<uint64_t>(rd()) +
+                      static_cast<uint64_t>(currentTimeMs));
 
   Circuit noisyCircuit;
 
@@ -313,32 +311,33 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                             ctrl_dits.end());
     }
 
-    if (noiseModel.find(tag) != noiseModel.end()) {
-      for (const auto& mode_noise : noiseModel.at(tag)) {
-        auto mode = mode_noise.first;
-        auto noise_info = mode_noise.second;
-        double depo = std::get<0>(noise_info);
-        double deph = std::get<1>(noise_info);
+    if (noiseModel.contains(tag)) {
+      for (const auto& modeNoise : noiseModel.at(tag)) {
+        auto mode = modeNoise.first;
+        auto noise_info = modeNoise.second;
+        const double depo = std::get<0>(noise_info);
+        const double deph = std::get<1>(noise_info);
 
-        std::discrete_distribution<int> x_dist({1.0 - depo, depo});
-        std::discrete_distribution<int> z_dist({1.0 - deph, deph});
+        std::discrete_distribution<int> xDist({1.0 - depo, depo});
+        std::discrete_distribution<int> zDist({1.0 - deph, deph});
 
-        int x_choice = x_dist(gen);
-        int z_choice = z_dist(gen);
+        const int xChoice = xDist(gen);
+        const int zChoice = zDist(gen);
 
-        if (x_choice == 1 || z_choice == 1) {
+        if (xChoice == 1 || zChoice == 1) {
           std::vector<int> qudits;
           if (std::holds_alternative<std::vector<int>>(mode)) {
             qudits = std::get<std::vector<int>>(mode);
 
           } else if (std::holds_alternative<std::string>(mode)) {
-            std::string modeStr = std::get<std::string>(mode);
+            const std::string modeStr = std::get<std::string>(mode);
 
             if (modeStr == "local") {
               qudits = referenceLines;
             } else if (modeStr == "all") {
-              for (int i = 0; i < num_qudits; ++i)
+              for (int i = 0; std::cmp_less(i, num_qudits); ++i) {
                 qudits.push_back(i);
+              }
             } else if (modeStr == "nonlocal") {
               assert(gate_type == "TWO" || gate_type == "MULTI");
               qudits = referenceLines;
@@ -350,112 +349,114 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
               qudits.push_back(target_qudits.at(1));
             }
           }
-          if (x_choice == 1) {
+          if (xChoice == 1) {
             for (auto dit : qudits) {
               if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 std::vector<int> dims;
-                dims.push_back(static_cast<int>(
-                    dimensions[static_cast<unsigned long>(dit)]));
-                py::list params_new;
+                dims.push_back(
+                    static_cast<int>(dimensions[static_cast<uint64_t>(dit)]));
+                py::list paramsNew;
 
-                size_t value_0, value_1;
+                size_t value0;
+                size_t value1;
                 // Retrieve field 0 and 1 from params
                 auto pl = params.cast<py::list>();
-                value_0 = pl[0].cast<size_t>();
+                value0 = pl[0].cast<size_t>();
                 if (tag == "virtrz") {
                   if (dims.size() != 1) {
                     throw std::runtime_error(
                         "Dimension should be just an int"); // Different sizes,
                                                             // not exactly equal
                   }
-                  if (value_0 != dims[0] - 1) {
-                    value_1 = value_0 + 1;
+                  if (std::cmp_not_equal(value0, dims[0] - 1)) {
+                    value1 = value0 + 1;
                   } else {
-                    value_0 = dims[0] - 2;
-                    value_1 = dims[0] - 1;
+                    value0 = static_cast<size_t>(dims[0] - 2);
+                    value1 = static_cast<size_t>(dims[0] - 1);
                   }
                 } else {
-                  value_1 = pl[1].cast<size_t>();
+                  value1 = pl[1].cast<size_t>();
                 }
 
-                // Create a new list and append value_0 and value_1
-                params_new.append(value_0);
-                params_new.append(value_1);
+                // Create a new list and append value0 and value1
+                paramsNew.append(value0);
+                paramsNew.append(value1);
 
                 // Append pi and pi/2
-                double pi = 3.14159265358979323846;
-                double pi_over_2 = pi / 2.0;
-                params_new.append(py::float_(pi));
-                params_new.append(py::float_(pi_over_2));
-                Instruction new_inst = std::make_tuple(
-                    "rxy", false, dims, "SINGLE", std::vector<int>{dit},
-                    py::cast<py::object>(params_new),
-                    std::tuple<std::vector<dd::QuantumRegister>,
-                               std::vector<dd::Control::Type>>());
-                noisyCircuit.push_back(new_inst);
-              } else {
-                py::object params_new;
-                std::vector<int> dims;
-                dims.push_back(static_cast<int>(
-                    dimensions[static_cast<unsigned long>(dit)]));
-
-                Instruction new_inst = std::make_tuple(
-                    "x", false, dims, "SINGLE", std::vector<int>{dit},
-                    params_new,
-                    std::tuple<std::vector<dd::QuantumRegister>,
-                               std::vector<dd::Control::Type>>());
-                noisyCircuit.push_back(new_inst);
-              }
-            }
-          }
-
-          if (z_choice == 1) {
-            for (auto dit : qudits) {
-              if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
-                py::list params_new;
-
-                std::vector<int> dims;
-                dims.push_back(static_cast<int>(
-                    dimensions[static_cast<unsigned long>(dit)]));
-
-                size_t value_0, value_1;
-                // Retrieve field 0 and 1 from params
-                auto pl = params.cast<py::list>();
-                value_0 = pl[0].cast<size_t>();
-                if (tag == "virtrz") {
-                  if (dims.size() != 1) {
-                    throw std::runtime_error(
-                        "Dimension should be just an int"); // Different sizes,
-                                                            // not exactly equal
-                  }
-                  if (value_0 != dims[0] - 1) {
-                    value_1 = value_0 + 1;
-                  } else {
-                    value_0 = dims[0] - 2;
-                    value_1 = dims[0] - 1;
-                  }
-                } else {
-                  value_1 = pl[1].cast<size_t>();
-                }
-
-                // Create a new list and append value_0 and value_1
-                params_new.append(value_0);
-                params_new.append(value_1);
-
-                // Append pi and pi/2
-                double pi = 3.14159265358979323846;
-                params_new.append(py::float_(pi));
+                const auto pi = std::numbers::pi;
+                const auto piOver2 = pi / 2.0;
+                paramsNew.append(py::float_(pi));
+                paramsNew.append(py::float_(piOver2));
                 Instruction newInst = std::make_tuple(
-                    "rz", false, dims, "SINGLE", std::vector<int>{dit},
-                    py::cast<py::object>(params_new),
+                    "rxy", false, dims, "SINGLE", std::vector<int>{dit},
+                    py::cast<py::object>(paramsNew),
                     std::tuple<std::vector<dd::QuantumRegister>,
                                std::vector<dd::Control::Type>>());
                 noisyCircuit.push_back(newInst);
               } else {
                 py::object paramsNew;
                 std::vector<int> dims;
-                dims.push_back(static_cast<int>(
-                    dimensions[static_cast<unsigned long>(dit)]));
+                dims.push_back(
+                    static_cast<int>(dimensions[static_cast<uint64_t>(dit)]));
+
+                Instruction newInst = std::make_tuple(
+                    "x", false, dims, "SINGLE", std::vector<int>{dit},
+                    paramsNew,
+                    std::tuple<std::vector<dd::QuantumRegister>,
+                               std::vector<dd::Control::Type>>());
+                noisyCircuit.push_back(newInst);
+              }
+            }
+          }
+
+          if (zChoice == 1) {
+            for (auto dit : qudits) {
+              if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
+                py::list paramsNew;
+
+                std::vector<int> dims;
+                dims.push_back(
+                    static_cast<int>(dimensions[static_cast<uint64_t>(dit)]));
+
+                size_t value0, value1;
+                // Retrieve field 0 and 1 from params
+                auto pl = params.cast<py::list>();
+                value0 = pl[0].cast<size_t>();
+                if (tag == "virtrz") {
+                  if (dims.size() != 1) {
+                    throw std::runtime_error(
+                        "Dimension should be just an int"); // Different
+                                                            // sizes, not
+                                                            // exactly equal
+                  }
+                  if (value0 != dims[0] - 1) {
+                    value1 = value0 + 1;
+                  } else {
+                    value0 = dims[0] - 2;
+                    value1 = dims[0] - 1;
+                  }
+                } else {
+                  value1 = pl[1].cast<size_t>();
+                }
+
+                // Create a new list and append value0 and value1
+                paramsNew.append(value0);
+                paramsNew.append(value1);
+
+                // Append pi and pi/2
+                const auto pi = std::numbers::pi;
+                paramsNew.append(py::float_(pi));
+                Instruction newInst = std::make_tuple(
+                    "rz", false, dims, "SINGLE", std::vector<int>{dit},
+                    py::cast<py::object>(paramsNew),
+                    std::tuple<std::vector<dd::QuantumRegister>,
+                               std::vector<dd::Control::Type>>());
+                noisyCircuit.push_back(newInst);
+              } else {
+                py::object paramsNew;
+                std::vector<int> dims;
+                dims.push_back(
+                    static_cast<int>(dimensions[static_cast<uint64_t>(dit)]));
 
                 Instruction newInst = std::make_tuple(
                     "z", false, dims, "SINGLE", std::vector<int>{dit},
@@ -475,14 +476,9 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
 }
 
 // =======================================================================================================
+// SIMULATION FUNCTIONS
 // =======================================================================================================
-// =======================================================================================================
-// ===============()()()()()()()()()()() SIMULATION FUNCTIONS
-// ()()()()()()()()()==========================
-// =======================================================================================================
-// =======================================================================================================
-// =======================================================================================================
-// =======================================================================================================
+
 /*
  * SUPPORTED GATES AT THE MOMENT UNTIL DIMENSION 7
 "csum": "csum",
@@ -772,19 +768,18 @@ CVec ddsimulator(dd::QuantumRegisterCount numLines,
     try {
       gate = getGate(dd, instruction);
     } catch (const std::exception& e) {
-      std::cerr << "Caught exception in gate creation: " << e.what()
-                << std::endl;
+      std::cerr << "Caught exception in gate creation: " << e.what() << "\n";
       throw; // Re-throw the exception to propagate it further
     }
     try {
       psi = dd->multiply(gate, psi);
     } catch (const std::exception& e) {
       printCircuit(circuit);
-      std::cout << "THE MATRIX  " << std::endl;
+      std::cout << "THE MATRIX\n";
       dd->getVectorizedMatrix(gate);
-      std::cout << "THE VECTOR  " << std::endl;
+      std::cout << "THE VECTOR\n";
       dd->printVector(psi);
-      std::cerr << "Problem is in multiplication " << e.what() << std::endl;
+      std::cerr << "Problem is in multiplication " << e.what() << "\n";
       throw; // Re-throw the exception to propagate it further
     }
   }
@@ -797,14 +792,14 @@ py::list stateVectorSimulation(py::object& circ, py::object& noiseModel) {
 
   Circuit noisyCircuit = original_circuit;
   py::dict noiseModelDict = noiseModel.attr("quantum_errors").cast<py::dict>();
-  NoiseModel newNoiseModel = parse_noise_model(noiseModelDict);
+  NoiseModel newNoiseModel = parseNoiseModel(noiseModelDict);
   noisyCircuit = generateCircuit(parsedCircuitInfo, newNoiseModel);
 
   CVec myList =
       ddsimulator(static_cast<dd::QuantumRegisterCount>(numQudits),
                   static_cast<std::vector<size_t>>(dims), noisyCircuit);
 
-  py::list result = complex_vector_to_list(myList);
+  py::list result = complexVectorToList(myList);
 
   return result;
 }
