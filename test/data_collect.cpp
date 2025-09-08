@@ -1,10 +1,22 @@
+#include "dd/Control.hpp"
+#include "dd/Definitions.hpp"
+#include "dd/Edge.hpp"
+#include "dd/GateMatrixDefinitions.hpp"
 #include "dd/MDDPackage.hpp"
 
 #include <chrono>
+#include <cstddef>
 #include <fstream>
+#include <ios>
+#include <iostream>
+#include <iterator>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
+
+namespace {
 
 dd::Edge<dd::MDDPackage::vNode>
 fullMixWState([[maybe_unused]] std::ofstream& file,
@@ -55,8 +67,8 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
       for (auto& indexe : indexes) {
         for (auto& f : indexe) {
           f = static_cast<dd::QuantumRegister>(
-              f +
-              f * (static_cast<dd::QuantumRegister>(orderOfLayers.at(i) - 1)));
+              f + (f * (static_cast<dd::QuantumRegister>(orderOfLayers.at(i) -
+                                                         1))));
         }
       }
       std::vector<dd::QuantumRegister> toAdd{};
@@ -94,7 +106,7 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
   for (auto i = 0U; i < orderOfLayers.size(); i++) {
     if (orderOfLayers.at(i) == 2) {
       for (const auto g : application[i]) {
-        const std::vector<dd::QuantumRegister> inputLines = indexes.at(g);
+        const std::vector<dd::QuantumRegister>& inputLines = indexes.at(g);
         evolution = dd->spread2(numLines, inputLines, evolution);
         numop = numop + 3;
       }
@@ -159,13 +171,13 @@ ghzQutritStateScaled(std::ofstream& file, dd::QuantumRegisterCount i) {
   auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), i, 0);
   std::vector<dd::MDDPackage::mEdge> gates = {};
 
-  for (dd::QuantumRegister target = 1; static_cast<int>(target) < i; target++) {
+  for (dd::QuantumRegister target = 1; std::cmp_less(target, i); target++) {
     dd::Controls target1{};
     dd::Controls target2{};
 
     for (dd::QuantumRegister control = 0; control < target; control++) {
-      const dd::Control c1{static_cast<dd::QuantumRegister>(control), 1};
-      const dd::Control c2{static_cast<dd::QuantumRegister>(control), 2};
+      const dd::Control c1{.quantumRegister = control, .type = 1};
+      const dd::Control c2{.quantumRegister = control, .type = 2};
       target1.insert(c1);
       target2.insert(c2);
     }
@@ -333,10 +345,9 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
 
         std::vector<std::size_t> controlParticles;
         controlParticles.resize(numberOfControls);
-        std::sample(std::begin(controlLines), std::end(controlLines),
-                    std::back_inserter(controlParticles), numberOfControls,
-                    gen);
-        std::sort(controlParticles.begin(), controlParticles.end());
+        std::ranges::sample(controlLines, std::back_inserter(controlParticles),
+                            numberOfControls, gen);
+        std::ranges::sort(controlParticles);
 
         dd::Controls control{};
         for (auto i = 0U; i < numberOfControls; i++) {
@@ -345,8 +356,9 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
           auto level = picklevel(gen);
 
           const dd::Control c{
-              static_cast<dd::QuantumRegister>(controlParticles.at(i)),
-              static_cast<dd::Control::Type>(level)};
+              .quantumRegister =
+                  static_cast<dd::QuantumRegister>(controlParticles.at(i)),
+              .type = static_cast<dd::Control::Type>(level)};
           control.insert(c);
         }
 
@@ -455,6 +467,9 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
        << (static_cast<double>(elapsed.count()) * 1e-9) << "\n";
   return evolution;
 }
+
+} // namespace
+
 int main() { // NOLINT(bugprone-exception-escape)
   std::ofstream myfile;
   myfile.open("/home/k3vn/Desktop/trycollect.csv", std::ios_base::app);

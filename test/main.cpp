@@ -1,10 +1,15 @@
+#include "dd/Control.hpp"
+#include "dd/Definitions.hpp"
+#include "dd/GateMatrixDefinitions.hpp"
 #include "dd/MDDPackage.hpp"
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 
 int main() { // NOLINT(bugprone-exception-escape)
   std::vector<std::size_t> const lines{2, 3};
-  dd::QuantumRegisterCount numLines = 2U;
+  const dd::QuantumRegisterCount numLines = 2U;
 
   auto dd = std::make_unique<dd::MDDPackage>(
       numLines, lines); // Create new package instance capable of handling a
@@ -32,7 +37,7 @@ int main() { // NOLINT(bugprone-exception-escape)
   // An example of how to create a set of controls and add them together to
   // create a more complex controlled operation
   dd::Controls control{};
-  const dd::Control c{0, 1};
+  const dd::Control c{.quantumRegister = 0, .type = 1};
   control.insert(c);
 
   // An example of a controlled qutrit X operation, controlled on the level 1 of
