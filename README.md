@@ -45,7 +45,7 @@ Thank you to all the contributors who have helped make MQT Qudits a reality!
 
 <p align="center">
   <a href="https://github.com/munich-quantum-toolkit/qudits/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=munich-quantum-toolkit/syrec" alt="Contributors to munich-quantum-toolkit/qudits" />
+  <img src="https://contrib.rocks/image?repo=munich-quantum-toolkit/qudits" alt="Contributors to munich-quantum-toolkit/qudits" />
   </a>
 </p>
 

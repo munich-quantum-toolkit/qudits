@@ -3,7 +3,7 @@
 _MQT Qudits_ has a strong foundation in peer‑reviewed research.
 Many of its built‑in algorithms are based on methods published in scientific journals and conferences.
 
-_MQT SyReC Synthesizer_ is part of the Munich Quantum Toolkit, which is described in {cite:p}`mqt`.
+_MQT Qudits_ is part of the Munich Quantum Toolkit, which is described in {cite:p}`mqt`.
 If you want to cite the Munich Quantum Toolkit, please use the following BibTeX entry:
 
 ```bibtex
