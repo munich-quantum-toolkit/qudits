@@ -1,10 +1,10 @@
 [![PyPI](https://img.shields.io/pypi/v/mqt.qudits?logo=pypi&style=flat-square)](https://pypi.org/project/mqt.qudits/)
 ![OS](https://img.shields.io/badge/os-linux%20%7C%20macos%20%7C%20windows-blue?style=flat-square)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![CI](https://img.shields.io/github/actions/workflow/status/cda-tum/mqt-qudits/ci.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/cda-tum/mqt-qudits/actions/workflows/ci.yml)
-[![CD](https://img.shields.io/github/actions/workflow/status/cda-tum/mqt-qudits/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/cda-tum/mqt-qudits/actions/workflows/cd.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/munich-quantum-toolkit/qudits/ci.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/munich-quantum-toolkit/qudits/actions/workflows/ci.yml)
+[![CD](https://img.shields.io/github/actions/workflow/status/munich-quantum-toolkit/qudits/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/munich-quantum-toolkit/qudits/actions/workflows/cd.yml)
 [![Documentation](https://img.shields.io/readthedocs/mqt-qudits?logo=readthedocs&style=flat-square)](https://mqt.readthedocs.io/projects/qudits)
-[![codecov](https://img.shields.io/codecov/c/github/cda-tum/mqt-qudits?style=flat-square&logo=codecov)](https://codecov.io/gh/cda-tum/mqt-qudits)
+[![codecov](https://img.shields.io/codecov/c/github/munich-quantum-toolkit/qudits?style=flat-square&logo=codecov)](https://codecov.io/gh/munich-quantum-toolkit/qudits)
 [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=flat-square)](https://unitary.fund)
 
 <p align="center">
@@ -26,7 +26,7 @@ A framework for research and education for mixed-dimensional qudit quantum compu
   </a>
 </p>
 
-If you have any questions, feel free to create a [discussion](https://github.com/cda-tum/mqt-qudits/discussions) or an [issue](https://github.com/cda-tum/mqt-qudits/issues) on GitHub.
+If you have any questions, feel free to create a [discussion](https://github.com/munich-quantum-toolkit/qudits/discussions) or an [issue](https://github.com/munich-quantum-toolkit/qudits/issues) on GitHub.
 
 ## Getting Started
 
@@ -80,8 +80,8 @@ The Munich Quantum Toolkit has been supported by the European Research Council (
 
 <p align="center">
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_dark.svg" width="20%">
-<img src="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_light.svg" width="20%" alt="Funded by the European Union">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/munich-quantum-toolkit/qudits/main/docs/_static/eu_funded_dark.svg" width="20%">
+<img src="https://raw.githubusercontent.com/munich-quantum-toolkit/qudits/main/docs/_static/eu_funded_light.svg" width="20%" alt="Funded by the European Union">
 </picture>
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/matt-lourens/unitary-fund/master/logos/logov3.svg" width="15%">

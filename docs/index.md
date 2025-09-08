@@ -11,7 +11,7 @@ Furthermore, [this video](https://www.youtube.com/watch?v=due_CX7H85A) briefly i
 :::
 
 We appreciate any feedback and contributions to the project.
-If you have any questions, feel free to create a [discussion](https://github.com/cda-tum/mqt-qudits/discussions) or an [issue](https://github.com/cda-tum/mqt-qudits/issues) on GitHub.
+If you have any questions, feel free to create a [discussion](https://github.com/munich-quantum-toolkit/qudits/discussions) or an [issue](https://github.com/munich-quantum-toolkit/qudits/issues) on GitHub.
 
 ```{toctree}
 :hidden:

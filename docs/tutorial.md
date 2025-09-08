@@ -31,7 +31,7 @@ The following tutorial will guide you through the initial tools and contribution
 For those seeking hands-on customization, simply clone the corresponding repository and perform a local installation.
 
 ````bash
-$ git clone https://github.com/cda-tum/mqt-qudits.git
+$ git clone https://github.com/munich-quantum-toolkit/qudits.git
 $ cd mqt-qudits
 $ python3 -m venv .venv
 $ source .venv/bin/activate
