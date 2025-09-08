@@ -4,6 +4,7 @@ from __future__ import annotations
 import typing
 
 import numpy as np
+
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import Primitive
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
 from mqt.qudits.quantum_circuit import gates

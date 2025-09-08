@@ -5,6 +5,7 @@ from math import floor
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
 from mqt.qudits.quantum_circuit import gates
 

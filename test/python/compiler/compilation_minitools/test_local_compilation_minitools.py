@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.compiler.compilation_minitools import (
     new_mod,
     phi_cost,

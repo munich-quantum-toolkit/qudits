@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import (
     cost_calculator,
     find_logic_from_phys,

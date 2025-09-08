@@ -6,6 +6,7 @@ import threading
 from typing import Literal
 
 import numpy as np
+
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
 

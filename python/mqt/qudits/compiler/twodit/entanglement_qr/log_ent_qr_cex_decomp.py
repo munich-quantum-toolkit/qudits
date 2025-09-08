@@ -6,9 +6,10 @@ import typing
 from operator import itemgetter
 
 import numpy as np
-from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from numpy import matmul as mml
 from numpy.linalg import det, solve
+
+from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
 from ...compilation_minitools import on0, on1, pi_mod
 from ...compiler_pass import CompilerPass
@@ -17,10 +18,11 @@ from ..blocks.czrot import CZRotGen
 from ..blocks.pswap import PSwapGen
 
 if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
-    from numpy.typing import NDArray
 
 
 class LogEntQRCEXPass(CompilerPass):

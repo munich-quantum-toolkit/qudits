@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 import numpy as np
+
 from mqt.qudits.compiler.twodit.blocks.pswap import PSwapGen
 from mqt.qudits.compiler.twodit.entanglement_qr import CRotGen
 

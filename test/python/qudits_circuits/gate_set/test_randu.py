@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 if TYPE_CHECKING:

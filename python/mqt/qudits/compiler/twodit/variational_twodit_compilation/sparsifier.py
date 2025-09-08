@@ -6,16 +6,18 @@ from itertools import starmap
 from random import uniform
 
 import numpy as np
+from scipy.optimize import minimize  # type: ignore[import-not-found]
+
 from mqt.qudits.compiler.compilation_minitools import gate_expand_to_circuit
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
 from mqt.qudits.quantum_circuit.gates import CustomOne
-from scipy.optimize import minimize  # type: ignore[import-not-found]
 
 if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
-    from numpy.typing import NDArray
 
 
 def apply_rotations(m: NDArray[np.complex128], params_list: list[float], dims: list[int]) -> NDArray[np.complex128]:

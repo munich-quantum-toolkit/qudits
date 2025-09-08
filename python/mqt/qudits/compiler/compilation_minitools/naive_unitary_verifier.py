@@ -10,10 +10,11 @@ import numpy as np
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
-    from numpy.typing import NDArray
 
 
 def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128]:

@@ -8,9 +8,10 @@ from functools import reduce
 import numpy as np
 
 if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
     from mqt.qudits.quantum_circuit.gate import Gate
-    from numpy.typing import NDArray
 
 
 class MatrixFactory:

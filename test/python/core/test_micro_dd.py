@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.core.micro_dd import (
     create_decision_tree,
     cut_branches,

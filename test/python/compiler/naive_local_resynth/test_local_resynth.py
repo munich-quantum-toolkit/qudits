@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_sim
 from mqt.qudits.compiler.naive_local_resynth.local_resynth import NaiveLocResynthOptPass
 from mqt.qudits.quantum_circuit import QuantumCircuit

@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 import numpy as np
+
 from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 
 if typing.TYPE_CHECKING:

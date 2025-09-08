@@ -4,6 +4,7 @@ from __future__ import annotations
 import typing
 
 import numpy as np
+
 from mqt.qudits.quantum_circuit import gates
 
 if typing.TYPE_CHECKING:

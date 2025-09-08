@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_uniform_state
 
 

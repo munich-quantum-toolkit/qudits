@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
 
 from ..exceptions import CircuitError

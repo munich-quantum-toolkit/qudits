@@ -4,6 +4,7 @@ import copy
 import typing
 
 import numpy as np
+
 from mqt.qudits.core.micro_dd import (
     create_decision_tree,
     cut_branches,
@@ -15,9 +16,10 @@ from mqt.qudits.core.micro_dd import (
 from mqt.qudits.quantum_circuit.gates import R
 
 if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from mqt.qudits.core.micro_dd import MicroDDNode, NodeContribution
     from mqt.qudits.quantum_circuit import QuantumCircuit
-    from numpy.typing import NDArray
 
 
 def find_complex_number(x: complex, c: complex) -> complex:

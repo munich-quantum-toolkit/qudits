@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.onedit import ZRemovalOptPass
 from mqt.qudits.quantum_circuit import QuantumCircuit

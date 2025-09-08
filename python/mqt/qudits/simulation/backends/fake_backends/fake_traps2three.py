@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mqt.qudits.simulation.noise_tools.noise import Noise
 from typing_extensions import Unpack
+
+from mqt.qudits.simulation.noise_tools.noise import Noise
 
 from ....core import LevelGraph
 from ...noise_tools import NoiseModel
