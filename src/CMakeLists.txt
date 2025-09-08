@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
   # collect headers
   file(GLOB_RECURSE MQT_QUDITS_HEADERS ${MQT_QUDITS_INCLUDE_BUILD_DIR}/dd/*.hpp)

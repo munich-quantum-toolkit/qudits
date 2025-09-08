@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 """FROM An alternative quantum fidelity for mixed states of qudits https://doi.org/10.1016/j.physleta.2008.10.083."""
 
 from __future__ import annotations
