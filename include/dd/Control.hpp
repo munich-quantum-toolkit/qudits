@@ -4,8 +4,7 @@
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DD_PACKAGE_CONTROL_HPP
-#define DD_PACKAGE_CONTROL_HPP
+#pragma once
 
 #include "Definitions.hpp"
 
@@ -59,5 +58,3 @@ inline Control operator""_pc(unsigned long long int qreg) {
 }
 } // namespace literals
 } // namespace dd
-
-#endif // DD_PACKAGE_CONTROL_HPP

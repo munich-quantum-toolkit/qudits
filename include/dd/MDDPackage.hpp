@@ -3,8 +3,7 @@
  * license. See file README.md or go to
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
-#ifndef DDMDDPackage_H
-#define DDMDDPackage_H
+#pragma once
 
 #include "Complex.hpp"
 #include "ComplexNumbers.hpp"
@@ -2038,5 +2037,3 @@ MDDPackage::getKroneckerComputeTable() {
 }
 
 } // namespace dd
-
-#endif

@@ -4,8 +4,7 @@
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DD_PACKAGE_COMPLEXCACHE_HPP
-#define DD_PACKAGE_COMPLEXCACHE_HPP
+#pragma once
 
 #include "Complex.hpp"
 #include "ComplexTable.hpp"
@@ -132,5 +131,3 @@ private:
   std::size_t peakCount = 0;
 };
 } // namespace dd
-
-#endif // DD_PACKAGE_COMPLEXCACHE_HPP

@@ -4,11 +4,11 @@
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DD_PACKAGE_COMPLEX_HPP
-#define DD_PACKAGE_COMPLEX_HPP
+#pragma once
 
 #include "ComplexTable.hpp"
 #include "ComplexValue.hpp"
+#include "Definitions.hpp"
 
 #include <cstddef>
 #include <iostream>
@@ -87,5 +87,3 @@ template <> struct hash<dd::Complex> {
   }
 };
 } // namespace std
-
-#endif // DD_PACKAGE_COMPLEX_HPP

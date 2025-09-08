@@ -4,10 +4,7 @@
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DDpackage_DATATYPES_HPP
-#define DDpackage_DATATYPES_HPP
-
-#include "MDDPackage.hpp"
+#pragma once
 
 #include <complex>
 #include <cstdint>
@@ -148,4 +145,3 @@ constexpr std::size_t combineHash(std::size_t lhs, std::size_t rhs) {
 }
 
 } // namespace dd
-#endif // DDpackage_DATATYPES_HPP

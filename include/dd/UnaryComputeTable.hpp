@@ -4,8 +4,7 @@
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DDpackage_UNARYCOMPUTETABLE_HPP
-#define DDpackage_UNARYCOMPUTETABLE_HPP
+#pragma once
 
 #include "Definitions.hpp"
 
@@ -87,5 +86,3 @@ private:
   std::size_t count = 0;
 };
 } // namespace dd
-
-#endif // DDpackage_UNARYCOMPUTETABLE_HPP
