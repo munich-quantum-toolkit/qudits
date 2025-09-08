@@ -2,6 +2,19 @@
 
 _MQT Qudits_ has a strong foundation in peer‑reviewed research.
 Many of its built‑in algorithms are based on methods published in scientific journals and conferences.
+For an overview of _MQT Qudits_ and its features, see {cite:p}`mato2024mqtquditssoftwareframework`.
+If you want to cite this article, please use the following BibTeX entry:
+
+```bibtex
+@misc{mato2024mqtquditssoftwareframework,
+  title        = {{{MQT}} Qudits: {{A}} Software Framework for Mixed-Dimensional Quantum Computing},
+  author       = {Mato, Kevin and Ringbauer, Martin and Burgholzer, Lukas and Wille, Robert},
+  year         = {2024},
+  url          = {https://arxiv.org/abs/2410.02854},
+  eprint       = {2410.02854},
+  eprinttype   = {arXiv}
+}
+```
 
 _MQT Qudits_ is part of the Munich Quantum Toolkit, which is described in {cite:p}`mqt`.
 If you want to cite the Munich Quantum Toolkit, please use the following BibTeX entry:

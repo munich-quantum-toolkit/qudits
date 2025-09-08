@@ -91,6 +91,21 @@ MQT Qudits is compatible with all [officially supported Python versions](https:/
 
 Please cite the work that best fits your use case.
 
+### MQT Qudits (the tool)
+
+When citing the software itself or results produced with it, cite the MQT Qudits paper:
+
+```bibtex
+@misc{mato2024mqtquditssoftwareframework,
+  title        = {{{MQT}} Qudits: {{A}} Software Framework for Mixed-Dimensional Quantum Computing},
+  author       = {Mato, Kevin and Ringbauer, Martin and Burgholzer, Lukas and Wille, Robert},
+  year         = {2024},
+  url          = {https://arxiv.org/abs/2410.02854},
+  eprint       = {2410.02854},
+  eprinttype   = {arXiv}
+}
+```
+
 ### The Munich Quantum Toolkit (the project)
 
 When discussing the overall MQT project or its ecosystem, cite the MQT Handbook:
@@ -113,27 +128,31 @@ When discussing the overall MQT project or its ecosystem, cite the MQT Handbook:
 
 When citing the underlying methods and research, please reference the most relevant peer-reviewed publications from the list below:
 
-[[1]](https://www.cda.cit.tum.de/files/eda/2024_dac_mixed_dimensional_qudit_state_preparation_using_edge_weighted_decision_diagrams.pdf)
+[[1]](https://arxiv.org/pdf/2410.02854)
+K. Mato, M. Ringbauer, L. Burgholzer, R. Wille.
+MQT Qudits: A Software Framework for Mixed-Dimensional Quantum Computing
+
+[[2]](https://www.cda.cit.tum.de/files/eda/2024_dac_mixed_dimensional_qudit_state_preparation_using_edge_weighted_decision_diagrams.pdf)
 K. Mato, S. Hillmich, and R. Wille.
 Mixed-Dimensional Qudit State Preparation Using Edge-Weighted Decision Diagrams.
 _Design Automation Conference (DAC)_, 2024
 
-[[2]](https://www.cda.cit.tum.de/files/eda/2023_qce_mixed_dimensional_quantum_circuit_simulation_with_decision_diagrams.pdf)
+[[3]](https://www.cda.cit.tum.de/files/eda/2023_qce_mixed_dimensional_quantum_circuit_simulation_with_decision_diagrams.pdf)
 K. Mato, S. Hillmich, and R. Wille.
 Mixed-Dimensional Quantum Circuit Simulation with Decision Diagrams.
 _International Conference on Quantum Computing and Engineering (QCE)_, 2023.
 
-[[3]](https://www.cda.cit.tum.de/files/eda/2023_qsw_compression_of_qubit_circuits.pdf)
+[[4]](https://www.cda.cit.tum.de/files/eda/2023_qsw_compression_of_qubit_circuits.pdf)
 K. Mato, S. Hillmich, and R. Wille.
 Compression of Qubit Circuits: Mapping to Mixed-Dimensional Quantum Systems.
 _International Conference on Quantum Software (QSW)_, 2023.
 
-[[4]](https://www.cda.cit.tum.de/files/eda/2023_aspdac_qudit_entanglement_compilation.pdf)
+[[5]](https://www.cda.cit.tum.de/files/eda/2023_aspdac_qudit_entanglement_compilation.pdf)
 K. Mato, M. Ringbauer, S. Hillmich, and R. Wille.
 Compilation of Entangling Gates for High-Dimensional Quantum Systems.
 _Asia and South Pacific Design Automation Conference (ASP-DAC)_, 2023.
 
-[[5]](https://www.cda.cit.tum.de/files/eda/2022_qce_adaptive_compilation_of_multi_level_quantum_operations.pdf)"
+[[6]](https://www.cda.cit.tum.de/files/eda/2022_qce_adaptive_compilation_of_multi_level_quantum_operations.pdf)"
 K. Mato, M. Ringbauer, S. Hillmich, and R. Wille.
 Adaptive Compilation of Multi-Level Quantum Operations.
 _International Conference on Quantum Computing and Engineering (QCE)_, 2022.
