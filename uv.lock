@@ -1452,6 +1452,7 @@ requires-dist = [
     { name = "numpy", marker = "python_full_version >= '3.12'", specifier = ">=1.26" },
     { name = "scipy", marker = "python_full_version < '3.12'", specifier = ">=1.10" },
     { name = "scipy", marker = "python_full_version >= '3.12'", specifier = ">=1.12" },
+    { name = "scipy", marker = "python_full_version >= '3.13'", specifier = ">=1.15" },
     { name = "tensornetwork", specifier = ">=0.4" },
     { name = "typing-extensions", specifier = ">=4.1" },
 ]
