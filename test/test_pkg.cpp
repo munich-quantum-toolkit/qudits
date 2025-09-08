@@ -1,6 +1,13 @@
+#include "dd/Control.hpp"
+#include "dd/Definitions.hpp"
+#include "dd/GateMatrixDefinitions.hpp"
 #include "dd/MDDPackage.hpp"
 
-#include "gtest/gtest.h"
+#include <cmath>
+#include <cstddef>
+#include <gtest/gtest.h>
+#include <stdexcept>
+#include <vector>
 
 using namespace dd::literals;
 
@@ -17,11 +24,11 @@ TEST(DDPackageTest, TrivialTest) {
   EXPECT_EQ(dd->qregisters(), 2);
 
   dd::ComplexValue const h3plus =
-      dd::COMPLEX_SQRT3_3 *
-      dd::ComplexValue{std::cos(2. * dd::PI / 3.), std::sin(2. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(2. * dd::PI / 3.),
+                                             .i = std::sin(2. * dd::PI / 3.)};
   dd::ComplexValue const h3minus =
-      dd::COMPLEX_SQRT3_3 *
-      dd::ComplexValue{std::cos(4. * dd::PI / 3.), std::sin(4. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(4. * dd::PI / 3.),
+                                             .i = std::sin(4. * dd::PI / 3.)};
 
   auto hGate0 = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, 0);
 
