@@ -1,7 +1,5 @@
-name: CD
+name: CD 🚀
 on:
-  push:
-    branches: [main]
   release:
     types: [published]
   workflow_dispatch:
@@ -12,37 +10,29 @@ permissions:
   id-token: write
 
 jobs:
-  # Builds the sdist and wheels on all supported platforms and uploads the resulting
-  # wheels as GitHub artifacts `dev-cibw-*`, `test-cibw-*`, or `cibw-*`, depending on
-  # whether the workflow is triggered from a PR, a push to main, or a release, respectively.
-  python-packaging:
+  build-sdist:
     name: 🐍 Packaging
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-python-packaging.yml@v1.16
-    with:
-      # Do not include local version information on pushes to main to facilitate TestPyPI uploads.
-      no-local-version: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-      # Do not build emulated wheels on pushes to main to reduce runner load for CD.
-      build-emulated-wheels: ${{ github.ref != 'refs/heads/main' || github.event_name != 'push' }}
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-sdist.yml@v1.16
 
-  # Downloads the previously generated artifacts and deploys to TestPyPI on pushes to main
-  deploy-test-pypi:
-    name: 🚀 Deploy to Test PyPI
-    runs-on: ubuntu-latest
-    environment:
-      name: test-pypi
-      url: https://test.pypi.org/p/mqt.qudits
-    needs: [python-packaging]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: test-cibw-*
-          path: dist
-          merge-multiple: true
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          attestations: true
+  # Builds wheels on all supported platforms using cibuildwheel.
+  # The wheels are uploaded as GitHub artifacts `dev-cibw-*` or `cibw-*`, depending on whether
+  # the workflow is triggered from a PR or a release, respectively.
+  build-wheel:
+    name: 🐍 Packaging
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          [
+            ubuntu-24.04,
+            ubuntu-24.04-arm,
+            macos-14,
+            windows-2022,
+            windows-11-arm,
+          ]
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-wheel-cibuildwheel.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
 
   # Downloads the previously generated artifacts and deploys to PyPI on published releases.
   deploy:
@@ -52,7 +42,7 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/mqt.qudits
-    needs: [python-packaging]
+    needs: [build-sdist, build-wheel]
     steps:
       - uses: actions/download-artifact@v4
         with:

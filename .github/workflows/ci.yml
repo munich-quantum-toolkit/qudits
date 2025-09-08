@@ -16,51 +16,159 @@ jobs:
     name: 🔍 Change
     uses: cda-tum/mqt-workflows/.github/workflows/reusable-change-detection.yml@v1.16
 
-  cpp-tests:
-    name: 🇨‌ Test
+  cpp-tests-ubuntu:
+    name: 🇨‌ Test 🐧
+    needs: change-detection
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
+        compiler: [gcc]
+        config: [Release]
+        include:
+          - runs-on: ubuntu-24.04
+            compiler: gcc
+            config: Debug
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-tests-ubuntu.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      compiler: ${{ matrix.compiler }}
+      config: ${{ matrix.config }}
+      cmake-args: -G Ninja
+
+  cpp-tests-macos:
+    name: 🇨‌ Test 🍎
+    needs: change-detection
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [macos-14]
+        compiler: [clang]
+        config: [Release, Debug]
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-tests-macos.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      compiler: ${{ matrix.compiler }}
+      config: ${{ matrix.config }}
+      cmake-args: -G Ninja -DMQT_CORE_WITH_GMP=ON
+
+  cpp-tests-windows:
+    name: 🇨‌ Test 🏁
+    needs: change-detection
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [windows-2022, windows-11-arm]
+        compiler: [msvc]
+        config: [Release]
+        include:
+          - runs-on: windows-2022
+            compiler: msvc
+            config: Debug
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-tests-windows.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      compiler: ${{ matrix.compiler }}
+      config: ${{ matrix.config }}
+      cmake-args: -T ClangCL
+
+  cpp-coverage:
+    name: 🇨‌ Coverage
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests)
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-cpp-ci.yml@v1.16
-    with:
-      cmake-args: ""
-      cmake-args-ubuntu: -G Ninja
-      cmake-args-macos: -G Ninja -DMQT_CORE_WITH_GMP=ON
-      cmake-args-windows: -T ClangCL
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-coverage.yml@v1.16
+    permissions:
+      contents: read
+      id-token: write
 
   cpp-linter:
     name: 🇨‌ Lint
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-linter)
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-cpp-linter.yml@v1.16
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-linter.yml@v1.16
+    with:
+      clang-version: 20
+      cmake-args: -DBUILD_MQT_QUDITS_BINDINGS=ON
+      files-changed-only: true
+      install-pkgs: "pybind11==3.0.0"
+      setup-python: true
 
   python-tests:
     name: 🐍 Test
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-python-tests)
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-python-ci.yml@v1.16
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-24.04, ubuntu-24.04-arm, macos-14, windows-2022]
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-tests.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
+
+  python-coverage:
+    name: 🐍 Coverage
+    needs: [change-detection, python-tests]
+    if: fromJSON(needs.change-detection.outputs.run-python-tests)
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-coverage.yml@v1.16
+    permissions:
+      contents: read
+      id-token: write
+
+  python-linter:
+    name: 🐍 Lint
+    needs: change-detection
+    if: fromJSON(needs.change-detection.outputs.run-python-tests)
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-linter.yml@v1.16
 
   code-ql:
     name: 📝 CodeQL
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-code-ql)
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-code-ql.yml@v1.16
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-code-ql.yml@v1.16
 
-  cd:
+  build-sdist:
     name: 🚀 CD
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cd)
-    uses: cda-tum/mqt-workflows/.github/workflows/reusable-python-packaging.yml@v1.16
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-sdist.yml@v1.16
+
+  build-wheel:
+    name: 🚀 CD
+    needs: change-detection
+    if: fromJSON(needs.change-detection.outputs.run-cd)
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          [
+            ubuntu-24.04,
+            ubuntu-24.04-arm,
+            macos-14,
+            windows-2022,
+            windows-11-arm,
+          ]
+    uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-wheel-cibuildwheel.yml@v1.16
+    with:
+      runs-on: ${{ matrix.runs-on }}
 
   required-checks-pass: # This job does nothing and is only used for branch protection
     name: 🚦 Check
     if: always()
     needs:
       - change-detection
-      - cpp-tests
+      - cpp-tests-ubuntu
+      - cpp-tests-macos
+      - cpp-tests-windows
+      - cpp-coverage
       - cpp-linter
       - python-tests
+      - python-linter
       - code-ql
-      - cd
+      - build-sdist
+      - build-wheel
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
@@ -69,7 +177,7 @@ jobs:
           allowed-skips: >-
             ${{
               fromJSON(needs.change-detection.outputs.run-cpp-tests)
-              && '' || 'cpp-tests,'
+              && '' || 'cpp-tests-ubuntu,cpp-tests-macos,cpp-tests-windows,'
             }}
             ${{
               fromJSON(needs.change-detection.outputs.run-cpp-linter)
@@ -85,6 +193,6 @@ jobs:
             }}
             ${{
               fromJSON(needs.change-detection.outputs.run-cd)
-              && '' || 'cd,'
+              && '' || 'build-sdist,build-wheel'
             }}
           jobs: ${{ toJSON(needs) }}
