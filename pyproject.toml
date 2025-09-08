@@ -45,6 +45,7 @@ dependencies = [
     "networkx>=3.0",
     "scipy>=1.10; python_version < '3.12'",
     "scipy>=1.12; python_version >= '3.12'",
+    "scipy>=1.15; python_version >= '3.13'",
     "h5py>=3.8; python_version >= '3.11'",
     "h5py>=3.11; python_version >= '3.12'",
     "h5py>=3.12.1; python_version >= '3.13'",
