@@ -90,7 +90,7 @@ jobs:
     if: fromJSON(needs.change-detection.outputs.run-cpp-linter)
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-linter.yml@v1.16
     with:
-      clang-version: 20
+      clang-version: 21
       cmake-args: -DBUILD_MQT_QUDITS_BINDINGS=ON
       files-changed-only: true
       install-pkgs: "pybind11==3.0.0"
