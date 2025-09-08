@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
-
 from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_unitary_sim
 from mqt.qudits.compiler.twodit.blocks.czrot import CZRotGen
 from mqt.qudits.quantum_circuit import QuantumCircuit

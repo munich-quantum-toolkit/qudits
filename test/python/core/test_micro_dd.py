@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
-
 from mqt.qudits.core.micro_dd import (
     create_decision_tree,
     cut_branches,
@@ -38,7 +37,7 @@ class TestMicroDD(TestCase):
         ]
         result_in_weight, result_out_weights = normalize(in_weight, out_weights)
         assert np.allclose(result_in_weight, expected_in_weight_result)
-        for result, expected in zip(result_out_weights, expected_out_weights_result):
+        for result, expected in zip(result_out_weights, expected_out_weights_result, strict=False):
             assert np.allclose(result, expected)
 
         # test_zero_out_weights
@@ -57,7 +56,7 @@ class TestMicroDD(TestCase):
         expected_out_weights_result = [(0 + 0j) / np.sqrt(3**2 + 4**2), (3 + 4j) / np.sqrt(3**2 + 4**2)]
         result_in_weight, result_out_weights = normalize(in_weight, out_weights)
         assert np.allclose(result_in_weight, expected_in_weight_result)
-        for result, expected in zip(result_out_weights, expected_out_weights_result):
+        for result, expected in zip(result_out_weights, expected_out_weights_result, strict=False):
             assert np.allclose(result, expected)
 
         # test_single_non_zero_weight

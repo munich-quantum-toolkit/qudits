@@ -4,7 +4,6 @@ import typing
 from unittest import TestCase
 
 import numpy as np
-
 from mqt.qudits.core.lanes import Lanes
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.gates import CEx, CustomMulti, R

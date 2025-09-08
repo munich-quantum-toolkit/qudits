@@ -4,7 +4,6 @@ import typing
 from unittest import TestCase
 
 import numpy as np
-
 from mqt.qudits._qudits.misim import state_vector_simulation  # noqa: PLC2701
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister

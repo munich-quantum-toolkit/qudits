@@ -5,7 +5,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory, SubspaceNoise

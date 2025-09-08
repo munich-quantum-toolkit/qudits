@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
-
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
 from mqt.qudits.quantum_circuit.components import ClassicRegister
 
