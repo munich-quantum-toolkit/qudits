@@ -36,8 +36,6 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       cmake-args: -G Ninja
-    permissions:
-      contents: read
 
   cpp-tests-macos:
     name: 🇨‌ Test 🍎
@@ -55,8 +53,6 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       cmake-args: -G Ninja -DMQT_CORE_WITH_GMP=ON
-    permissions:
-      contents: read
 
   cpp-tests-windows:
     name: 🇨‌ Test 🏁
@@ -78,8 +74,6 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       cmake-args: -T ClangCL
-    permissions:
-      contents: read
 
   cpp-coverage:
     name: 🇨‌ Coverage
