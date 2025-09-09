@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   change-detection:
     name: 🔍 Change
@@ -18,8 +21,6 @@ jobs:
 
   cpp-tests-ubuntu:
     name: 🇨‌ Test 🐧
-    permissions:
-      contents: read
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
     strategy:
@@ -41,8 +42,6 @@ jobs:
 
   cpp-tests-macos:
     name: 🇨‌ Test 🍎
-    permissions:
-      contents: read
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
     strategy:
@@ -60,8 +59,6 @@ jobs:
 
   cpp-tests-windows:
     name: 🇨‌ Test 🏁
-    permissions:
-      contents: read
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
     strategy:
@@ -129,15 +126,11 @@ jobs:
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-python-tests)
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-linter.yml@v1.16
-    permissions:
-      contents: read
 
   build-sdist:
     name: 🚀 CD
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cd)
-    permissions:
-      contents: read
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-sdist.yml@v1.16
 
   build-wheel:
@@ -174,8 +167,6 @@ jobs:
       - build-sdist
       - build-wheel
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
