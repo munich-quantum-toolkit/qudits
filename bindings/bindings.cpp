@@ -79,20 +79,6 @@ void printNoiseType(const NoiseType& noiseType, int indent = 0) {
   }
 }
 
-// Function to print NoiseModel
-void printNoiseModel(const NoiseModel& noiseModel) {
-  for (const auto& [key, noiseType] : noiseModel) {
-    std::cout << key << ":\n";
-    printNoiseType(noiseType, 1);
-  }
-}
-
-void printCvec(CVec& vector) {
-  for (const auto& cn : vector) {
-    std::cout << cn << "\n";
-  }
-}
-
 void printCircuit(const Circuit& circuit) {
   for (const auto& instruction : circuit) {
     auto [tag, dag, dims, gate_type, target_qudits, params, control_set] =
