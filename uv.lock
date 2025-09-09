@@ -1468,8 +1468,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "h5py", marker = "python_full_version >= '3.11'", specifier = ">=3.8" },
-    { name = "h5py", marker = "python_full_version >= '3.12'", specifier = ">=3.11" },
-    { name = "h5py", marker = "python_full_version >= '3.13'", specifier = ">=3.12.1" },
+    { name = "h5py", marker = "python_full_version >= '3.12'", specifier = ">=3.12.1" },
     { name = "matplotlib", marker = "python_full_version < '3.12'", specifier = ">=3.7" },
     { name = "matplotlib", marker = "python_full_version >= '3.12'", specifier = ">=3.8" },
     { name = "matplotlib", marker = "python_full_version >= '3.13'", specifier = ">=3.10" },
