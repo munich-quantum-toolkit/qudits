@@ -56,6 +56,8 @@ jobs:
 
   cpp-tests-windows:
     name: 🇨‌ Test 🏁
+    permissions:
+      contents: read
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
     strategy:
