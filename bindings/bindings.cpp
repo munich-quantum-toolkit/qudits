@@ -810,6 +810,7 @@ py::list stateVectorSimulation(py::object& circ, py::object& noiseModel) {
 
 } // namespace
 
+// NOLINTNEXTLINE(misc-include-cleaner)
 PYBIND11_MODULE(MQT_QUDITS_MODULE_NAME, m, py::mod_gil_not_used()) {
   auto misim = m.def_submodule("misim");
   misim.def("state_vector_simulation", &stateVectorSimulation, "circuit"_a,

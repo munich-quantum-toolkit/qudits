@@ -14,6 +14,7 @@
 #include "dd/GateMatrixDefinitions.hpp"
 #include "dd/MDDPackage.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <fstream>
@@ -22,8 +23,10 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <random>
 #include <sstream>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -356,7 +359,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
         std::vector<std::size_t> controlParticles;
         controlParticles.resize(numberOfControls);
         std::ranges::sample(controlLines, std::back_inserter(controlParticles),
-                            numberOfControls, gen);
+                            static_cast<long>(numberOfControls), gen);
         std::ranges::sort(controlParticles);
 
         dd::Controls control{};
