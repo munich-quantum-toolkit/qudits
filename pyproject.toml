@@ -61,6 +61,7 @@ dependencies = [
     "tensornetwork>=0.4",
     "matplotlib>=3.7; python_version < '3.12'",
     "matplotlib>=3.8; python_version >= '3.12'",
+    "matplotlib>=3.10; python_version >= '3.13'",
     "typing-extensions>=4.1",
 ]
 dynamic = ["version"]
