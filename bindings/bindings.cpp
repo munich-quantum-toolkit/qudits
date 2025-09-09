@@ -58,27 +58,6 @@ using CVec = std::vector<std::complex<double>>;
 // PRINTING FUNCTIONS
 // =======================================================================================================
 
-// Function to print NoiseType
-void printNoiseType(const NoiseType& noiseType, int indent = 0) {
-  for (const auto& [key, noise] : noiseType) {
-    // Print the key
-    for (int i = 0; i < indent; ++i)
-      std::cout << "    ";
-    if (std::holds_alternative<std::string>(key))
-      std::cout << std::get<std::string>(key) << " -> ";
-    else {
-      std::cout << "[";
-      for (const int val : std::get<std::vector<int>>(key))
-        std::cout << val << " ";
-      std::cout << "] -> ";
-    }
-
-    // Print the noise tuple
-    std::cout << "(" << std::get<0>(noise) << ", " << std::get<1>(noise)
-              << ")\n";
-  }
-}
-
 void printCircuit(const Circuit& circuit) {
   for (const auto& instruction : circuit) {
     auto [tag, dag, dims, gate_type, target_qudits, params, control_set] =
