@@ -7,7 +7,7 @@ If you want to cite this article, please use the following BibTeX entry:
 
 ```bibtex
 @misc{mato2024mqtquditssoftwareframework,
-  title        = {{{MQT}} Qudits: {{A}} Software Framework for Mixed-Dimensional Quantum Computing},
+  title        = {{{MQT Qudits}}: {{A}} Software Framework for Mixed-Dimensional Quantum Computing},
   author       = {Mato, Kevin and Ringbauer, Martin and Burgholzer, Lukas and Wille, Robert},
   year         = {2024},
   url          = {https://arxiv.org/abs/2410.02854},
