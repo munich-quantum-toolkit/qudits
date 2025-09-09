@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -359,7 +360,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
         std::vector<std::size_t> controlParticles;
         controlParticles.resize(numberOfControls);
         std::ranges::sample(controlLines, std::back_inserter(controlParticles),
-                            static_cast<long>(numberOfControls), gen);
+                            static_cast<std::int64_t>(numberOfControls), gen);
         std::ranges::sort(controlParticles);
 
         dd::Controls control{};
