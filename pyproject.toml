@@ -50,6 +50,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.24; python_version < '3.12'",
     "numpy>=1.26; python_version >= '3.12'",
+    "numpy>=2.1; python_version >= '3.13'",
     "networkx>=3.0",
     "scipy>=1.10; python_version < '3.12'",
     "scipy>=1.12; python_version >= '3.12'",
