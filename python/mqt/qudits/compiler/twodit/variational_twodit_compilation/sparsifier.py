@@ -11,7 +11,6 @@ from __future__ import annotations
 import copy
 import typing
 from itertools import starmap
-from random import uniform
 
 import numpy as np
 from scipy.optimize import minimize
@@ -134,7 +133,8 @@ def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
     Optimizer.set_class_variables(m, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()
 
-    initial_thetas = np.array(list(starmap(uniform, bounds)))
+    rng = np.random.default_rng()
+    initial_thetas = np.array(list(starmap(rng.uniform, bounds)))
 
     # Optimize the rotation angles
     result = minimize(objective_function, initial_thetas, args=(m, dims), bounds=bounds)
