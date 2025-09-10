@@ -161,7 +161,7 @@ _International Conference on Quantum Computing and Engineering (QCE)_, 2022.
 
 ## Acknowledgements
 
-MQT Qudits is the result of the project NeQST funded by the European Union under the Horizon Europe programme (grant agreement No. 101080086).
+MQT Qudits is the result of the project NeQST funded by the European Union under the Horizon Europe program (grant agreement No. 101080086).
 However, views and opinions expressed are those of the author(s) only and do not necessarily reflect those of the European Union or the European Commission.
 Neither the European Union nor the granting authority can be held responsible for them.
 
