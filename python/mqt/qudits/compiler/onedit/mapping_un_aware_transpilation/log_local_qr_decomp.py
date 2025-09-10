@@ -86,7 +86,7 @@ class QrDecomp:
                             self.gate.parent_circuit,
                             "VRz",
                             cast("int", self.gate.target_qudits),
-                            [self.graph.nodes[i], theta_z],
+                            [list(self.graph)[i], theta_z],
                             cast("int", self.gate.dimensions),
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension) # [self.graph.nodes[i]["lpmap"], thetaZ],
                         decomp.append(phase_gate)

@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-from scipy.linalg import expm  # type: ignore[import-not-found]
+from scipy.linalg import expm
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
