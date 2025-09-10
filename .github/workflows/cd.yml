@@ -44,7 +44,7 @@ jobs:
       url: https://pypi.org/p/mqt.qudits
     needs: [build-sdist, build-wheel]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: cibw-*
           path: dist
