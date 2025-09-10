@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, cast
 
-import networkx as nx  # type: ignore[import-not-found]
+import networkx as nx
 import numpy as np
 
 from ....quantum_circuit import gates

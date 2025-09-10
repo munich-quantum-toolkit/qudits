@@ -47,13 +47,13 @@ def prepare_ansatz(
     return unitary
 
 
-def cu_ansatz(p: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def cu_ansatz(p: NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(p, dims)
     cu = Primitive.CUSTOM_PRIMITIVE
     return prepare_ansatz(cu, params, dims)
 
 
-def ms_ansatz(p: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def ms_ansatz(p: NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(p, dims)
     ms = gates.MS(QuantumCircuit(2, dims, 0), "MS", [0, 1], [np.pi / 2], dims).to_matrix(
         identities=0
@@ -62,7 +62,7 @@ def ms_ansatz(p: list[float], dims: list[int]) -> NDArray[np.complex128]:
     return prepare_ansatz(ms, params, dims)
 
 
-def ls_ansatz(p: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def ls_ansatz(p: NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(p, dims)
 
     if 2 in dims:

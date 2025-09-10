@@ -52,7 +52,8 @@ def phy_sdit_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
 
     for gate in circuit.instructions:
         state = gate.to_matrix(identities=2) @ state
-    return state
+
+    return np.asarray(state, dtype=np.complex128)
 
 
 class UnitaryVerifier:

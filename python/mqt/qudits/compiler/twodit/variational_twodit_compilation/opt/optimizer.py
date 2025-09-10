@@ -12,7 +12,7 @@ from __future__ import annotations
 import typing
 
 import numpy as np
-from scipy.optimize import dual_annealing  # type: ignore[import-not-found]
+from scipy.optimize import dual_annealing
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz import cu_ansatz, ls_ansatz, ms_ansatz, reindex
 from mqt.qudits.exceptions import FidelityReachError
@@ -95,7 +95,7 @@ class Optimizer:
         return bounds
 
     @classmethod
-    def obj_fun_core(cls, ansatz: NDArray[np.complex128], lambdas: list[float]) -> float:
+    def obj_fun_core(cls, ansatz: NDArray[np.complex128], lambdas: NDArray[np.float64]) -> float:
         if (1 - fidelity_on_unitares(ansatz, cls.TARGET_GATE)) < cls.OBJ_FIDELITY:
             cls.X_SOLUTION = lambdas
             cls.FUN_SOLUTION = 1 - fidelity_on_unitares(ansatz, cls.TARGET_GATE)
@@ -107,17 +107,17 @@ class Optimizer:
         return 1 - fidelity_on_unitares(ansatz, cls.TARGET_GATE)
 
     @classmethod
-    def objective_fnc_ms(cls, lambdas: list[float]) -> float:
+    def objective_fnc_ms(cls, lambdas: NDArray[np.float64]) -> float:
         ansatz = ms_ansatz(lambdas, [cls.SINGLE_DIM_0, cls.SINGLE_DIM_1])
         return cls.obj_fun_core(ansatz, lambdas)
 
     @classmethod
-    def objective_fnc_ls(cls, lambdas: list[float]) -> float:
+    def objective_fnc_ls(cls, lambdas: NDArray[np.float64]) -> float:
         ansatz = ls_ansatz(lambdas, [cls.SINGLE_DIM_0, cls.SINGLE_DIM_1])
         return cls.obj_fun_core(ansatz, lambdas)
 
     @classmethod
-    def objective_fnc_cu(cls, lambdas: list[float]) -> float:
+    def objective_fnc_cu(cls, lambdas: NDArray[np.float64]) -> float:
         ansatz = cu_ansatz(lambdas, [cls.SINGLE_DIM_0, cls.SINGLE_DIM_1])
         return cls.obj_fun_core(ansatz, lambdas)
 
@@ -136,7 +136,8 @@ class Optimizer:
             elif ansatz_type == "CU":
                 opt = dual_annealing(cls.objective_fnc_cu, bounds=bounds)
             else:
-                opt = None
+                msg = f"Invalid ansatz type: {ansatz_type}"
+                raise ValueError(msg)
 
             x = opt.x
             fun = opt.fun

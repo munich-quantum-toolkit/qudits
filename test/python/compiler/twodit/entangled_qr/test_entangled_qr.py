@@ -12,7 +12,7 @@ import typing
 from unittest import TestCase
 
 import numpy as np
-from scipy.stats import unitary_group  # type: ignore[import-not-found]
+from scipy.stats import unitary_group
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX

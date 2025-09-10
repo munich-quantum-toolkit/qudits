@@ -11,7 +11,7 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING, TypeVar, cast
 
-import networkx as nx  # type: ignore[import-not-found]
+import networkx as nx
 import numpy as np
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
-class LevelGraph(nx.Graph):  # type: ignore[misc]
+class LevelGraph(nx.Graph):  # type: ignore [type-arg]
     def __init__(
         self,
         edges: list[tuple[int, int, dict[str, int]]],
@@ -137,7 +137,7 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
         raise ValueError(msg)
 
     def swap_node_attributes(self, node_a: int, node_b: int) -> NodesWithAttributes:
-        nodelistcopy = cast("NodesWithAttributes", self.deep_copy_func(list(self.nodes(data=True))))
+        nodelistcopy = self.deep_copy_func(list(self.nodes(data=True)))
         node_a_index = self.index(nodelistcopy, node_a)
         node_b_index = self.index(nodelistcopy, node_b)
 

@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+from scipy.linalg import expm
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
@@ -23,8 +24,6 @@ if TYPE_CHECKING:
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
     from ..gate import Parameter
-
-from scipy.linalg import expm  # type: ignore[import-not-found]
 
 
 class LS(Gate):
