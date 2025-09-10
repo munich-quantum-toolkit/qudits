@@ -1,6 +1,32 @@
+/*
+ * Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+ * Copyright (c) 2025 Munich Quantum Software Company GmbH
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Licensed under the MIT License
+ */
+
+#include "dd/ComplexTable.hpp"
+#include "dd/ComplexValue.hpp"
+#include "dd/Control.hpp"
+#include "dd/Definitions.hpp"
+#include "dd/GateMatrixDefinitions.hpp"
 #include "dd/MDDPackage.hpp"
 
-#include "gtest/gtest.h"
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <gtest/gtest.h>
+#include <iostream>
+#include <limits>
+#include <map>
+#include <memory>
+#include <random>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 using namespace dd::literals;
 
@@ -17,11 +43,11 @@ TEST(DDPackageTest, TrivialTest) {
   EXPECT_EQ(dd->qregisters(), 2);
 
   dd::ComplexValue const h3plus =
-      dd::COMPLEX_SQRT3_3 *
-      dd::ComplexValue{std::cos(2. * dd::PI / 3.), std::sin(2. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(2. * dd::PI / 3.),
+                                             .i = std::sin(2. * dd::PI / 3.)};
   dd::ComplexValue const h3minus =
-      dd::COMPLEX_SQRT3_3 *
-      dd::ComplexValue{std::cos(4. * dd::PI / 3.), std::sin(4. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(4. * dd::PI / 3.),
+                                             .i = std::sin(4. * dd::PI / 3.)};
 
   auto hGate0 = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, 0);
 
@@ -647,8 +673,8 @@ TEST(DDPackageTest, FullMixWState) {
       for (auto& index : indexes) {
         for (auto& f : index) {
           f = static_cast<dd::QuantumRegister>(
-              f +
-              f * (static_cast<dd::QuantumRegister>(orderOfLayers.at(i) - 1)));
+              f + (f * (static_cast<dd::QuantumRegister>(orderOfLayers.at(i) -
+                                                         1))));
         }
       }
       std::vector<dd::QuantumRegister> toAdd{};
@@ -769,13 +795,17 @@ TEST(DDPackageTest, GHZQutritStateScaled) {
     auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), i, 0);
     std::vector<dd::MDDPackage::mEdge> gates = {};
 
-    for (int target = 1; target < i; target++) {
+    for (int target = 1; std::cmp_less(target, i); target++) {
       dd::Controls target1{};
       dd::Controls target2{};
 
       for (int control = 0; control < target; control++) {
-        const dd::Control c1{static_cast<dd::QuantumRegister>(control), 1};
-        const dd::Control c2{static_cast<dd::QuantumRegister>(control), 2};
+        const dd::Control c1{.quantumRegister =
+                                 static_cast<dd::QuantumRegister>(control),
+                             .type = 1};
+        const dd::Control c2{.quantumRegister =
+                                 static_cast<dd::QuantumRegister>(control),
+                             .type = 2};
         target1.insert(c1);
         target2.insert(c2);
       }
@@ -793,7 +823,7 @@ TEST(DDPackageTest, GHZQutritStateScaled) {
       evolution = dd->multiply(gate, evolution);
     }
     if (dd->qregisters() < 10) {
-      std::cout << "\n" << std::endl;
+      std::cout << "\n";
       dd->printVector(evolution);
     }
 
@@ -822,7 +852,7 @@ TEST(DDPackageTest, RandomCircuits) {
 
   std::uniform_int_distribution<std::size_t> dimdistr(2, maxD);
   particles.reserve(width);
-  for (auto i = 0; i < width; i++) {
+  for (auto i = 0; std::cmp_less(i, width); i++) {
     particles.emplace_back(dimdistr(gen));
   }
 
@@ -834,8 +864,7 @@ TEST(DDPackageTest, RandomCircuits) {
 
   std::cout << "\n"
             << "STARTED"
-            << "\n"
-            << std::endl;
+            << "\n";
 
   std::uniform_int_distribution<> pickbool(0, 1);
   std::uniform_int_distribution<unsigned int> pickcontrols(1, width - 1);
@@ -853,8 +882,7 @@ TEST(DDPackageTest, RandomCircuits) {
         if (localChoice == 0) { // hadamard
           std::cout << "\n"
                     << "hadamard"
-                    << "\n"
-                    << std::endl;
+                    << "\n";
           if (particles.at(line) == 2) {
             auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::H(), width, static_cast<dd::QuantumRegister>(line));
@@ -875,8 +903,7 @@ TEST(DDPackageTest, RandomCircuits) {
         } else { // givens
           std::cout << "\n"
                     << "givens"
-                    << "\n"
-                    << std::endl;
+                    << "\n";
           if (particles.at(line) == 2) {
             double const theta = 0.;
             double const phi = 0.;
@@ -940,8 +967,7 @@ TEST(DDPackageTest, RandomCircuits) {
       } else { // entangling
         std::cout << "\n"
                   << "entangling"
-                  << "\n"
-                  << std::endl;
+                  << "\n";
 
         auto entChoice = pickbool(gen);
         auto numberOfControls = pickcontrols(gen);
@@ -954,10 +980,10 @@ TEST(DDPackageTest, RandomCircuits) {
           }
         }
 
-        std::shuffle(begin(controlLines), end(controlLines), gen);
+        std::ranges::shuffle(controlLines, gen);
         std::vector<std::size_t> controlParticles(
             controlLines.begin(), controlLines.begin() + numberOfControls);
-        std::sort(controlParticles.begin(), controlParticles.end());
+        std::ranges::sort(controlParticles);
 
         dd::Controls control{};
         for (std::size_t i = 0; i < numberOfControls; i++) {
@@ -966,8 +992,9 @@ TEST(DDPackageTest, RandomCircuits) {
           auto level = picklevel(gen);
 
           const dd::Control c{
-              static_cast<dd::QuantumRegister>(controlParticles.at(i)),
-              static_cast<dd::Control::Type>(level)};
+              .quantumRegister =
+                  static_cast<dd::QuantumRegister>(controlParticles.at(i)),
+              .type = static_cast<dd::Control::Type>(level)};
           control.insert(c);
         }
 
@@ -975,8 +1002,7 @@ TEST(DDPackageTest, RandomCircuits) {
           // selection of controls
           std::cout << "\n"
                     << "CEX"
-                    << "\n"
-                    << std::endl;
+                    << "\n";
           if (particles.at(line) == 2) {
             double const theta = angles(gen);
             double const phi = angles(gen);
@@ -1039,8 +1065,7 @@ TEST(DDPackageTest, RandomCircuits) {
         } else { // Controlled clifford
           std::cout << "\n"
                     << "clifford"
-                    << "\n"
-                    << std::endl;
+                    << "\n";
           if (particles.at(line) == 2) {
             auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::Xmat, width, control,

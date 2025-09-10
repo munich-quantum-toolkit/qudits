@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -13,7 +21,7 @@ if TYPE_CHECKING:
 
 class TestRandU(TestCase):
     @staticmethod
-    def is_unitary(matrix: NDArray[np.complex128, np.complex128]) -> bool:
+    def is_unitary(matrix: NDArray[np.complex128]) -> bool:
         conjugate_transpose = np.conjugate(matrix.T)
         product = np.dot(matrix, conjugate_transpose)
         identity_matrix = np.eye(matrix.shape[0])

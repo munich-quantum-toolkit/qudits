@@ -1,11 +1,20 @@
 /*
+ * Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+ * Copyright (c) 2025 Munich Quantum Software Company GmbH
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Licensed under the MIT License
+ */
+
+/*
  * This file is part of the MQT DD Package which is released under the MIT
  * license. See file README.md or go to
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DD_PACKAGE_COMPLEXVALUE_HPP
-#define DD_PACKAGE_COMPLEXVALUE_HPP
+#pragma once
 
 #include "ComplexTable.hpp"
 #include "Definitions.hpp"
@@ -275,4 +284,3 @@ template <> struct hash<dd::ComplexValue> {
   }
 };
 } // namespace std
-#endif // DD_PACKAGE_COMPLEXVALUE_HPP

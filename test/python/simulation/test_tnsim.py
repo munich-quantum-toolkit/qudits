@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 from unittest import TestCase
@@ -175,7 +183,9 @@ class TestTNSim(TestCase):
 
                 zero_state = np.zeros(d1 * d2)
                 zero_state[0] = 1
-                test_state = csum.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2))) @ zero_state
+                test_state = (
+                    csum.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2)).astype(np.complex128)) @ zero_state
+                )
 
                 job = backend.run(circuit)
                 result = job.result()
@@ -193,7 +203,9 @@ class TestTNSim(TestCase):
                 zero_state = np.zeros(d1 * d2)
                 zero_state[0] = 1
 
-                test_state = csum.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix())) @ zero_state
+                test_state = (
+                    csum.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix()).astype(np.complex128)) @ zero_state
+                )
 
                 job = backend.run(circuit)
                 result = job.result()
@@ -216,7 +228,11 @@ class TestTNSim(TestCase):
 
                             zero_state = np.zeros(d1 * d2)
                             zero_state[0] = 1
-                            test_state = cx.to_matrix() @ (np.kron(h.to_matrix(), np.identity(d2))) @ zero_state
+                            test_state = (
+                                cx.to_matrix()
+                                @ (np.kron(h.to_matrix(), np.identity(d2)).astype(np.complex128))
+                                @ zero_state
+                            )
 
                             job = backend.run(circuit)
                             result = job.result()
@@ -237,7 +253,11 @@ class TestTNSim(TestCase):
                             zero_state = np.zeros(d1 * d2)
                             zero_state[0] = 1
 
-                            test_state = cx.to_matrix() @ (np.kron(np.identity(d1), h.to_matrix())) @ zero_state
+                            test_state = (
+                                cx.to_matrix()
+                                @ (np.kron(np.identity(d1), h.to_matrix()).astype(np.complex128))
+                                @ zero_state
+                            )
 
                             job = backend.run(circuit)
                             result = job.result()

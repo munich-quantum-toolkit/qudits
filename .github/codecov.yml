@@ -29,7 +29,7 @@ flag_management:
 
     - name: python
       paths:
-        - "src/mqt/**/*.py"
+        - "python/mqt/**/*.py"
 
       statuses:
         - type: project

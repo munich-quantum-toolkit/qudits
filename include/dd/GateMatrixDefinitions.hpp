@@ -1,11 +1,20 @@
 /*
+ * Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+ * Copyright (c) 2025 Munich Quantum Software Company GmbH
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Licensed under the MIT License
+ */
+
+/*
  * This file is part of the MQT DD Package which is released under the MIT
  * license. See file README.md or go to
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DD_PACKAGE_GATEMATRIXDEFINITIONS_H
-#define DD_PACKAGE_GATEMATRIXDEFINITIONS_H
+#pragma once
 
 #include "ComplexValue.hpp"
 #include "Definitions.hpp"
@@ -1150,4 +1159,3 @@ inline SeptMatrix embX7(fp phi, size_t leva, size_t levb) {
 
 // NOLINTEND(readability-identifier-naming)
 } // namespace dd
-#endif // DD_PACKAGE_GATEMATRIXDEFINITIONS_H

@@ -1,4 +1,10 @@
-set(MQT_QUDITS_TARGET_NAME "mqt-qudits")
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
 
 if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
   # collect headers
@@ -16,8 +22,6 @@ if(NOT TARGET ${MQT_QUDITS_TARGET_NAME})
 
   # add MQT alias
   add_library(MQT::Qudits ALIAS ${MQT_QUDITS_TARGET_NAME})
-endif()
 
-if(BUILD_MQT_QUDITS_BINDINGS)
-  add_subdirectory(python)
+  target_compile_features(${MQT_QUDITS_TARGET_NAME} INTERFACE cxx_std_20)
 endif()
