@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 """Sphinx configuration file."""
 
 from __future__ import annotations
@@ -38,9 +46,9 @@ except ModuleNotFoundError:
 release = version.split("+")[0]
 
 project = "MQT Qudits"
-author = "Chair for Design Automation, Technical University of Munich"
+author = "Chair for Design Automation, TUM & Munich Quantum Software Company"
 language = "en"
-project_copyright = "2024, Chair for Design Automation, Technical University of Munich"
+project_copyright = "2023 - 2025 Chair for Design Automation, TUM & 2025 Munich Quantum Software Company"
 
 master_doc = "index"
 
@@ -131,7 +139,7 @@ copybutton_line_continuation_character = "\\"
 
 modindex_common_prefix = ["mqt.qudits."]
 
-autoapi_dirs = ["../src/mqt"]
+autoapi_dirs = ["../python/mqt"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_root = "api"
 autoapi_add_toctree_entry = False
@@ -159,7 +167,7 @@ html_static_path = ["_static"]
 html_theme_options = {
     "light_logo": "mqt_dark.png",
     "dark_logo": "mqt_light.png",
-    "source_repository": "https://github.com/cda-tum/mqt-qudits/",
+    "source_repository": "https://github.com/munich-quantum-toolkit/qudits/",
     "source_branch": "main",
     "source_directory": "docs/",
     "navigation_with_keys": True,

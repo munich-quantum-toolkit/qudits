@@ -1,13 +1,20 @@
 /*
+ * Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+ * Copyright (c) 2025 Munich Quantum Software Company GmbH
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Licensed under the MIT License
+ */
+
+/*
  * This file is part of the MQT DD Package which is released under the MIT
  * license. See file README.md or go to
  * https://www.cda.cit.tum.de/research/quantum_dd/ for more information.
  */
 
-#ifndef DDpackage_DATATYPES_HPP
-#define DDpackage_DATATYPES_HPP
-
-#include "MDDPackage.hpp"
+#pragma once
 
 #include <complex>
 #include <cstdint>
@@ -148,4 +155,3 @@ constexpr std::size_t combineHash(std::size_t lhs, std::size_t rhs) {
 }
 
 } // namespace dd
-#endif // DDpackage_DATATYPES_HPP

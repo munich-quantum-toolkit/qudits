@@ -57,6 +57,12 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
 
+  # Check for license headers
+  - repo: https://github.com/emzeat/mz-lictools
+    rev: v2.8.0
+    hooks:
+      - id: license-tools
+
   # Python linting using ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.4
@@ -70,7 +76,7 @@ repos:
     rev: v1.14.0
     hooks:
       - id: mypy
-        files: ^(src/mqt|test/python)
+        files: ^(python/mqt|test/python)
         args: []
         additional_dependencies:
           - pytest

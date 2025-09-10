@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 import typing
@@ -21,11 +29,6 @@ def rand_0_5() -> int:
 
 def is_quantum_state(state: NDArray[np.complex128]) -> bool:
     """Check if a given NumPy array represents a valid quantum state vector."""
-    # Check if the input is a NumPy array
-    if not isinstance(state, np.ndarray):
-        print("Input is not a NumPy array")
-        return False
-
     # Squeeze the array to one dimension
     state = np.squeeze(state)
 

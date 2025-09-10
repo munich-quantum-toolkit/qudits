@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 import typing
@@ -15,8 +23,8 @@ if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
-    return unitary_group.rvs(n)
+def random_unitary_matrix(n: int) -> NDArray[np.complex128]:
+    return np.asarray(unitary_group.rvs(n), dtype=np.complex128)
 
 
 class TestEntangledQR(TestCase):
@@ -36,7 +44,7 @@ class TestEntangledQR(TestCase):
         for rotation in decomp:
             target = rotation.to_matrix(identities=2) @ target
         target /= target[0][0]
-        res = (abs(target - np.identity(15, dtype="complex")) < 10e-5).all()
+        res = (abs(target - np.identity(15, dtype=np.complex128)) < 10e-5).all()
         assert res
 
     @staticmethod

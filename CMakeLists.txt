@@ -1,3 +1,11 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 # set required cmake version
 cmake_minimum_required(VERSION 3.19...3.30)
 
@@ -31,7 +39,7 @@ if(BUILD_MQT_QUDITS_BINDINGS)
 
   # top-level call to find Python
   find_package(
-    Python 3.9 REQUIRED
+    Python 3.10 REQUIRED
     COMPONENTS Interpreter Development.Module
     OPTIONAL_COMPONENTS Development.SABIModule)
 endif()
@@ -50,8 +58,14 @@ include(cmake/ExternalDependencies.cmake)
 # set the include directory for the build tree
 set(MQT_QUDITS_INCLUDE_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+set(MQT_QUDITS_TARGET_NAME "mqt-qudits")
+
 # add main library code
 add_subdirectory(src)
+
+if(BUILD_MQT_QUDITS_BINDINGS)
+  add_subdirectory(bindings)
+endif()
 
 # add test code
 if(BUILD_MQT_QUDITS_TESTS)

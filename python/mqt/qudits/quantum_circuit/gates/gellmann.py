@@ -1,0 +1,102 @@
+# Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
+# Copyright (c) 2025 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, cast
+
+import numpy as np
+
+from ..components.extensions.gate_types import GateTypes
+from ..gate import Gate
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+    from ..circuit import QuantumCircuit
+    from ..components.extensions.controls import ControlData
+    from ..gate import Parameter
+
+
+class GellMann(Gate):
+    """Gate used as generator for Givens rotations."""
+
+    def __init__(
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: int,
+        parameters: list[int | str],
+        dimensions: int,
+        controls: ControlData | None = None,
+    ) -> None:
+        assert self.validate_parameter(parameters), "Invalid parameters"
+        super().__init__(
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
+            qasm_tag="gell",
+            lev_a=cast("int", parameters[0]),
+            lev_b=cast("int", parameters[1]),
+            params=parameters,
+        )
+        self.type_m = cast("str", parameters[2])
+
+    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+        d = self._dimensions
+        assert isinstance(d, int)
+
+        matrix = np.zeros((d, d), dtype=np.complex128)
+
+        if self.type_m == "s":
+            matrix[self.lev_a, self.lev_b] = 1
+            matrix[self.lev_b, self.lev_a] = 1
+        elif self.type_m == "a":
+            matrix[self.lev_a, self.lev_b] -= 1j
+            matrix[self.lev_b, self.lev_a] += 1j
+        else:
+            m = np.zeros((d, d), dtype=np.complex128)
+
+            for j_ind in range(self.lev_b):
+                m[j_ind, j_ind] += 1
+
+            m[self.lev_b, self.lev_b] -= self.lev_b
+
+            coeff = np.sqrt(2 / (self.lev_b * (self.lev_b + 1)))
+
+            m = coeff * m
+
+            matrix = m
+
+        return matrix
+
+    @staticmethod
+    def validate_parameter(parameter: Parameter) -> bool:
+        if parameter is None:
+            return False
+
+        if isinstance(parameter, list):
+            parameter = cast("list[int | str]", parameter)
+            assert isinstance(parameter[0], int)
+            assert isinstance(parameter[1], int)
+            assert isinstance(parameter[2], str)
+            assert 0 <= parameter[0] < parameter[1], (
+                f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
+            )
+            assert isinstance(parameter[2], str), "type parameter should be a string"
+
+            return True
+
+        if isinstance(parameter, np.ndarray):
+            # Add validation for numpy array if needed
+            return False
+
+        return False
