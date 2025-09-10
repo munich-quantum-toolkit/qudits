@@ -152,7 +152,7 @@ K. Mato, M. Ringbauer, S. Hillmich, and R. Wille.
 Compilation of Entangling Gates for High-Dimensional Quantum Systems.
 _Asia and South Pacific Design Automation Conference (ASP-DAC)_, 2023.
 
-[[6]](https://www.cda.cit.tum.de/files/eda/2022_qce_adaptive_compilation_of_multi_level_quantum_operations.pdf)"
+[[6]](https://www.cda.cit.tum.de/files/eda/2022_qce_adaptive_compilation_of_multi_level_quantum_operations.pdf)
 K. Mato, M. Ringbauer, S. Hillmich, and R. Wille.
 Adaptive Compilation of Multi-Level Quantum Operations.
 _International Conference on Quantum Computing and Engineering (QCE)_, 2022.
@@ -161,8 +161,8 @@ _International Conference on Quantum Computing and Engineering (QCE)_, 2022.
 
 ## Acknowledgements
 
-MQT Qudits is the result of the project NeQST funded by the European Union under Horizon Europe Programme (grant agreement No. 101080086).
-Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Commission.
+MQT Qudits is the result of the project NeQST funded by the European Union under the Horizon Europe program (grant agreement No. 101080086).
+However, views and opinions expressed are those of the author(s) only and do not necessarily reflect those of the European Union or the European Commission.
 Neither the European Union nor the granting authority can be held responsible for them.
 
 The Munich Quantum Toolkit has been supported by the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation program (grant agreement No. 101001318), the Bavarian State Ministry for Science and Arts through the Distinguished Professorship Program, the Munich Quantum Valley, which is supported by the Bavarian state government with funds from the Hightech Agenda Bayern Plus, as well as the Unitary Foundation.
