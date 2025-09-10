@@ -119,8 +119,6 @@ class PhyAdaptiveDecomposition:
             matrices_decomposed_m, final_graph = self.z_extraction(
                 matrices_decomposed, final_graph, self.phase_propagation
             )
-        else:
-            pass
 
         self.TREE.print_tree(self.TREE.root, "TREE: ")
 

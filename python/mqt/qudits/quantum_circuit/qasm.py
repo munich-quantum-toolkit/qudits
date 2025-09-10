@@ -166,7 +166,7 @@ class QASM:
         if match:
             # certain operations we can just ignore and warn about
             (op,) = match.groups()
-            if not warned.get(op, False):
+            if not warned.get(op):
                 # warnings.warn(f"Unsupported operation ignored: {op}", SyntaxWarning, stacklevel=2)
                 warned[op] = True
             return True
@@ -247,5 +247,5 @@ class QASM:
     def parse_ditqasm2_file(self, fname: str) -> dict[str, Any]:
         """Parse an OpenQASM 2.0 file."""
         path = Path(fname)
-        with path.open() as f:
+        with path.open(encoding="utf-8") as f:
             return self.parse_ditqasm2_str(f.read())
