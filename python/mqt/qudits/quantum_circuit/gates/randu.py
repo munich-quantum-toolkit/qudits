@@ -8,8 +8,12 @@
 
 from __future__ import annotations
 
+import operator
 from functools import reduce
 from typing import TYPE_CHECKING, cast
+
+import numpy as np
+from scipy.stats import unitary_group
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
@@ -19,11 +23,6 @@ if TYPE_CHECKING:
 
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
-
-import operator
-
-import numpy as np
-from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 
 class RandU(Gate):

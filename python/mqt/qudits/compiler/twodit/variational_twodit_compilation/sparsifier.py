@@ -14,7 +14,7 @@ from itertools import starmap
 from random import uniform
 
 import numpy as np
-from scipy.optimize import minimize  # type: ignore[import-not-found]
+from scipy.optimize import minimize
 
 from mqt.qudits.compiler.compilation_minitools import gate_expand_to_circuit
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
@@ -28,7 +28,9 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def apply_rotations(m: NDArray[np.complex128], params_list: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def apply_rotations(
+    m: NDArray[np.complex128], params_list: NDArray[np.float64], dims: list[int]
+) -> NDArray[np.complex128]:
     params = params_splitter(params_list, dims)
     r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
     r2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
@@ -39,7 +41,7 @@ def apply_rotations(m: NDArray[np.complex128], params_list: list[float], dims: l
     return result
 
 
-def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: list[float]) -> list[Gate]:
+def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: NDArray[np.float64]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
     dims = typing.cast("list[int]", gate.dimensions)
@@ -101,7 +103,7 @@ def compute_f(x: NDArray[np.complex128]) -> float:
     return 1 - f_x
 
 
-def objective_function(thetas: list[float], m: NDArray[np.complex128], dims: list[int]) -> float:
+def objective_function(thetas: NDArray[np.float64], m: NDArray[np.complex128], dims: list[int]) -> float:
     """Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
     Args:
