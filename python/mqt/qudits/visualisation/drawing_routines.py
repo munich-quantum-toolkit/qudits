@@ -8,8 +8,13 @@
 
 from __future__ import annotations
 
-from ..quantum_circuit import QuantumCircuit, gates
+from typing import TYPE_CHECKING
+
+from ..quantum_circuit import gates
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
+
+if TYPE_CHECKING:
+    from ..quantum_circuit import QuantumCircuit
 
 
 def draw_qudit_local(circuit: QuantumCircuit) -> None:
