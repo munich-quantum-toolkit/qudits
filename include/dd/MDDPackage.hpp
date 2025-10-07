@@ -142,7 +142,7 @@ public:
                          // the node
     QuantumRegister
         varIndex{}; // variable index (nonterminal) value (-1 for terminal),
-                   // index in the circuit endianness 0 from below
+                    // index in the circuit endianness 0 from below
 
     static vNode
         terminalNode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -372,7 +372,7 @@ public:
     std::vector<Edge<mNode>> edges{}; // edges out of this node
     mNode* next{};                    // used to link nodes in unique table
     RefCount refCount{};              // reference count
-    QuantumRegister varIndex{};        // variable index (nonterminal) value (-1
+    QuantumRegister varIndex{};       // variable index (nonterminal) value (-1
                                       // for terminal)
     bool symmetric = false;           // node is symmetric
     bool identity = false;            // node resembles identity
@@ -1207,8 +1207,8 @@ private:
       std::vector<Edge<Node>> newEdges(x.nextNode->edges.size(),
                                        dd::Edge<Node>::zero);
 
-      for (auto i = 0U;
-           i < registersSizes.at(static_cast<std::size_t>(x.nextNode->varIndex));
+      for (auto i = 0U; i < registersSizes.at(
+                                static_cast<std::size_t>(x.nextNode->varIndex));
            i++) {
         newEdges.at(i + i * (registersSizes.at(static_cast<std::size_t>(
                                 x.nextNode->varIndex)))) = y;
