@@ -128,7 +128,7 @@ class QuantumCircuit:
 
     @classmethod
     def get_qasm_set(cls) -> dict[str, str]:
-        return cast("dict[str, str]", cls.qasm_to_gate_set_dict)
+        return cls.qasm_to_gate_set_dict
 
     @property
     def dimensions(self) -> list[int]:

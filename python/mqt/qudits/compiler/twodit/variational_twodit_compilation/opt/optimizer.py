@@ -31,10 +31,10 @@ class Optimizer:
     OBJ_FIDELITY: float = 1e-4
     SINGLE_DIM_0: int = 0
     SINGLE_DIM_1: int = 0
-    TARGET_GATE: NDArray[typing.Any] = np.ndarray([])
+    TARGET_GATE: NDArray[np.complex128] = np.array([])
     MAX_NUM_LAYERS: int = 0  # (2 * SINGLE_DIM_0 * SINGLE_DIM_1)
-    X_SOLUTION: typing.ClassVar = []
-    FUN_SOLUTION: typing.ClassVar = []
+    X_SOLUTION: NDArray[np.float64] = np.array([])
+    FUN_SOLUTION: float = 0.0
 
     @classmethod
     def set_class_variables(
@@ -50,8 +50,8 @@ class Optimizer:
         cls.SINGLE_DIM_1 = dim_1
         cls.TARGET_GATE = target
         cls.MAX_NUM_LAYERS = layers if layers > 0 else (2 * dim_0 * dim_1 if dim_0 > 0 and dim_1 > 0 else 0)
-        cls.X_SOLUTION = []
-        cls.FUN_SOLUTION = []
+        cls.X_SOLUTION = np.array([])
+        cls.FUN_SOLUTION = 0.0
 
     @staticmethod
     def bounds_assigner(
@@ -126,7 +126,7 @@ class Optimizer:
         cls,
         bounds: list[tuple[float, float]],
         ansatz_type: str,
-        result_queue: multiprocessing.Queue[tuple[float, list[float]]],
+        result_queue: multiprocessing.Queue[tuple[float, NDArray[np.float64]]],
     ) -> None:
         try:
             if ansatz_type == "MS":  # MS is 0
