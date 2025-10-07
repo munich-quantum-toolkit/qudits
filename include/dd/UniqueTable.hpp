@@ -101,12 +101,12 @@ public:
 
     lookups++;
     const auto key = static_cast<std::size_t>(hash(e.nextNode));
-    const auto v = e.nextNode->varIndx;
+    const auto v = e.nextNode->varIndex;
 
     // successors of a node shall either have successive variable numbers
     // or be terminals
     for ([[maybe_unused]] const auto& edge : e.nextNode->edges) {
-      assert(edge.nextNode->varIndx == v - 1 || edge.isTerminal());
+      assert(edge.nextNode->varIndex == v - 1 || edge.isTerminal());
     }
 
     Node* p = tables[static_cast<std::size_t>(v)][key];
@@ -120,12 +120,12 @@ public:
         hits++;
 
         // variables should stay the same
-        assert(p->varIndx == e.nextNode->varIndx);
+        assert(p->varIndex == e.nextNode->varIndex);
 
         // successors of a node shall either have successive variable
         // numbers or be terminals
         for ([[maybe_unused]] const auto& edge : e.nextNode->edges) {
-          assert(edge.nextNode->varIndx == v - 1 || edge.isTerminal());
+          assert(edge.nextNode->varIndex == v - 1 || edge.isTerminal());
         }
 
         return {p, e.weight};
