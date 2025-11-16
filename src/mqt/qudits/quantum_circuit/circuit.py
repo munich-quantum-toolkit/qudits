@@ -11,6 +11,7 @@ from .components import ClassicRegister, QuantumRegister
 from .gates import (
     LS,
     MS,
+    Rzz,
     CEx,
     CSum,
     CustomMulti,
@@ -77,6 +78,7 @@ class QuantumCircuit:
         "h": "h",
         "ls": "ls",
         "ms": "ms",
+        "rzz": "rzz",
         "pm": "pm",
         "rxy": "r",
         "rh": "rh",
@@ -246,6 +248,17 @@ class QuantumCircuit:
         return MS(
             self,
             "MS" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
+        )
+
+    @add_gate_decorator
+    def rzz(self, qudits: list[int], parameters: list[float]) -> Rzz:
+        return Rzz(
+            self,
+            "RZZ" + str([self.dimensions[i] for i in qudits]),
             qudits,
             parameters,
             [self.dimensions[i] for i in qudits],

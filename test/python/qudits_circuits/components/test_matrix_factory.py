@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
@@ -11,6 +12,33 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 class TestMatrixFactory(TestCase):
     @staticmethod
     def test_generate_matrix():
+        # sparse
+        qreg_example = QuantumRegister("reg", 5, [2, 2, 2, 2, 2])
+        circuit = QuantumCircuit(qreg_example)
+        cu = circuit.cu_two(
+                [0, 2],
+                np.array([
+                    [0.70711 + 0.0j, 0.70711 - 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    [0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, -0.70711 + 0.0j],
+                    [0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, 0.70711 - 0.0j],
+                    [0.70711 + 0.0j, -0.70711 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                ]),
+        ).to_matrix(2, True)
+        assert isinstance(cu, csr_matrix)
+
+        matrix_cu_qiskit = np.kron(np.kron(np.array([
+            [0.70711 + 0.0j, 0.70711 - 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, -0.70711 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, 0.70711 - 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, -0.70711 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, 0.70711 - 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.70711 + 0.0j, -0.70711 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, 0.70711 - 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.70711 + 0.0j, -0.70711 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+        ]), np.eye(2)), np.eye(2))
+        assert np.allclose(cu.toarray(), matrix_cu_qiskit)
+
+
         # no control
         qreg_example = QuantumRegister("reg", 3, [2, 2, 2])
         circuit = QuantumCircuit(qreg_example)
@@ -55,6 +83,7 @@ class TestMatrixFactory(TestCase):
         qreg_example = QuantumRegister("reg", 4, [2, 2, 2, 2])
         circuit = QuantumCircuit(qreg_example)
         cx = circuit.x(0).control([3], [1]).to_matrix(2)
+        cx_sp = circuit.x(0).control([3], [1]).to_matrix(2, True)
 
         cx_long_qiskit = np.array([
             [
@@ -347,10 +376,12 @@ class TestMatrixFactory(TestCase):
             ],
         ])
         assert np.allclose(cx, cx_long_qiskit)
+        assert np.allclose(cx_sp.toarray(), cx_long_qiskit)
 
         qreg_example = QuantumRegister("reg", 4, [2, 2, 2, 2])
         circuit = QuantumCircuit(qreg_example)
         cx_inverted = circuit.x(3).control([0], [1]).to_matrix(2)
+        cx_inverted_sp = circuit.x(3).control([0], [1]).to_matrix(2, True)
         cx_long_qiskit_inverted = np.array([
             [
                 1.0 + 0.0j,
@@ -643,6 +674,7 @@ class TestMatrixFactory(TestCase):
         ])
 
         assert np.allclose(cx_inverted, cx_long_qiskit_inverted)
+        assert np.allclose(cx_inverted_sp.toarray(), cx_long_qiskit_inverted)
 
         qreg_example = QuantumRegister("reg", 4, [2, 2, 2, 2])
         circuit = QuantumCircuit(qreg_example)
@@ -942,6 +974,7 @@ class TestMatrixFactory(TestCase):
         qreg_example = QuantumRegister("reg", 4, [2, 2, 2, 2])
         circuit = QuantumCircuit(qreg_example)
         mcx_inv = circuit.x(3).control([0, 1], [1, 1]).to_matrix(2)
+        mcx_inv_sp = circuit.x(3).control([0, 1], [1, 1]).to_matrix(2, True)
         mcx_qiskit_inv = np.array([
             [
                 1.0 + 0.0j,
@@ -1233,3 +1266,13 @@ class TestMatrixFactory(TestCase):
             ],
         ])
         assert np.allclose(mcx_inv, mcx_qiskit_inv)
+        assert np.allclose(mcx_inv_sp.toarray(), mcx_qiskit_inv)
+
+    @staticmethod
+    def test_rzz():
+        # sparse
+        qreg_example = QuantumRegister("reg", 5, [2, 3, 3, 2, 2])
+        circuit = QuantumCircuit(qreg_example)
+        cu = circuit.rzz([0, 2], [np.pi/4])
+        mm = cu.to_matrix(1)
+        x = 0

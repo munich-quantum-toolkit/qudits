@@ -88,7 +88,7 @@ class Gate(Instruction):
         self.dagger = True
         return self
 
-    def to_matrix(self, identities: int = 0) -> NDArray:
+    def to_matrix(self, identities: int = 0, sparse: bool = False) -> NDArray:
         """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:
@@ -99,7 +99,7 @@ class Gate(Instruction):
                 exception will be raised when this base class method is called.
         """
         if hasattr(self, "__array__"):
-            matrix_factory = MatrixFactory(self, identities)
+            matrix_factory = MatrixFactory(self, identities, sparse)
             return matrix_factory.generate_matrix()
         msg = "to_matrix not defined for this "
         raise CircuitError(msg)

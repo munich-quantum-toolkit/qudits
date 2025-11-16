@@ -1,0 +1,17 @@
+DITQASM 2.0;
+qreg q [3][3,4,5];
+creg meas[3];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo3_Suws.npy) q[0];
+cutwo (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUt[3, 4]_rsaq.npy) q[0], q[1];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo3_hOjJ.npy) q[0];
+cutwo (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUt[3, 5]_hkSV.npy) q[0], q[2];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo4_SWJL.npy) q[1];
+cutwo (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUt[4, 3]_Dacf.npy) q[0], q[1];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo4_vFPp.npy) q[1];
+cutwo (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUt[4, 5]_DLQs.npy) q[1], q[2];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo5_UEKb.npy) q[2];
+cutwo (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUt[5, 3]_OFIO.npy) q[0], q[2];
+cuone (/home/k3vn/Documents/MQTQUDIT_DEV/MQT-QUDITS-CDA/mqt-qudits/test/python/compiler/data_deb/CUo5_LByK.npy) q[2];
+measure q[0] -> meas[0];
+measure q[1] -> meas[1];
+measure q[2] -> meas[2];

@@ -13,6 +13,7 @@ from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
+from .rzz import Rzz
 from .noise_x import NoiseX
 from .noise_y import NoiseY
 from .perm import Perm
@@ -28,6 +29,7 @@ from .z import Z
 __all__ = [
     "LS",
     "MS",
+    "Rzz",
     "CEx",
     "CSum",
     "ControlData",
