@@ -28,7 +28,7 @@ The following tutorial will guide you through the initial tools and contribution
 (.venv) $ pip install mqt.qudits
 ```
 
-For those seeking hands-on customization, simply clone the corresponding repository and perform a local installation.
+For those seeking hands-on customization, simply clone the corresponding repository and perform a local installation:
 
 ````bash
 $ git clone https://github.com/cda-tum/mqt-qudits.git
@@ -229,22 +229,19 @@ r_c1.reference_lines
 
 ## Simulation
 
-After crafting your quantum circuit with precision, take it for a spin using two distinct engines, each flaunting its unique set of data structures.
+After crafting your quantum circuit with precision, take it for a spin using multiple simulation engines, each offering unique capabilities and data structures.
 
-- **External Tensor-Network Simulator:** Delve into the quantum realm with a robust external tensor-network simulator. Can simulate all the gate-set.
+### Available Simulators
 
-- **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for a fluid and efficient experience. Can only simulate the machine following machine gate set:
+- **TNSim (Tensor Network Simulator):** Robust external tensor-network simulator that can simulate all gate operations. Best for general-purpose simulation.
 
-  - csum
-  - cx
-  - h
-  - rxy
-  - rz
-  - rh
-  - virtrz
-  - s
-  - x
-  - z
+- **MISim (C++-Powered Decision Diagrams):** Decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for efficient execution. Supports the following machine gate set:
+
+  - csum, cx, h, rxy, rz, rh, virtrz, s, x, z
+
+- **SparseStatevecSim (Memory-Efficient State Vector):** Sparse matrix-based state vector simulator optimized for memory efficiency. Supports all gates and optional GPU acceleration with CuPy.
+
+- **SparseUnitarySim (Memory-Efficient Unitary Matrix):** Sparse matrix-based unitary matrix constructor for analyzing circuit unitaries. Supports all gates and optional GPU acceleration with CuPy.
 
 ### Basic Simulation
 
@@ -293,6 +290,53 @@ result = job.result()
 state_vector = result.get_state_vector()
 
 plot_state(state_vector, circuit)
+```
+
+### Sparse Matrix Simulators
+
+The sparse simulators provide memory-efficient simulation using scipy.sparse matrices, with optional GPU acceleration.
+
+```{code-cell} ipython3
+# CPU-based sparse state vector simulation
+backend_sparse = provider.get_backend("sparse_statevec")
+
+job = backend_sparse.run(circuit)
+result = job.result()
+
+state_vector = result.get_state_vector()
+
+plot_state(state_vector, circuit)
+```
+
+```{code-cell} ipython3
+# Sparse unitary matrix construction
+backend_unitary = provider.get_backend("sparse_unitary")
+
+job = backend_unitary.run(circuit)
+result = job.result()
+
+# Get the full circuit unitary matrix
+unitary_matrix = result.get_state_vector()
+
+print(f"Unitary matrix shape: {unitary_matrix.shape}")
+print(f"Is unitary: {np.allclose(unitary_matrix @ unitary_matrix.conj().T, np.eye(unitary_matrix.shape[0]))}")
+```
+
+#### GPU Acceleration
+
+If you have an NVIDIA GPU with CUDA available, you can enable GPU acceleration:
+
+```{code-cell} ipython3
+:tags: [skip-execution]
+
+# GPU-accelerated sparse simulation (requires NVIDIA GPU with CUDA)
+try:
+    job_gpu = backend_sparse.run(circuit, use_gpu=True)
+    result_gpu = job_gpu.result()
+    state_vector_gpu = result_gpu.get_state_vector()
+    print("GPU simulation successful!")
+except (ImportError, RuntimeError) as e:
+    print(f"GPU not available: {e}")
 ```
 
 ### Extending Engines with Noise Model and Properties for FakeBackend

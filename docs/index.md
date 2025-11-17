@@ -24,6 +24,7 @@ self
 :caption: User Guide
 
 tutorial
+sparse_simulators
 publications
 ```
 
