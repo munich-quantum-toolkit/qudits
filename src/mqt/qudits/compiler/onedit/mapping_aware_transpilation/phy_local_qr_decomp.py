@@ -108,7 +108,9 @@ class PhyQrDecomp:
                     non_zeros = np.count_nonzero(abs(u_) > 1.0e-4)
 
                     estimated_cost, pi_pulses_routing, temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
-                        rotation_involved, self.graph, non_zeros
+                        rotation_involved,
+                        self.graph,
+                        non_zeros,  # type: ignore[arg-type]
                     )
 
                     decomp += pi_pulses_routing

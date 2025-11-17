@@ -174,3 +174,8 @@ out/build
 
 node_modules/
 wheelhouse/
+
+# Virtual environments and test artifacts
+.eleven_test/
+*_test/
+test/**/data_deb/

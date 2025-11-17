@@ -11,7 +11,6 @@ from .components import ClassicRegister, QuantumRegister
 from .gates import (
     LS,
     MS,
-    Rzz,
     CEx,
     CSum,
     CustomMulti,
@@ -26,6 +25,7 @@ from .gates import (
     RandU,
     Rh,
     Rz,
+    Rzz,
     S,
     VirtRz,
     X,

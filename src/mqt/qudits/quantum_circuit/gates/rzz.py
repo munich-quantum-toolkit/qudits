@@ -7,7 +7,6 @@ from scipy.linalg import expm  # type: ignore[import-not-found]
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
-from .gellmann import GellMann
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -42,11 +41,12 @@ class Rzz(Gate):
             self.theta = parameters[0]
             self._params = parameters
 
-    def zab(self, dimension, ps):
+    @staticmethod
+    def zab(dimension: int, ps: list[int | str]) -> NDArray:
         m = np.zeros((dimension, dimension))
-        a, b, typ = ps
-        m[a, a] = 1
-        m[b, b] = -1
+        a, b, _typ = ps
+        m[int(a), int(a)] = 1
+        m[int(b), int(b)] = -1
         return m
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
@@ -54,15 +54,12 @@ class Rzz(Gate):
         dimension_0 = self.dimensions[0]
         dimension_1 = self.dimensions[1]
         ps: list[int | str] = [0, 1, "a"]
-        qudits_targeted = cast("list[int]", self.target_qudits)
-        qudit_targeted_0: int = qudits_targeted[0]
-        qudit_targeted_1: int = qudits_targeted[1]
 
-        m0 = self.zab(dimension_0, ps)
-        m1 = self.zab(dimension_1, ps)
+        m0 = Rzz.zab(dimension_0, ps)
+        m1 = Rzz.zab(dimension_1, ps)
         gate_part_1 = np.kron(m0, np.identity(dimension_1, dtype="complex"))
         gate_part_2 = np.kron(np.identity(dimension_0, dtype="complex"), m1)
-        return expm(-1j * theta/2 * gate_part_1 @ gate_part_2)
+        return expm(-1j * theta / 2 * gate_part_1 @ gate_part_2)
 
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:

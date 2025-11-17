@@ -4,8 +4,9 @@ import itertools
 import operator
 import typing
 from functools import reduce
-from scipy.sparse import identity, csr_matrix, kron
+
 import numpy as np
+from scipy.sparse import csr_matrix, identity, kron  # type: ignore[import-not-found]
 
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -59,7 +60,7 @@ class MatrixFactory:
         ref_lines: list[int],
         controls: list[int] | None = None,
         controls_levels: list[int] | None = None,
-        sparsity_flag: bool | None = None
+        sparsity_flag: bool | None = None,
     ) -> NDArray[np.complex128]:
         matrix = csr_matrix(matrix)
         # dimensions = list(reversed(dimensions))
@@ -76,8 +77,7 @@ class MatrixFactory:
         if len(qudits_applied) == len(ref_lines) and controls is None:
             if sparsity_flag:
                 return matrix
-            else:
-                return matrix.toarray()
+            return matrix.toarray()
 
         if controls is not None:
             slide_controls = [q - min(ref_lines) for q in controls]
@@ -101,7 +101,7 @@ class MatrixFactory:
         global_index_to_state = dict(enumerate(global_states_space))
 
         shape = reduce(operator.mul, dimensions, 1)
-        result = identity(shape, dtype=np.complex128, format='csr')
+        result = identity(shape, dtype=np.complex128, format="csr")
         result = result.tolil()
         # result = np.identity(reduce(operator.mul, dimensions, 1), dtype="complex")
 
@@ -148,10 +148,8 @@ class MatrixFactory:
                     result[r, c] = value
 
         if sparsity_flag:
-            result = result.tocsr()
-            return result
-        else:
-            return result.toarray()
+            return result.tocsr()
+        return result.toarray()
 
     @classmethod
     def wrap_in_identities(
@@ -164,20 +162,15 @@ class MatrixFactory:
             raise ValueError(msg)
 
         i = 0
-        result = identity(sizes[i], dtype=np.complex128, format='csr')
+        result = identity(sizes[i], dtype=np.complex128, format="csr")
         while i < len(sizes):
             if i == indices[0]:
                 result = matrix if i == 0 else kron(result, matrix)
             elif (i < indices[0] and i != 0) or i > indices[-1]:
-                result = kron(result, identity(sizes[i], dtype=np.complex128, format='csr'))
+                result = kron(result, identity(sizes[i], dtype=np.complex128, format="csr"))
 
             i += 1
-        if sparsity_flag:
-            final_result = csr_matrix(result)
-        else:
-            final_result = result.toarray()
-
-        return final_result
+        return csr_matrix(result) if sparsity_flag else result.toarray()
 
 
 def from_dirac_to_basis(vec: list[int], d: list[int] | int) -> NDArray[np.complex128]:

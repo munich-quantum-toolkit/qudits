@@ -233,7 +233,7 @@ class PhyAdaptiveDecomposition:
                     new_placement,
                     cost_of_pi_pulses,
                     gate_cost,
-                ) = cost_calculator(rotation_involved, current_placement, non_zeros)
+                ) = cost_calculator(rotation_involved, current_placement, non_zeros)  # type: ignore[arg-type]
 
                 next_step_cost = estimated_cost + current_root.current_cost
                 decomp_next_step_cost = cost_of_pi_pulses + gate_cost + current_root.current_decomp_cost
