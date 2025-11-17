@@ -57,6 +57,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 test = ["pytest>=7.2"]
 coverage = ["mqt.qudits[test]", "pytest-cov>=4"]
+gpu = ["cupy>=12.0.0"]  # Optional GPU acceleration for sparse simulators
 docs = [
     "furo>=2023.9.10",
     "myst_nb>=1.1.0",

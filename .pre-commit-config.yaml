@@ -71,7 +71,7 @@ repos:
     hooks:
       - id: mypy
         files: ^(src/mqt|test/python)
-        args: []
+        args: [--python-version=3.10]
         additional_dependencies:
           - pytest
           - pandas-stubs
