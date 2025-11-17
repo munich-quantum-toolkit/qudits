@@ -49,6 +49,10 @@ class MatrixFactory:
         if self.ids >= 2:
             matrix = MatrixFactory.wrap_in_identities(matrix, lines, circuit.dimensions, self.sparse)
 
+        # If sparse flag is set but no identities/controls applied, convert to sparse
+        if self.sparse and self.ids == 0 and control_info is None:
+            matrix = csr_matrix(matrix)
+
         return matrix
 
     @classmethod
