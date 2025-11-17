@@ -39,8 +39,8 @@ echo -e "${GREEN}✓ Cleaned${NC}"
 echo -e "${BLUE}📚 Building HTML documentation...${NC}"
 cd docs
 
-# Run sphinx-build
-python -m sphinx -b html . _build/html -W --keep-going
+# Run sphinx-build (without -W to allow warnings in local dev)
+python -m sphinx -b html . _build/html --keep-going
 
 cd ..
 
