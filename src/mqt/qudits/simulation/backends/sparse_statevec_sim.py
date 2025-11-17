@@ -16,12 +16,14 @@ from typing_extensions import Unpack
 
 from ..jobs import Job, JobResult
 from .backendv2 import Backend
+from .stochastic_sim import stochastic_simulation
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ...quantum_circuit import QuantumCircuit
     from .. import MQTQuditProvider
+    from ..noise_tools import NoiseModel
 
 # Try to import CuPy for GPU support (optional)
 try:
@@ -78,13 +80,38 @@ class SparseStatevecSim(Backend):
         self.xp: Any = np  # Will be np or cp
         self.sp: Any = None  # Will be scipy.sparse or cupyx.scipy.sparse
 
+    def __getstate__(self) -> dict[str, Any]:
+        """Get state for pickling (exclude non-picklable module references)."""
+        state = self.__dict__.copy()
+        # Remove module references that can't be pickled
+        state.pop("xp", None)
+        state.pop("sp", None)
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        """Restore state from pickle."""
+        self.__dict__.update(state)
+        # Restore module references based on use_gpu flag
+        if self.use_gpu and CUPY_AVAILABLE:
+            self.xp = cp
+            self.sp = cp_sparse
+        else:
+            self.xp = np
+            from scipy import sparse as scipy_sparse  # type: ignore[import-not-found]
+
+            self.sp = scipy_sparse
+
+    def __noise_model(self) -> NoiseModel | None:
+        """Get the noise model for this backend."""
+        return self.noise_model
+
     def run(self, circuit: QuantumCircuit, use_gpu: bool = False, **options: Unpack[Backend.DefaultOptions]) -> Job:
         """Run the quantum circuit simulation.
 
         Args:
             circuit: The quantum circuit to simulate
             use_gpu: Use GPU acceleration with CuPy (default: False)
-            **options: Additional simulation options (shots, memory, etc.)
+            **options: Additional simulation options (shots, memory, noise_model, etc.)
 
         Returns:
             Job: A job object containing the simulation results
@@ -95,9 +122,12 @@ class SparseStatevecSim(Backend):
         job = Job(self)
 
         self._options.update(options)
-        self.shots = self._options.get("shots", 1)
+        self.noise_model: NoiseModel | None = self._options.get("noise_model", None)
+        self.shots = self._options.get("shots", 50 if self.noise_model else 1)
         self.memory = self._options.get("memory", False)
         self.full_state_memory = self._options.get("full_state_memory", False)
+        self.file_path = self._options.get("file_path", None)
+        self.file_name = self._options.get("file_name", None)
 
         # Configure backend (CPU or GPU)
         self.use_gpu = use_gpu
@@ -113,10 +143,13 @@ class SparseStatevecSim(Backend):
 
             self.sp = scipy_sparse
 
-        # Execute sparse simulation
-        state_vector = self.execute(circuit)
-
-        job.set_result(JobResult(state_vector=state_vector, counts=[]))
+        # Execute simulation with or without noise
+        if self.noise_model is not None:
+            assert self.shots >= 50, "Number of shots should be above 50 for noise simulation"
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
+        else:
+            state_vector = self.execute(circuit)
+            job.set_result(JobResult(state_vector=state_vector, counts=[]))
 
         return job
 

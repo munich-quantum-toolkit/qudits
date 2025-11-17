@@ -348,9 +348,9 @@ This allows for more realistic and insightful quantum simulations.
 Experiment, iterate, and simulate quantum circuits with the sophistication of real-world conditions, all within the controlled environment of your simulation.
 
 ```{code-cell} ipython3
-from mqt.qudits.simulation.noise_tools.noise import Noise, NoiseModel
+from mqt.qudits.simulation.noise_tools.noise import Noise, NoiseModel, SubspaceNoise
 
-# Depolarizing quantum errors
+# Mathematical (uniform) noise model using Noise
 local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
 local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
 
@@ -360,23 +360,54 @@ entangling_error_extra = Noise(probability_depolarizing=0.1, probability_dephasi
 entangling_error_on_target = Noise(probability_depolarizing=0.1, probability_dephasing=0.0)
 entangling_error_on_control = Noise(probability_depolarizing=0.01, probability_dephasing=0.0)
 
-# Add errors to noise_tools model
+# Build noise model
+noise_model = NoiseModel()
 
-noise_model = NoiseModel()  # We know that the architecture is only two qudits
 # Very noisy gate
 noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
+
 # Entangling gates
 noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
 noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])
 noise_model.add_nonlocal_quantum_error_on_control(entangling_error_on_control, ["csum", "cx", "ls", "ms"])
-# Super noisy Entangling gates
+
+# Super noisy entangling gates
 noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
-# Local Gates
+
+# Local gates
 noise_model.add_quantum_error_locally(local_error, ["h", "rxy", "s", "x", "z"])
 noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
 
-print(noise_model.quantum_errors)
+print("Noise model gates:", list(noise_model.quantum_errors.keys()))
+```
+
+#### Physical Noise with SubspaceNoise
+
+For more realistic simulations, use `SubspaceNoise` to model noise on specific energy level transitions:
+
+```{code-cell} ipython3
+# Physical noise model using SubspaceNoise
+# Noise specific to the 0↔1 transition
+subspace_01 = SubspaceNoise(probability_depolarizing=0.001, probability_dephasing=0.001, levels=(0, 1))
+
+# Noise for multiple transitions (e.g., higher energy levels)
+subspace_high = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.003, levels=[(1, 2), (2, 3)])
+
+# Dynamic assignment (automatically assigned to gate's active subspace)
+dynamic_noise = SubspaceNoise(probability_depolarizing=0.002, probability_dephasing=0.001, levels=[])
+
+# Build physical noise model
+physical_noise_model = NoiseModel()
+
+# Apply subspace-specific noise to gates
+physical_noise_model.add_quantum_error_locally(subspace_01, ["x", "h"])
+physical_noise_model.add_quantum_error_locally(subspace_high, ["z", "s"])
+physical_noise_model.add_quantum_error_locally(dynamic_noise, ["rh", "rz", "rxy"])
+
+# For two-qudit gates
+physical_noise_model.add_nonlocal_quantum_error(dynamic_noise, ["cx", "ls", "ms"])
+
+print("Physical noise model gates:", list(physical_noise_model.quantum_errors.keys()))
 ```
 
 We can set the noise model for the simulation, but also set several other flags:

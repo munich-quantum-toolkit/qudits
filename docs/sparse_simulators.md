@@ -226,6 +226,84 @@ assert np.allclose(sparse_matrix.toarray(), dense_matrix)
 print("✅ Sparse and dense matrices are equivalent")
 ```
 
+### Example 5: Noisy Simulation
+
+The sparse state vector simulator supports noise models for realistic quantum simulations:
+
+```python
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, SubspaceNoise
+
+# Create a circuit
+qreg = QuantumRegister("noisy", 2, [3, 3])
+circuit = QuantumCircuit(qreg)
+circuit.h(0)
+circuit.cx([0, 1])
+circuit.rz(0, [np.pi / 4])
+
+# Mathematical (uniform) noise model
+noise_model = NoiseModel()
+local_error = Noise(probability_depolarizing=0.01, probability_dephasing=0.01)
+entangling_error = Noise(probability_depolarizing=0.05, probability_dephasing=0.02)
+
+noise_model.add_quantum_error_locally(local_error, ["h", "rz"])
+noise_model.add_nonlocal_quantum_error(entangling_error, ["cx"])
+
+# Run noisy simulation (requires ≥50 shots)
+backend = provider.get_backend("sparse_statevec")
+job = backend.run(circuit, noise_model=noise_model, shots=100)
+result = job.result()
+
+# Analyze results
+print(f"Number of measurement outcomes: {len(result.counts)}")
+print(f"Outcome distribution: {set(result.counts)}")
+```
+
+### Example 6: Physical Noise with SubspaceNoise
+
+For more realistic simulations, use `SubspaceNoise` to model noise on specific energy level transitions:
+
+```python
+# Physical noise model
+physical_noise = NoiseModel()
+
+# Noise specific to the 0↔1 transition (ground state operations)
+ground_noise = SubspaceNoise(
+    probability_depolarizing=0.001, probability_dephasing=0.001, levels=(0, 1)
+)
+
+# Noise for higher energy levels (typically more error-prone)
+excited_noise = SubspaceNoise(
+    probability_depolarizing=0.005, probability_dephasing=0.003, levels=[(1, 2), (2, 3)]
+)
+
+# Dynamic noise (automatically assigned to gate's active subspace)
+dynamic_noise = SubspaceNoise(
+    probability_depolarizing=0.002, probability_dephasing=0.001, levels=[]
+)
+
+# Apply to gates
+physical_noise.add_quantum_error_locally(ground_noise, ["x", "h"])
+physical_noise.add_quantum_error_locally(excited_noise, ["z", "s"])
+physical_noise.add_quantum_error_locally(dynamic_noise, ["rz", "rh"])
+physical_noise.add_nonlocal_quantum_error(dynamic_noise, ["cx", "ls"])
+
+# Run with physical noise
+qreg = QuantumRegister("physical", 3, [4, 4, 4])
+circuit = QuantumCircuit(qreg)
+for i in range(3):
+    circuit.h(i)
+circuit.cx([0, 1])
+circuit.cx([1, 2])
+
+backend = provider.get_backend("sparse_statevec")
+job = backend.run(circuit, noise_model=physical_noise, shots=100)
+result = job.result()
+
+print("Physical noise simulation completed!")
+```
+
+**Note:** `SparseUnitarySim` does not support noise models (it computes ideal unitaries). If you pass a `noise_model` to it, a warning will be raised and the ideal unitary will be computed.
+
 ## Troubleshooting
 
 ### CUDA Out of Memory
@@ -256,9 +334,17 @@ print("✅ Sparse and dense matrices are equivalent")
 
 - `circuit`: Quantum circuit to simulate
 - `use_gpu`: Enable GPU acceleration (default: False)
-- `**options`: Additional backend options (shots, memory, etc.)
+- `**options`: Additional backend options:
+  - `noise_model`: NoiseModel for noisy simulation (default: None)
+  - `shots`: Number of measurement shots (default: 50 if noise, else 1)
+  - `memory`: Save individual shot outcomes (default: False)
+  - `full_state_memory`: Save full state vector for each shot (default: False)
+  - `file_path`: Path to save results (default: None)
+  - `file_name`: Name for saved results file (default: None)
 
 **Returns:** Job object with simulation results
+
+**Note:** Noise simulation requires `shots >= 50` and uses multiprocessing for parallel execution.
 
 ### SparseUnitarySim.run()
 

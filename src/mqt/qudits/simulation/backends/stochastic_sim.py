@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ...quantum_circuit import QuantumCircuit
     from . import MISim, TNSim
     from .backendv2 import Backend
+    from .sparse_statevec_sim import SparseStatevecSim
 
 
 def generate_seed() -> int:
@@ -47,17 +48,22 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray 
     shots: int = backend.shots
     num_processes: int = mp.cpu_count()
     from . import MISim, TNSim
+    from .sparse_statevec_sim import SparseStatevecSim
 
     with mp.Pool(processes=num_processes) as pool:
-        if isinstance(backend, TNSim):
+        if isinstance(backend, (TNSim, SparseStatevecSim)):
             factory = NoisyCircuitFactory(noise_model, circuit)
-            args_tn = [(backend, factory) for _ in range(shots)]
-            results = pool.map(stochastic_execution_tn, args_tn)
+            if isinstance(backend, TNSim):
+                args = [(backend, factory) for _ in range(shots)]
+                results = pool.map(stochastic_execution_tn, args)
+            else:  # SparseStatevecSim
+                args = [(backend, factory) for _ in range(shots)]
+                results = pool.map(stochastic_execution_sparse, args)
         elif isinstance(backend, MISim):
             args_misim = [(backend, circuit, noise_model) for _ in range(shots)]
             results = pool.map(stochastic_execution_mi, args_misim)
         else:
-            msg = "Unsupported backend type"
+            msg = f"Unsupported backend type: {type(backend).__name__}"
             raise TypeError(msg)
 
     save_results(backend, results)
@@ -74,4 +80,12 @@ def stochastic_execution_tn(args: tuple[TNSim, NoisyCircuitFactory]) -> NDArray 
 def stochastic_execution_mi(args: tuple[MISim, QuantumCircuit, NoiseModel]) -> NDArray | int:
     backend, circuit, noise_model = args
     vector_data = backend.execute(circuit, noise_model)
+    return vector_data if backend.full_state_memory else measure_state(vector_data)
+
+
+def stochastic_execution_sparse(args: tuple[SparseStatevecSim, NoisyCircuitFactory]) -> NDArray | int:
+    """Execute sparse statevec simulation with noise for a single shot."""
+    backend, factory = args
+    circuit = factory.generate_circuit()
+    vector_data = backend.execute(circuit)
     return vector_data if backend.full_state_memory else measure_state(vector_data)
