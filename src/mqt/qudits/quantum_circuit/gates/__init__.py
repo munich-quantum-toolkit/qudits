@@ -13,7 +13,6 @@ from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
-from .rzz import Rzz
 from .noise_x import NoiseX
 from .noise_y import NoiseY
 from .perm import Perm
@@ -21,6 +20,7 @@ from .r import R
 from .randu import RandU
 from .rh import Rh
 from .rz import Rz
+from .rzz import Rzz
 from .s import S
 from .virt_rz import VirtRz
 from .x import X
@@ -29,7 +29,6 @@ from .z import Z
 __all__ = [
     "LS",
     "MS",
-    "Rzz",
     "CEx",
     "CSum",
     "ControlData",
@@ -46,6 +45,7 @@ __all__ = [
     "RandU",
     "Rh",
     "Rz",
+    "Rzz",
     "S",
     "VirtRz",
     "X",
