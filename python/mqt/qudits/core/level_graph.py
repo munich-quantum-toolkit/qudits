@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, TypeVar, cast
 
 import networkx as nx
 import numpy as np
+from typing_extensions import Self
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
@@ -24,6 +25,9 @@ if TYPE_CHECKING:
 
 
 class LevelGraph(nx.Graph):  # type: ignore [type-arg]
+    def __new__(cls, *args: object, **kwargs: object) -> Self:  # noqa: ARG004
+        return object.__new__(cls)
+
     def __init__(
         self,
         edges: list[tuple[int, int, dict[str, int]]],
@@ -33,7 +37,7 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
         qudit_index: int | None = None,
         og_circuit: QuantumCircuit | None = None,
     ) -> None:
-        super().__init__(None)
+        super().__init__()
         self.og_circuit = og_circuit
         self.qudit_index: int = cast("int", qudit_index)
         self.logic_nodes: list[int] | NodesWithAttributes = nodes
