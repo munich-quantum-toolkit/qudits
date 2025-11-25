@@ -33,7 +33,7 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
         qudit_index: int | None = None,
         og_circuit: QuantumCircuit | None = None,
     ) -> None:
-        super().__init__()
+        super().__init__(None)
         self.og_circuit = og_circuit
         self.qudit_index: int = cast("int", qudit_index)
         self.logic_nodes: list[int] | NodesWithAttributes = nodes
@@ -77,10 +77,10 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
         inreach_dictionary = dict.fromkeys(inreach_nodes, "r")
         initialization_dictionary = dict.fromkeys(initialization_nodes, "i")
 
-        for _n in inreach_dictionary:
+        for _ in inreach_dictionary:
             nx.set_node_attributes(self, inreach_dictionary, name="level")
 
-        for _n in initialization_dictionary:
+        for _ in initialization_dictionary:
             nx.set_node_attributes(self, initialization_dictionary, name="level")
 
     @staticmethod
@@ -166,7 +166,6 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
 
     def swap_nodes(self, node_a: int, node_b: int) -> LevelGraph:
         nodes = self.swap_node_attributes(node_a, node_b)
-        # ------------------------------------------------
         new_graph = LevelGraph([], nodes)
 
         edges = self.deep_copy_func(list(self.edges))
