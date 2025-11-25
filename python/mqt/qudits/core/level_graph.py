@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, TypeVar, cast
 
 import networkx as nx
 import numpy as np
+from typing_extensions import Self
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
@@ -24,6 +25,9 @@ if TYPE_CHECKING:
 
 
 class LevelGraph(nx.Graph):  # type: ignore [type-arg]
+    def __new__(cls, *args: object, **kwargs: object) -> Self:  # noqa: ARG004
+        return object.__new__(cls)
+
     def __init__(
         self,
         edges: list[tuple[int, int, dict[str, int]]],
@@ -77,10 +81,10 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
         inreach_dictionary = dict.fromkeys(inreach_nodes, "r")
         initialization_dictionary = dict.fromkeys(initialization_nodes, "i")
 
-        for _n in inreach_dictionary:
+        for _ in inreach_dictionary:
             nx.set_node_attributes(self, inreach_dictionary, name="level")
 
-        for _n in initialization_dictionary:
+        for _ in initialization_dictionary:
             nx.set_node_attributes(self, initialization_dictionary, name="level")
 
     @staticmethod
@@ -166,7 +170,6 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
 
     def swap_nodes(self, node_a: int, node_b: int) -> LevelGraph:
         nodes = self.swap_node_attributes(node_a, node_b)
-        # ------------------------------------------------
         new_graph = LevelGraph([], nodes)
 
         edges = self.deep_copy_func(list(self.edges))
