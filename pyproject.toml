@@ -239,6 +239,7 @@ extend-select = [
 ignore = [
     "PLR09",   # Too many <...>
     "PLR2004", # Magic value used in comparison
+    "PLC0415", # Import should be at top of file
     "S101",    # Use of assert detected
     "S404",    # `subprocess` module is possibly insecure
     "D10",     # Missing docstrings
