@@ -168,9 +168,11 @@ class SparseStatevecSim(Backend):
         # Initialize state vector |0⟩ as sparse
         if self.use_gpu:
             # GPU path (CuPy)
-            state = self.sp.lil_matrix((size, 1), dtype=self.xp.complex128)
-            state[0, 0] = 1.0 + 0.0j
-            state = state.tocsr()
+            data = self.xp.array([1.0 + 0.0j])
+            indices = self.xp.array([0])
+            indptr = self.xp.zeros(size + 1, dtype=self.xp.int32)
+            indptr[1] = 1
+            state = self.sp.csr_matrix((data, indices, indptr), shape=(size, 1), dtype=self.xp.complex128)
         else:
             # CPU path (SciPy)
             state = lil_matrix((size, 1), dtype=np.complex128)
@@ -195,15 +197,5 @@ class SparseStatevecSim(Backend):
 
         # Convert result to dense array
         state_array = self.xp.asnumpy(state.toarray()).flatten() if self.use_gpu else state.toarray().flatten()
-
-        # Reshape dimensions for proper qudit ordering
-        reversed_dimensions = list(reversed(circuit.dimensions))
-        state_array = state_array.reshape(reversed_dimensions)
-
-        # Reverse the order of the axes for the transpose operation
-        axes_order = list(reversed(list(range(len(circuit.dimensions)))))
-
-        # Transpose the state array
-        state_array = np.transpose(state_array, axes_order)
 
         return state_array.reshape((1, size))
