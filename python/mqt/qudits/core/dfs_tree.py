@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from numpy import inf
+
 from ..exceptions import NodeNotFoundError
 
 if TYPE_CHECKING:
@@ -189,7 +191,6 @@ class NAryTree:
 
         if not node.finished:
             decomp_nodes: list[Node] = []
-            from numpy import inf
 
             best_cost = (inf, inf)
             final_graph = node.graph
