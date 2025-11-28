@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import operator
+from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
@@ -86,7 +87,6 @@ class Lanes:
     def find_consecutive_singles(self, gates: LineView | None = None) -> CircuitGroupView:
         if gates is None:
             gates = self.instructions
-        from collections import defaultdict
 
         consecutive_groups: CircuitGroupView = defaultdict(list)
         for gate_tuple in gates:
