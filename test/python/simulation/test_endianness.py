@@ -27,7 +27,7 @@ class StateSetGate(Gate):
         self._dimension = dimension
         self._target_level = target_level
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         # Create a permutation matrix (Identity with swapped columns)
         # This guarantees the matrix is Unitary.
         matrix = np.eye(self._dimension, dtype=np.complex128)
