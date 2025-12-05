@@ -110,10 +110,10 @@ sdist.exclude = [
     "**/tests",
 ]
 
+
 [tool.scikit-build.cmake.define]
 BUILD_MQT_QUDITS_TESTS = "OFF"
 BUILD_MQT_QUDITS_BINDINGS = "ON"
-
 
 [[tool.scikit-build.overrides]]
 if.python-version = ">=3.13"
@@ -124,7 +124,7 @@ cmake.define.DISABLE_GIL = "1"
 
 
 [tool.check-sdist]
-sdist-only = ["python/mqt/core/_version.py"]
+sdist-only = ["python/mqt/qudits/_version.py"]
 git-only = [
     "docs/*",
     "extern/*",
