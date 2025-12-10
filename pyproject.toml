@@ -25,12 +25,12 @@ authors = [
 ]
 
 keywords = ["MQT", "quantum-computing", "design-automation", "qudits"]
-license = { file = "LICENSE.md" }
+license = "MIT"
+license-files = ["LICENSE.md"]
 
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
