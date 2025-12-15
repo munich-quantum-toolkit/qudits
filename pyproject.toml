@@ -25,12 +25,12 @@ authors = [
 ]
 
 keywords = ["MQT", "quantum-computing", "design-automation", "qudits"]
-license = { file = "LICENSE.md" }
+license = "MIT"
+license-files = ["LICENSE.md"]
 
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
@@ -47,7 +47,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.10, !=3.14.1"
 dependencies = [
     "numpy>=1.24; python_version < '3.12'",
     "numpy>=1.26; python_version >= '3.12'",
@@ -110,10 +110,10 @@ sdist.exclude = [
     "**/tests",
 ]
 
+
 [tool.scikit-build.cmake.define]
 BUILD_MQT_QUDITS_TESTS = "OFF"
 BUILD_MQT_QUDITS_BINDINGS = "ON"
-
 
 [[tool.scikit-build.overrides]]
 if.python-version = ">=3.13"
@@ -124,7 +124,7 @@ cmake.define.DISABLE_GIL = "1"
 
 
 [tool.check-sdist]
-sdist-only = ["python/mqt/core/_version.py"]
+sdist-only = ["python/mqt/qudits/_version.py"]
 git-only = [
     "docs/*",
     "extern/*",
@@ -282,7 +282,7 @@ ignore = ["GH200"]
 
 [tool.cibuildwheel]
 build = "cp3*"
-skip = "*-musllinux*"
+skip = ["*-musllinux_*", "cp313t-*"]
 archs = "auto64"
 test-groups = ["test"]
 test-command = "pytest {project}/test/python"
@@ -293,7 +293,7 @@ manylinux-aarch64-image = "manylinux_2_28"
 manylinux-ppc64le-image = "manylinux_2_28"
 manylinux-s390x-image = "manylinux_2_28"
 test-skip = [
-  "cp3*t-*", # no freethreading qiskit wheels
+  "cp3??t-*", # no freethreading qiskit wheels
   "cp*-win_arm64", # no numpy, qiskit, ... wheels
 ]
 
@@ -304,7 +304,7 @@ environment = { DEPLOY="ON" }
 environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
 
 [tool.cibuildwheel.windows]
-before-build = "pip install delvewheel>=1.7.3"
+before-build = "uv pip install delvewheel>=1.11.2"
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel} --namespace-pkg mqt"
 environment = { CMAKE_ARGS = "-T ClangCL" }
 
