@@ -420,8 +420,7 @@ class QuantumCircuit:
         Returns:
             str: The text loaded from the file.
         """
-        with Path(file_path).open("r", encoding=locale.getpreferredencoding(False)) as file:
-            text = file.read()
+        text = Path(file_path).read_text(encoding=locale.getpreferredencoding(False))
         self.from_qasm(text)
 
     @property
