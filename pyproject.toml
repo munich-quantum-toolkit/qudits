@@ -310,7 +310,12 @@ environment = { CMAKE_ARGS = "-T ClangCL" }
 
 
 [tool.uv]
-reinstall-package = ["mqt.qudits"]
+required-version = ">=0.5.20"
+cache-keys = [
+  { file = "pyproject.toml" },
+  { git = { commit = true, tags = true } },
+  { file = "bindings/**/*.cpp"},
+]
 
 [tool.uv.sources]
 mqt-qudits = { workspace = true }
