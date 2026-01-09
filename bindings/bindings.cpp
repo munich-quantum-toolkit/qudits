@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2023 - 2025 Chair for Design Automation, TUM
- * Copyright (c) 2025 Munich Quantum Software Company GmbH
+ * Copyright (c) 2023 - 2026 Chair for Design Automation, TUM
+ * Copyright (c) 2025 - 2026 Munich Quantum Software Company GmbH
  * All rights reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -95,8 +95,9 @@ void printCircuit(const Circuit& circuit) {
 // =======================================================================================================
 
 bool isNoneOrEmpty(const py::object& obj) {
-  if (obj.is_none())
+  if (obj.is_none()) {
     return true;
+  }
 
   if (py::isinstance<py::sequence>(obj)) {
     auto seq = obj.cast<py::sequence>();
