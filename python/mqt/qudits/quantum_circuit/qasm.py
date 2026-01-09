@@ -247,5 +247,5 @@ class QASM:
     def parse_ditqasm2_file(self, fname: str) -> dict[str, Any]:
         """Parse an OpenQASM 2.0 file."""
         path = Path(fname)
-        with path.open(encoding="utf-8") as f:
-            return self.parse_ditqasm2_str(f.read())
+        contents = path.read_text(encoding="utf-8")
+        return self.parse_ditqasm2_str(contents)
