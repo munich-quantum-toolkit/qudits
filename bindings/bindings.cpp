@@ -95,8 +95,9 @@ void printCircuit(const Circuit& circuit) {
 // =======================================================================================================
 
 bool isNoneOrEmpty(const py::object& obj) {
-  if (obj.is_none())
+  if (obj.is_none()) {
     return true;
+  }
 
   if (py::isinstance<py::sequence>(obj)) {
     auto seq = obj.cast<py::sequence>();
