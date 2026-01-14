@@ -8,7 +8,7 @@
 
 [build-system]
 requires = [
-    "pybind11>=3.0.1",
+    "nanobind>=2.10.2",
     "scikit-build-core>=0.11.6",
     "setuptools-scm>=9.2.2",
     "mqt.core~=3.4.0",
@@ -82,6 +82,9 @@ minimum-version = "build-system.requires"
 
 # Set the wheel install directory
 wheel.install-dir = "mqt/qudits"
+
+# Enable Stable ABI builds for CPython 3.12+
+wheel.py-api = "cp312"
 
 # Set required Ninja version
 ninja.version = ">=1.10"
@@ -311,6 +314,11 @@ before-build = "uv pip install delvewheel>=1.11.2"
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel} --namespace-pkg mqt"
 environment = { CMAKE_ARGS = "-T ClangCL" }
 
+[[tool.cibuildwheel.overrides]]
+select = "cp312-*"
+inherit.repair-wheel-command = "append"
+repair-wheel-command = "uvx abi3audit --strict --report {wheel}"
+
 
 [tool.uv]
 required-version = ">=0.5.20"
@@ -326,7 +334,7 @@ mqt-qudits = { workspace = true }
 
 [dependency-groups]
 build = [
-    "pybind11>=3.0.1",
+    "nanobind>=2.10.2",
     "scikit-build-core>=0.11.6",
     "setuptools-scm>=9.2.2",
     "mqt.core~=3.4.0",

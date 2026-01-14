@@ -6,7 +6,7 @@
 #
 # Licensed under the MIT License
 
-add_mqt_python_binding(
+add_mqt_python_binding_nanobind(
   QUDITS
   ${MQT_QUDITS_TARGET_NAME}-bindings
   bindings.cpp
