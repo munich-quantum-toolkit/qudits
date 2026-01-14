@@ -99,7 +99,6 @@ bool isNoneOrEmpty(const nb::object& obj) {
   }
 
   if (nb::isinstance<nb::sequence>(obj)) {
-    auto seq = nb::cast<nb::sequence>(obj);
     return nb::len(obj) == 0;
   }
 
