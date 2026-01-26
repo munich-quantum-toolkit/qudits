@@ -6,10 +6,12 @@
 #
 # Licensed under the MIT License
 
-from mqt.qudits.quantum_circuit import QuantumCircuit
-from mqt.qudits.simulation.noise_tools import NoiseModel
+import mqt.qudits.quantum_circuit
+import mqt.qudits.simulation.noise_tools
 
-def state_vector_simulation(circuit: QuantumCircuit, noise_model: NoiseModel) -> list[complex]:
+def state_vector_simulation(
+    circuit: mqt.qudits.quantum_circuit.QuantumCircuit, noise_model: mqt.qudits.simulation.noise_tools.NoiseModel
+) -> list[complex]:
     """Simulate the state vector of a quantum circuit with noise model.
 
     Args:
@@ -19,5 +21,3 @@ def state_vector_simulation(circuit: QuantumCircuit, noise_model: NoiseModel) ->
     Returns:
         list: The state vector of the quantum circuit
     """
-
-__all__ = ["state_vector_simulation"]
