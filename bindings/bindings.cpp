@@ -751,6 +751,18 @@ nb::list stateVectorSimulation(nb::object& circ, nb::object& noiseModel) {
 
 NB_MODULE(MQT_QUDITS_MODULE_NAME, m) {
   auto misim = m.def_submodule("misim");
-  misim.def("state_vector_simulation", &stateVectorSimulation, "circuit"_a,
-            "noise_model"_a);
+  misim.def(
+      "state_vector_simulation", &stateVectorSimulation, "circuit"_a,
+      "noise_model"_a,
+      nb::sig("def state_vector_simulation(circuit: "
+              "mqt.qudits.quantum_circuit.QuantumCircuit, noise_model: "
+              "mqt.qudits.simulation.noise_tools.NoiseModel) -> list[complex]"),
+      R"pb(Simulate the state vector of a quantum circuit with noise model.
+
+Args:
+    circuit: The quantum circuit to simulate
+    noise_model: The noise model to apply
+
+Returns:
+    The state vector of the quantum circuit)pb");
 }
