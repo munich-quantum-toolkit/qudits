@@ -19,5 +19,5 @@ def state_vector_simulation(
         noise_model: The noise model to apply
 
     Returns:
-        list: The state vector of the quantum circuit
+        The state vector of the quantum circuit
     """

@@ -764,5 +764,5 @@ Args:
     noise_model: The noise model to apply
 
 Returns:
-    list: The state vector of the quantum circuit)pb");
+    The state vector of the quantum circuit)pb");
 }
