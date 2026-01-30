@@ -19,7 +19,7 @@ jobs:
   cpp-tests-ubuntu:
     name: 🇨‌ Test 🐧
     needs: change-detection
-    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests)
     strategy:
       fail-fast: false
       matrix:
@@ -40,15 +40,15 @@ jobs:
   cpp-tests-macos:
     name: 🇨‌ Test 🍎
     needs: change-detection
-    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests)
     strategy:
       fail-fast: false
       matrix:
-        runs-on: [macos-15-intel, macos-14]
+        runs-on: [macos-15, macos-15-intel]
         compiler: [clang]
         config: [Release]
         include:
-          - runs-on: macos-14
+          - runs-on: macos-15
             compiler: clang
             config: Debug
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-tests-macos.yml@d6314c45667c131055a0389afc110e8dedc6da3f # v1.17.11
@@ -61,15 +61,15 @@ jobs:
   cpp-tests-windows:
     name: 🇨‌ Test 🏁
     needs: change-detection
-    if: fromJSON(needs.change-detection.outputs.run-cpp-tests) && !contains(github.event.pull_request.labels.*.name, 'extensive-cpp-ci')
+    if: fromJSON(needs.change-detection.outputs.run-cpp-tests)
     strategy:
       fail-fast: false
       matrix:
-        runs-on: [windows-2022, windows-11-arm]
+        runs-on: [windows-2025, windows-11-arm]
         compiler: [msvc]
         config: [Release]
         include:
-          - runs-on: windows-2022
+          - runs-on: windows-2025
             compiler: msvc
             config: Debug
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-tests-windows.yml@d6314c45667c131055a0389afc110e8dedc6da3f # v1.17.11
@@ -112,9 +112,9 @@ jobs:
           [
             ubuntu-24.04,
             ubuntu-24.04-arm,
+            macos-15,
             macos-15-intel,
-            macos-14,
-            windows-2022,
+            windows-2025,
           ]
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-tests.yml@d6314c45667c131055a0389afc110e8dedc6da3f # v1.17.11
     with:
@@ -154,9 +154,9 @@ jobs:
           [
             ubuntu-24.04,
             ubuntu-24.04-arm,
+            macos-15,
             macos-15-intel,
-            macos-14,
-            windows-2022,
+            windows-2025,
             windows-11-arm,
           ]
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-packaging-wheel-cibuildwheel.yml@d6314c45667c131055a0389afc110e8dedc6da3f # v1.17.11
