@@ -98,7 +98,7 @@ jobs:
       cmake-args: -DBUILD_MQT_QUDITS_BINDINGS=ON
       cpp-linter-extra-args: "-std=c++20"
       files-changed-only: true
-      install-pkgs: "nanobind==2.10.2"
+      install-pkgs: "nanobind==2.11.0"
       setup-python: true
 
   python-tests:
