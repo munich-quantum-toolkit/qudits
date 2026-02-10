@@ -125,12 +125,12 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
 
     @staticmethod
     def deep_copy_func(l_n: NL) -> NL:
-        cpy_list = []
+        copy_list = []
         for li in l_n:
             d2 = copy.deepcopy(li)
-            cpy_list.append(d2)
+            copy_list.append(d2)
 
-        return cpy_list
+        return copy_list
 
     @staticmethod
     def index(lev_graph: list[tuple[int, int]] | NodesWithAttributes, node: int) -> int:
