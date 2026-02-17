@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
@@ -64,7 +65,7 @@ class TestR(TestCase):
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [1, 2, 0.01 * np.pi, np.pi / 7])
         # R(0.01 * np.pi, np.pi / 7, 0, 2, 3)
-        assert round(r.theta, 4) == 12.5978
+        assert round(r.theta, 4) == pytest.approx(12.5978)
 
     @staticmethod
     def test_levels_setter():
@@ -81,7 +82,7 @@ class TestR(TestCase):
     def test_cost():
         circuit_3 = QuantumCircuit(1, [3], 0)
         r = circuit_3.r(0, [2, 0, 0.01 * np.pi, np.pi / 7])
-        assert round(r.cost, 4) == 0.0016
+        assert round(r.cost, 4) == pytest.approx(0.0016)
 
     @staticmethod
     def test_validate_parameter():

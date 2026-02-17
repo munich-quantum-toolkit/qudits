@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.onedit import ZPropagationOptPass
@@ -42,22 +43,22 @@ class TestZPropagationOptPass(TestCase):
         new_circuit = pass_z.transpile(circ)
 
         # VirtZs
-        assert new_circuit.instructions[0].phi == 2 * np.pi / 3
-        assert new_circuit.instructions[1].phi == 4 * np.pi
-        assert new_circuit.instructions[2].phi == 4 * np.pi
+        assert new_circuit.instructions[0].phi == pytest.approx(2 * np.pi / 3)
+        assert new_circuit.instructions[1].phi == pytest.approx(4 * np.pi)
+        assert new_circuit.instructions[2].phi == pytest.approx(4 * np.pi)
         # Rs
-        assert new_circuit.instructions[3].phi == np.pi / 3 + 2 * np.pi / 3
-        assert new_circuit.instructions[4].phi == 2 * np.pi / 3
-        assert new_circuit.instructions[5].phi == 2 * np.pi / 3
+        assert new_circuit.instructions[3].phi == pytest.approx(np.pi / 3 + 2 * np.pi / 3)
+        assert new_circuit.instructions[4].phi == pytest.approx(2 * np.pi / 3)
+        assert new_circuit.instructions[5].phi == pytest.approx(2 * np.pi / 3)
 
         pass_z = ZPropagationOptPass(backend=self.backend_ion, back=False)
         new_circuit = pass_z.transpile(circ)
 
         # Rs
-        assert new_circuit.instructions[0].phi == np.pi / 3
-        assert new_circuit.instructions[1].phi == 0.0
-        assert new_circuit.instructions[2].phi == 0.0
+        assert new_circuit.instructions[0].phi == pytest.approx(np.pi / 3)
+        assert new_circuit.instructions[1].phi == pytest.approx(0.0, abs=1e-8)
+        assert new_circuit.instructions[2].phi == pytest.approx(0.0, abs=1e-8)
         # VirtZs
-        assert new_circuit.instructions[3].phi == 2 * np.pi / 3
-        assert new_circuit.instructions[4].phi == 4 * np.pi
-        assert new_circuit.instructions[5].phi == 4 * np.pi
+        assert new_circuit.instructions[3].phi == pytest.approx(2 * np.pi / 3)
+        assert new_circuit.instructions[4].phi == pytest.approx(4 * np.pi)
+        assert new_circuit.instructions[5].phi == pytest.approx(4 * np.pi)
