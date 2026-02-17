@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler.compilation_minitools import (
     new_mod,
@@ -37,42 +38,42 @@ class TestCompilationMiniTools(TestCase):
     @staticmethod
     def test_pi_mod():
         res = pi_mod(3 * np.pi / 2)
-        assert res == -np.pi / 2
+        assert res == pytest.approx(-np.pi / 2)
 
         res = pi_mod(-3 * np.pi / 2)
-        assert res == np.pi / 2
+        assert res == pytest.approx(np.pi / 2)
 
     @staticmethod
     def test_new_mod():
         res = new_mod(-5 * np.pi / 2)
-        assert res == -np.pi / 2
+        assert res == pytest.approx(-np.pi / 2)
 
         res = new_mod(5 * np.pi / 2)
-        assert res == np.pi / 2
+        assert res == pytest.approx(np.pi / 2)
 
     @staticmethod
     def test_regulate_theta():
         newang = regulate_theta(-5 * np.pi)
-        assert newang == -1 * np.pi
+        assert newang == pytest.approx(-1 * np.pi)
 
         newang = regulate_theta(0.1 * np.pi)
-        assert newang == 4.1 * np.pi
+        assert newang == pytest.approx(4.1 * np.pi)
 
     @staticmethod
     def test_theta_cost():
         cost = theta_cost(np.pi / 8)
-        assert cost == 6.25e-05
+        assert cost == pytest.approx(6.25e-05)
 
         cost = theta_cost(np.pi / 4)
-        assert cost == 0.000125
+        assert cost == pytest.approx(0.000125)
 
     @staticmethod
     def test_phi_cost():
         cost = phi_cost(np.pi / 8)
-        assert cost == 1.25e-05
+        assert cost == pytest.approx(1.25e-05)
 
         cost = phi_cost(np.pi / 4)
-        assert cost == 2.5e-05
+        assert cost == pytest.approx(2.5e-05)
 
     @staticmethod
     def test_rotation_cost_calc():
@@ -92,8 +93,8 @@ class TestCompilationMiniTools(TestCase):
 
         r_1 = circuit.r(0, [2, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 2, 4, 6)
         cost_1 = rotation_cost_calc(r_1, test_graph_1)
-        assert cost_1 == 4 * 0.000125
+        assert cost_1 == pytest.approx(4 * 0.000125)
 
         r_2 = circuit.r(0, [3, 4, np.pi / 4, 0.0])  # R(np.pi / 4, 0, 3, 4, 6)
         cost_2 = rotation_cost_calc(r_2, test_graph_1)
-        assert cost_2 == 3 * 0.000125
+        assert cost_2 == pytest.approx(3 * 0.000125)

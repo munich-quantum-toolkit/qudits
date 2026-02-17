@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.core import LevelGraph, NAryTree, Node
 from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -157,8 +158,8 @@ class TestNAryTree(TestCase):
         self.T.root.children[0].children[1].finished = True
 
         node_seq, best_cost, _final_graph = self.T.min_cost_decomp(self.T.root)
-        assert best_cost[0] == 0.01
-        assert best_cost[1] == 0.01
+        assert best_cost[0] == pytest.approx(0.01)
+        assert best_cost[1] == pytest.approx(0.01)
         assert node_seq[0].key == 0
         assert node_seq[1].key == 2
         assert node_seq[2].key == 4
@@ -175,8 +176,8 @@ class TestNAryTree(TestCase):
 
         decomp_nodes, best_cost, graph = self.T.retrieve_decomposition(self.T.root)
 
-        assert best_cost[0] == 0.01
-        assert best_cost[1] == 0.01
+        assert best_cost[0] == pytest.approx(0.01)
+        assert best_cost[1] == pytest.approx(0.01)
         assert graph == self.graph_1
         assert decomp_nodes[0].key == 0
         assert decomp_nodes[1].key == 2

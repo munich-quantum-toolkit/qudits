@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.onedit import ZRemovalOptPass
@@ -56,9 +57,9 @@ class TestZRemovalOptPass(TestCase):
         assert new_circuit.instructions[4].qasm_tag == "rxy"
         assert new_circuit.instructions[5].qasm_tag == "rxy"
 
-        assert new_circuit.instructions[0].phi == np.pi
-        assert new_circuit.instructions[1].phi == np.pi / 2
-        assert new_circuit.instructions[2].phi == np.pi / 3
-        assert new_circuit.instructions[3].phi == np.pi / 4
-        assert new_circuit.instructions[4].phi == np.pi / 5
-        assert new_circuit.instructions[5].phi == np.pi / 6
+        assert new_circuit.instructions[0].phi == pytest.approx(np.pi)
+        assert new_circuit.instructions[1].phi == pytest.approx(np.pi / 2)
+        assert new_circuit.instructions[2].phi == pytest.approx(np.pi / 3)
+        assert new_circuit.instructions[3].phi == pytest.approx(np.pi / 4)
+        assert new_circuit.instructions[4].phi == pytest.approx(np.pi / 5)
+        assert new_circuit.instructions[5].phi == pytest.approx(np.pi / 6)
