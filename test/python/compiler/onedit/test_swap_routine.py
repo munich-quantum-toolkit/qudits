@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler.onedit.local_operation_swap.swap_routine import (
     cost_calculator,
@@ -56,11 +57,11 @@ class Test(TestCase):
         nodes_data = self.graph_1.nodes(data=True)
 
         _la, lb = find_logic_from_phys(0, 1, self.graph_1)
-        assert nodes_data[lb]["phase_storage"] == 0.0
+        assert nodes_data[lb]["phase_storage"] == pytest.approx(0.0, abs=1e-8)
 
         graph_rule_update(gate, self.graph_1)
 
-        assert nodes_data[lb]["phase_storage"] == np.pi
+        assert nodes_data[lb]["phase_storage"] == pytest.approx(np.pi)
 
     def test_graph_rule_ongate(self):
         self.circuit = QuantumCircuit(1, [5], 0)
@@ -71,7 +72,7 @@ class Test(TestCase):
 
         new_gate = graph_rule_ongate(gate, self.graph_1)
 
-        assert new_gate.phi == 3 / 2 * np.pi
+        assert new_gate.phi == pytest.approx(3 / 2 * np.pi)
 
     def test_gate_chain_condition(self):
         R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0])
@@ -84,7 +85,7 @@ class Test(TestCase):
 
         new_gate = gate_chain_condition(pi_pulses, gate)
 
-        assert new_gate.theta == -np.pi / 3
+        assert new_gate.theta == pytest.approx(-np.pi / 3)
 
     def test_cost_calculator(self):
         test_sample_edges_1 = [
@@ -109,9 +110,9 @@ class Test(TestCase):
             r_1, test_graph_1, non_zeros
         )
 
-        assert total_costing == 0.00425
+        assert total_costing == pytest.approx(0.00425)
         assert len(pi_pulses_routing) == 2
-        assert cost_of_pi_pulses == 0.002
+        assert cost_of_pi_pulses == pytest.approx(0.002)
 
     def test_route_states2rotate_basic(self):
         self.circuit_5 = QuantumCircuit(1, [5], 0)
@@ -119,6 +120,6 @@ class Test(TestCase):
         # R(np.pi / 3, np.pi / 2, 2, 4, 5)
         cost_of_pi_pulses, pi_pulses_routing, placement = route_states2rotate_basic(gate, self.graph_1)
 
-        assert cost_of_pi_pulses == 0.0004
+        assert cost_of_pi_pulses == pytest.approx(0.0004)
         assert len(pi_pulses_routing) == 1
         assert placement.log_phy_map == [0, 2, 4, 1, 3]

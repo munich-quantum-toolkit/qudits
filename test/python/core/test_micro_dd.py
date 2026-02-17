@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.core.micro_dd import (
     create_decision_tree,
@@ -86,28 +87,28 @@ class TestMicroDD(TestCase):
         root = create_decision_tree(labels, cardinalities, data)[0]
 
         assert root.value == "r"
-        assert round(root.weight.real, 4) == 0.5917
+        assert round(root.weight.real, 4) == pytest.approx(0.5917)
         assert len(root.children) == 2
 
         assert root.children[0].value == 0
-        assert round(root.children[0].weight.real, 4) == 0.5344
+        assert round(root.children[0].weight.real, 4) == pytest.approx(0.5344)
         assert len(root.children[0].children) == 2
         assert root.children[1].value == 0
-        assert round(root.children[1].weight.real, 4) == 0.8452
+        assert round(root.children[1].weight.real, 4) == pytest.approx(0.8452)
         assert len(root.children[1].children) == 2
 
         assert root.children[0].children[0].value == 1
-        assert round(root.children[0].children[0].weight.real, 4) == 0.9487
+        assert round(root.children[0].children[0].weight.real, 4) == pytest.approx(0.9487)
         assert len(root.children[0].children[0].children) == 1
         assert root.children[0].children[1].value == 1
-        assert round(root.children[0].children[1].weight.real, 4) == 0.3162
+        assert round(root.children[0].children[1].weight.real, 4) == pytest.approx(0.3162)
         assert len(root.children[0].children[1].children) == 1
 
         assert root.children[1].children[0].value == 1
-        assert round(root.children[1].children[0].weight.real, 3) == 0.02
+        assert round(root.children[1].children[0].weight.real, 3) == pytest.approx(0.02)
         assert len(root.children[1].children[0].children) == 1
         assert root.children[1].children[1].value == 1
-        assert round(root.children[1].children[1].weight.real, 3) == 1.0
+        assert round(root.children[1].children[1].weight.real, 3) == pytest.approx(1.0)
         assert len(root.children[1].children[1].children) == 1
 
     @staticmethod
@@ -122,28 +123,28 @@ class TestMicroDD(TestCase):
         normalize_all(root, cardinalities)
 
         assert root.value == "r"
-        assert root.weight == 0.9949874371066199 + 0j
+        assert root.weight == pytest.approx(0.9949874371066199 + 0j, abs=1e-8)
         assert root.available
         assert len(root.children) == 2
 
         assert root.children[0].value == 0
         assert root.children[0].available
-        assert root.children[0].weight == 1 + 0j
+        assert root.children[0].weight == pytest.approx(1 + 0j, abs=1e-8)
         assert len(root.children[0].children) == 2
 
         assert root.children[1].value == 0
         assert root.children[1].available
-        assert root.children[1].weight == 0 + 0j
+        assert root.children[1].weight == pytest.approx(0 + 0j, abs=1e-8)
         assert len(root.children[1].children) == 1
 
         assert root.children[0].children[0].value == 1
         assert root.children[0].children[0].available
-        assert round(root.children[0].children[0].weight.real, 4) == 0.9898
+        assert round(root.children[0].children[0].weight.real, 4) == pytest.approx(0.9898)
         assert len(root.children[0].children[0].children) == 1
 
         assert root.children[0].children[1].value == 1
         assert root.children[0].children[1].available
-        assert round(root.children[0].children[1].weight.real, 4) == 0.1421
+        assert round(root.children[0].children[1].weight.real, 4) == pytest.approx(0.1421)
         assert len(root.children[0].children[1].children) == 1
 
     @staticmethod

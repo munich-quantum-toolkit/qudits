@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import cmath
 import math
 import operator
 from typing import TYPE_CHECKING, cast
@@ -71,7 +72,7 @@ def get_node_contributions(root: MicroDDNode, labels: list[int]) -> NodeContribu
         parent_prob = probs[node]
 
         for c in node.children:
-            if c.weight != 0 + 0j:
+            if not cmath.isclose(c.weight, 0 + 0j, abs_tol=1e-8):
                 if c not in probs:
                     probs[c] = 0
                 probs[c] += parent_prob * abs(c.weight) ** 2
@@ -142,7 +143,7 @@ def build_decision_tree(
 ) -> None:
     if depth == len(cardinalities):
         node.weight = data[0]
-        if data[0] == 0 + 0j:
+        if cmath.isclose(data[0], 0 + 0j, abs_tol=1e-8):
             node.terminal = True
             node.children.append(zero)
         else:
@@ -177,7 +178,7 @@ def build_decision_tree(
 
     node.weight, new_weights = normalize(node.weight, cweights)
 
-    if node.weight == 0 + 0j:
+    if cmath.isclose(node.weight, 0 + 0j, abs_tol=1e-8):
         node.terminal = True
         node.children = [zero]
 
@@ -190,14 +191,16 @@ def dd_approximation(node: MicroDDNode, cardinalities: list[int], tolerance: flo
         return
 
     for i in range(cardinalities[depth]):
-        if abs(node.children[i].weight) ** 2 < tolerance and abs(node.children[i].weight) ** 2 != 0.0:
+        if abs(node.children[i].weight) ** 2 < tolerance and not math.isclose(
+            abs(node.children[i].weight) ** 2, 0.0, abs_tol=1e-8
+        ):
             node.children[i].weight = 0 + 0j
         dd_approximation(node.children[i], cardinalities, tolerance, depth + 1)
 
     cweights = [c.weight for c in node.children]
     node.weight, new_weights = normalize(node.weight, cweights)
 
-    if node.weight == 0 + 0j:
+    if cmath.isclose(node.weight, 0 + 0j, abs_tol=1e-8):
         node.terminal = True
         node.children = [zero]
 
@@ -234,7 +237,7 @@ def normalize_all(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -
     cweights = [c.weight for c in node.children]
     node.weight, new_weights = normalize(node.weight, cweights)
 
-    if node.weight == 0 + 0j:
+    if cmath.isclose(node.weight, 0 + 0j, abs_tol=1e-8):
         node.terminal = True
         node.children = [zero]
 
@@ -285,7 +288,9 @@ def dd_reduction_aggregation(node: MicroDDNode, cardinalities: list[int], depth:
         node.reduced = True
     else:
         reduced_children = [
-            node.children_index[c_i] for c_i in range(cardinalities[depth]) if abs(node.children[c_i].weight) != 0.0
+            node.children_index[c_i]
+            for c_i in range(cardinalities[depth])
+            if not math.isclose(abs(node.children[c_i].weight), 0.0, abs_tol=1e-8)
         ]
 
         if len(reduced_children) == 1:

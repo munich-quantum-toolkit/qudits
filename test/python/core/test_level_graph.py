@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+import pytest
+
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
@@ -33,7 +35,7 @@ class TestLevelGraph(TestCase):
     def test_phase_storing_setup(self):
         self.graph_1.phase_storing_setup()
         for i in range(len(self.graph_1.nodes)):
-            assert self.graph_1.nodes[i]["phase_storage"] == 0.0
+            assert self.graph_1.nodes[i]["phase_storage"] == pytest.approx(0.0, abs=1e-8)
 
     def test_distance_nodes(self):
         assert self.graph_1.distance_nodes(2, 3) == 2
@@ -104,13 +106,13 @@ class TestLevelGraph(TestCase):
 
         self.graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0])
         self.graph_1.phase_storing_setup()
-        self.graph_1.nodes[0]["phase_storage"] = 0.0
-        self.graph_1.nodes[1]["phase_storage"] = 1.0
-        self.graph_1.nodes[2]["phase_storage"] = 2.0
+        self.graph_1.nodes[0]["phase_storage"] = pytest.approx(0.0, abs=1e-8)
+        self.graph_1.nodes[1]["phase_storage"] = pytest.approx(1.0)
+        self.graph_1.nodes[2]["phase_storage"] = pytest.approx(2.0)
 
         liste = self.graph_1.swap_node_attributes(0, 1)
-        assert liste[0][1]["phase_storage"] == 1.0
-        assert liste[1][1]["phase_storage"] == 0.0
+        assert liste[0][1]["phase_storage"] == pytest.approx(1.0)
+        assert liste[1][1]["phase_storage"] == pytest.approx(0.0, abs=1e-8)
 
     def test_swap_node_attr_simple(self):
         test_sample_edges = [
@@ -122,12 +124,12 @@ class TestLevelGraph(TestCase):
 
         self.graph_1 = LevelGraph(test_sample_edges, test_sample_nodes, test_sample_nodes_map, [0])
         self.graph_1.phase_storing_setup()
-        self.graph_1.nodes[0]["phase_storage"] = 0.0
-        self.graph_1.nodes[1]["phase_storage"] = 1.0
-        self.graph_1.nodes[2]["phase_storage"] = 2.0
+        self.graph_1.nodes[0]["phase_storage"] = pytest.approx(0.0, abs=1e-8)
+        self.graph_1.nodes[1]["phase_storage"] = pytest.approx(1.0)
+        self.graph_1.nodes[2]["phase_storage"] = pytest.approx(2.0)
         self.graph_1.swap_node_attr_simple(0, 1)
-        assert self.graph_1.nodes[0]["phase_storage"] == 1.0
-        assert self.graph_1.nodes[1]["phase_storage"] == 0.0
+        assert self.graph_1.nodes[0]["phase_storage"] == pytest.approx(1.0)
+        assert self.graph_1.nodes[1]["phase_storage"] == pytest.approx(0.0, abs=1e-8)
 
     def test_swap_nodes(self):
         test_sample_edges = [

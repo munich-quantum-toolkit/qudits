@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
@@ -63,13 +64,13 @@ class TestVirtRz(TestCase):
         circuit_4 = QuantumCircuit(1, [4], 0)
         vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
         # Rz(0.01 * np.pi, 1, 4)
-        assert round(vrz.phi, 4) == 12.5978
+        assert round(vrz.phi, 4) == pytest.approx(12.5978)
 
     @staticmethod
     def test_cost():
         circuit_4 = QuantumCircuit(1, [4], 0)
         vrz = circuit_4.virtrz(0, [1, 0.01 * np.pi])
-        assert round(vrz.cost, 4) == 0.0004
+        assert round(vrz.cost, 4) == pytest.approx(0.0004)
 
     @staticmethod
     def test_validate_parameter():
