@@ -117,7 +117,7 @@ def generate_uniform_state(dimensions: list[int], state: str) -> NDArray[np.comp
     elif state == "ghz":
         state_entries = generate_ghz_entries(dimensions)
     else:
-        msg = "Input chose is wrong"
+        msg = "Input state is wrong"
         raise ValueError(msg)
 
     complex_ = np.sqrt(1.0 / len(state_entries))

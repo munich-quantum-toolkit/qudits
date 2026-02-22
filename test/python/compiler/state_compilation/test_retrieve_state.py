@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_uniform_state
 
@@ -18,10 +19,8 @@ from mqt.qudits.compiler.state_compilation.retrieve_state import generate_unifor
 class TestRetStates(TestCase):
     @staticmethod
     def test_generate_uniform_state():
-        try:
+        with pytest.raises(ValueError, match=r"Input state is wrong"):
             generate_uniform_state([2, 3], "wrong")
-        except Exception:
-            assert True
         ghz = generate_uniform_state([2, 3], "ghz")
         w = generate_uniform_state([2, 3], "qudit-w-state")
         wemb = generate_uniform_state([2, 3], "embedded-w-state")
