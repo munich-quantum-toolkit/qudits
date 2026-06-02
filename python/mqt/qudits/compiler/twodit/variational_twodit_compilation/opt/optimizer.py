@@ -128,7 +128,7 @@ class Optimizer:
         ansatz_type: str,
         result_queue: multiprocessing.Queue[tuple[float, NDArray[np.float64]]],
     ) -> None:
-        try:
+        try:  # noqa: PLW0717
             if ansatz_type == "MS":  # MS is 0
                 opt = dual_annealing(cls.objective_fnc_ms, bounds=bounds)
             elif ansatz_type == "LS":  # LS is 1
@@ -138,10 +138,8 @@ class Optimizer:
             else:
                 msg = f"Invalid ansatz type: {ansatz_type}"
                 raise ValueError(msg)
-
             x = opt.x
             fun = opt.fun
-
             result_queue.put((fun, x))
 
         except FidelityReachError:
