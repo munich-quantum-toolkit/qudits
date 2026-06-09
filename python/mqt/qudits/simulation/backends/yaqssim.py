@@ -69,7 +69,7 @@ def _apply_swap(state: MPS, site: int) -> None:
     d_right = state.tensors[site + 1].shape[0]
     swap = np.zeros((d_left * d_right, d_left * d_right), dtype=complex)
     for k in range(d_left):
-        for l in range(d_right):  # noqa: E741
+        for l in range(d_right):
             swap[l * d_left + k, k * d_right + l] = 1.0
     swap = swap.reshape(d_right, d_left, d_left, d_right)
     merged = merge_two_site(state.tensors[site], state.tensors[site + 1])
