@@ -180,6 +180,10 @@ explicit_package_bases = true
 warn_unreachable = true
 
 
+[[tool.mypy.overrides]]
+module = ["opt_einsum", "mqt.yaqs.*"]
+ignore_missing_imports = true
+
 [tool.check-wheel-contents]
 ignore = ["W002"]  # Triggers on __init__.py's
 
@@ -257,6 +261,7 @@ known-first-party = ["mqt.qudits"]
 "python/mqt/qudits/visualisation/**" = ["T20"]
 "docs/**" = ["T20"]
 "noxfile.py" = ["T20", "TID251"]
+"examples/**" = ["T20", "ANN", "INP001"]
 "*.pyi" = ["D418", "E501", "PYI021"]
 "*.ipynb" = [
     "D",    # pydocstyle

@@ -39,7 +39,6 @@ from .gates import (
     Z,
 )
 from .gates.rx import Rx
-from .gates.rzz import Rzz
 from .qasm import QASM
 
 if TYPE_CHECKING:
@@ -93,7 +92,6 @@ class QuantumCircuit:
         "rdu": "randu",
         "rz": "rz",
         "rx": "rx",
-        "rzz": "rzz",
         "virtrz": "virtrz",
         "s": "s",
         "x": "x",
@@ -285,10 +283,6 @@ class QuantumCircuit:
     @add_gate_decorator
     def rx(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rx:
         return Rx(self, "Rx" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
-
-    @add_gate_decorator
-    def rzz(self, qudits: list[int], parameters: list[int | float], controls: ControlData | None = None) -> Rzz:
-        return Rzz(self, "Rzz", qudits, parameters, self.dimensions[qudits[0]], controls)
 
     @add_gate_decorator
     def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
@@ -493,10 +487,10 @@ class QuantumCircuit:
                 new_circuit.inverse_sitemap[new_qudit_index] = (str(qreg.label), i)
                 new_qudit_index += 1
 
-        new_circuit._num_qudits = sum(qreg.size for qreg in new_circuit.quantum_registers)
-        new_circuit._dimensions = []
+        new_circuit.num_qudits = sum(qreg.size for qreg in new_circuit.quantum_registers)
+        new_circuit._dimensions = []  # noqa: SLF001
         for qreg in new_circuit.quantum_registers:
-            new_circuit._dimensions.extend(qreg.dimensions)
+            new_circuit._dimensions.extend(qreg.dimensions)  # noqa: SLF001
 
         new_circuit.instructions = new_circuit.instructions[::-1]
 

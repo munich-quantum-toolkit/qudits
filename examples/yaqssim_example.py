@@ -36,4 +36,3 @@ rho = job.result().get_density_matrix()
 
 job_noisy = backend.run(circuit, noise_model=noise_model, shots=300)
 rho_noisy = job_noisy.result().get_density_matrix()
-

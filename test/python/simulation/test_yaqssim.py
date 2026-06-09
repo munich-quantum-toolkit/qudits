@@ -16,10 +16,10 @@ from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 
 def _generalized_x(d: int) -> np.ndarray:
-    X = np.zeros((d, d), dtype=complex)
+    x = np.zeros((d, d), dtype=complex)
     for j in range(d):
-        X[(j + 1) % d, j] = 1.0
-    return X
+        x[(j + 1) % d, j] = 1.0
+    return x
 
 
 def _generalized_z(d: int) -> np.ndarray:
@@ -29,7 +29,7 @@ def _generalized_z(d: int) -> np.ndarray:
 
 class TestYAQSSim(TestCase):
     @staticmethod
-    def test_single_qudit_h():
+    def test_single_qudit_h() -> None:
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
@@ -48,7 +48,7 @@ class TestYAQSSim(TestCase):
             assert np.allclose(sv, expected)
 
     @staticmethod
-    def test_two_qudit_csum():
+    def test_two_qudit_csum() -> None:
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
@@ -68,7 +68,7 @@ class TestYAQSSim(TestCase):
             assert np.allclose(sv, expected)
 
     @staticmethod
-    def test_long_range_gate():
+    def test_long_range_gate() -> None:
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
@@ -86,7 +86,7 @@ class TestYAQSSim(TestCase):
         assert np.allclose(sv, expected)
 
     @staticmethod
-    def test_multiple_shots():
+    def test_multiple_shots() -> None:
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
@@ -104,11 +104,12 @@ class TestYAQSSim(TestCase):
 
         job_multi = backend.run(circuit, noise_model=noise_model, shots=100)
         rho_multi = job_multi.result().get_density_matrix()
+        assert rho_multi is not None
         assert np.isclose(np.trace(rho_multi).real, 1.0, atol=1e-6)
         assert np.trace(rho_multi @ rho_multi).real < 1.0
 
     @staticmethod
-    def test_generalized_operators():
+    def test_generalized_operators() -> None:
         assert np.allclose(_generalized_x(2), np.array([[0, 1], [1, 0]]))
         assert np.allclose(_generalized_z(2), np.array([[1, 0], [0, -1]]))
 
@@ -117,7 +118,7 @@ class TestYAQSSim(TestCase):
             assert np.allclose(np.linalg.matrix_power(_generalized_z(d), d), np.eye(d))
 
     @staticmethod
-    def test_noise():
+    def test_noise() -> None:
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
@@ -130,4 +131,5 @@ class TestYAQSSim(TestCase):
 
         job = backend.run(circuit, noise_model=noise_model)
         rho = job.result().get_density_matrix()
+        assert rho is not None
         assert np.isclose(np.trace(rho).real, 1.0)

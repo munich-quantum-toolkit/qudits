@@ -19,6 +19,7 @@ from mqt.yaqs.core.methods.decompositions import merge_two_site, split_two_site
 from mqt.yaqs.core.methods.dissipation import apply_dissipation
 from mqt.yaqs.core.methods.stochastic_process import stochastic_process
 from mqt.yaqs.digital.utils.qudit_dag_utils import circuit_to_dag
+from typing_extensions import Unpack, override
 
 from ..jobs import Job, JobResult
 from .backendv2 import Backend
@@ -28,20 +29,27 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.simulation.noise_tools import NoiseModel
+    from mqt.qudits.simulation.qudit_provider import MQTQuditProvider
 
 
 def apply_single_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     site = node.target_qudits[0]
-    U = node.gate.to_matrix()
-    state.tensors[site] = oe.contract("ab,bcd->acd", U, state.tensors[site])
+    u = node.gate.to_matrix()
+    state.tensors[site] = oe.contract("ab,bcd->acd", u, state.tensors[site])
 
 
 def _apply_adjacent_two_qudit_gate(
-    state: MPS, left_site: int, right_site: int, d_left: int, d_right: int, U: np.ndarray
+    state: MPS,
+    left_site: int,
+    right_site: int,
+    d_left: int,
+    d_right: int,
+    u: np.ndarray,
 ) -> None:
     merged = merge_two_site(state.tensors[left_site], state.tensors[right_site])
     theta = merged.reshape(d_left, d_right, merged.shape[1], merged.shape[2])
-    theta_new = oe.contract("ijkl,klab->ijab", U, theta)
+    theta_new = oe.contract("ijkl,klab->ijab", u, theta)
     merged_new = theta_new.reshape(d_left * d_right, merged.shape[1], merged.shape[2])
     new_left, new_right = split_two_site(
         merged_new,
@@ -59,14 +67,14 @@ def _apply_adjacent_two_qudit_gate(
 def _apply_swap(state: MPS, site: int) -> None:
     d_left = state.tensors[site].shape[0]
     d_right = state.tensors[site + 1].shape[0]
-    SWAP = np.zeros((d_left * d_right, d_left * d_right), dtype=complex)
+    swap = np.zeros((d_left * d_right, d_left * d_right), dtype=complex)
     for k in range(d_left):
-        for l in range(d_right):
-            SWAP[l * d_left + k, k * d_right + l] = 1.0
-    SWAP = SWAP.reshape(d_right, d_left, d_left, d_right)
+        for l in range(d_right):  # noqa: E741
+            swap[l * d_left + k, k * d_right + l] = 1.0
+    swap = swap.reshape(d_right, d_left, d_left, d_right)
     merged = merge_two_site(state.tensors[site], state.tensors[site + 1])
     theta = merged.reshape(d_left, d_right, merged.shape[1], merged.shape[2])
-    theta_new = oe.contract("ijkl,klab->ijab", SWAP, theta)
+    theta_new = oe.contract("ijkl,klab->ijab", swap, theta)
     merged_new = theta_new.reshape(d_left * d_right, merged.shape[1], merged.shape[2])
     new_left, new_right = split_two_site(
         merged_new,
@@ -86,18 +94,18 @@ def apply_two_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     right_site = node.target_qudits[1]
     d_left = node.dimensions[0]
     d_right = node.dimensions[1]
-    U = node.gate.to_matrix().reshape(d_left, d_right, d_left, d_right)
+    u = node.gate.to_matrix().reshape(d_left, d_right, d_left, d_right)
     if right_site - left_site == 1:
-        _apply_adjacent_two_qudit_gate(state, left_site, right_site, d_left, d_right, U)
+        _apply_adjacent_two_qudit_gate(state, left_site, right_site, d_left, d_right, u)
     else:
         for s in range(left_site, right_site - 1):
             _apply_swap(state, s)
-        _apply_adjacent_two_qudit_gate(state, right_site - 1, right_site, d_left, d_right, U)
+        _apply_adjacent_two_qudit_gate(state, right_site - 1, right_site, d_left, d_right, u)
         for s in range(right_site - 2, left_site - 1, -1):
             _apply_swap(state, s)
 
 
-def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> MPS:
+def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> MPS:
     sim_params = WeakSimParams(shots=1, preset="exact")
     dag = circuit_to_dag(circuit)
     while dag.op_nodes():
@@ -123,95 +131,81 @@ def mps_to_statevector(state: MPS) -> NDArray[np.complex128]:
         chi_i = result.shape[-1]
         result = result.reshape(-1, chi_i)
         result = np.einsum("ij,kjl->ikl", result, t).reshape(-1, t.shape[2])
-    return result[:, 0]
+    return result[:, 0]  # type: ignore[no-any-return]
 
 
-def build_local_yaqs_noise(mqt_noise_model, gate_name, sites, dimensions):
+def build_local_yaqs_noise(
+    mqt_noise_model: NoiseModel | None,
+    gate_name: str,
+    sites: list[int],
+    dimensions: list[int],
+) -> YAQSNoiseModel | None:
     if mqt_noise_model is None:
         return None
     errors = mqt_noise_model.quantum_errors
     if gate_name not in errors:
         return None
 
+    from mqt.qudits.simulation.noise_tools import Noise
+
     processes = []
     gate_errors = errors[gate_name]
     noise = gate_errors.get("local") or gate_errors.get("all")
-    if noise:
+    if noise and isinstance(noise, Noise):
         for site, d in zip(sites, dimensions, strict=False):
             if noise.probability_depolarizing > 0:
-                X = np.zeros((d, d), dtype=complex)
+                x = np.zeros((d, d), dtype=complex)
                 for j in range(d):
-                    X[(j + 1) % d, j] = 1.0
+                    x[(j + 1) % d, j] = 1.0
                 processes.append({
                     "name": "x",
                     "sites": [site],
                     "strength": noise.probability_depolarizing,
-                    "matrix": X,
+                    "matrix": x,
                 })
             if noise.probability_dephasing > 0:
                 omega = np.exp(2j * np.pi / d)
-                Z = np.diag([omega**j for j in range(d)])
-                processes.append({"name": "z", "sites": [site], "strength": noise.probability_dephasing, "matrix": Z})
+                z = np.diag([omega**j for j in range(d)])
+                processes.append({"name": "z", "sites": [site], "strength": noise.probability_dephasing, "matrix": z})
     return YAQSNoiseModel(processes) if processes else None
 
 
 class YAQSSim(Backend):
-    def __init__(self, provider, name=None, description=None, **fields) -> None:
+    def __init__(
+        self,
+        provider: MQTQuditProvider,
+        name: str | None = None,
+        description: str | None = None,
+        **fields: Unpack[Backend.DefaultOptions],
+    ) -> None:
         super().__init__(provider, name=name, description=description, **fields)
 
-    def run(self, circuit: QuantumCircuit, **options) -> Job:
+    @override
+    def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
         job = Job(self)
         self._options.update(options)
-        self.noise_model = self._options.get("noise_model", None)
-        self.shots = self._options.get("shots", 50)
-        self.memory = self._options.get("memory", False)
-        sv, rho = self.execute(circuit, self.noise_model)
-        job.set_result(JobResult(state_vector=sv, counts=[], density_matrix=rho))
-        return job
+        noise_model: NoiseModel | None = self._options.get("noise_model", None)
+        shots = self._options.get("shots", 50)
 
-    def execute(self, circuit: QuantumCircuit, noise_model=None) -> tuple:
         dims = circuit.dimensions
         dim_total = int(np.prod(dims))
 
-        if noise_model is None or self.shots == 1:
-            state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
-            state = simulate_circuit(state, circuit, noise_model)
-            sv = mps_to_statevector(state)
+        if noise_model is None or shots == 1:
+            sv = self.execute(circuit, noise_model)
             rho = np.outer(sv, sv.conj())
-            return sv.reshape(1, len(sv)), rho
+            job.set_result(JobResult(state_vector=sv.reshape(1, len(sv)), counts=[], density_matrix=rho))
+        else:
+            rho = np.zeros((dim_total, dim_total), dtype=complex)
+            for _ in range(shots):
+                sv = self.execute(circuit, noise_model)
+                rho += np.outer(sv, sv.conj())
+            rho /= shots
+            job.set_result(JobResult(state_vector=None, counts=[], density_matrix=rho))
+        return job
 
-        rho = np.zeros((dim_total, dim_total), dtype=complex)
-        for _ in range(self.shots):
-            state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
-            state = simulate_circuit(state, circuit, noise_model)
-            sv = mps_to_statevector(state)
-            rho += np.outer(sv, sv.conj())
-        rho /= self.shots
-        return None, rho
-
-
-if __name__ == "__main__":
-    import numpy as np
-    from mqt.yaqs.core.data_structures.mps import MPS
-    from mqt.yaqs.digital.utils.qudit_dag_utils import circuit_to_dag
-
-    from mqt.qudits.quantum_circuit import QuantumCircuit
-
-    d = 2
-    circuit = QuantumCircuit(2, [d, d])
-    circuit.h(0)
-    dag = circuit_to_dag(circuit)
-
-    state = MPS(length=2, physical_dimensions=[d, d], state="zeros")
-    for _i, _t in enumerate(state.tensors):
-        pass
-    node = dag.front_layer()[0]
-
-    apply_single_qudit_gate(state, node)
-
-    for _i, _t in enumerate(state.tensors):
-        pass
-
-    t0 = state.tensors[0][:, 0, :]
-    t1 = state.tensors[1][:, :, 0]
-    sv = np.einsum("ij,kj->ik", t0, t1).reshape(-1)
+    @override
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:
+        dims = circuit.dimensions
+        state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
+        state = simulate_circuit(state, circuit, noise_model)
+        return mps_to_statevector(state)
