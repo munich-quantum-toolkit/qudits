@@ -142,16 +142,30 @@ class YAQSSim(Backend):
         self.noise_model = self._options.get("noise_model", None)
         self.shots = self._options.get("shots", 50)
         self.memory = self._options.get("memory", False)
-        job.set_result(JobResult(state_vector=self.execute(circuit, self.noise_model), counts=[]))
+        sv, rho = self.execute(circuit, self.noise_model)
+        job.set_result(JobResult(state_vector=sv, counts=[], density_matrix=rho))
         return job
     
-    def execute(self, circuit: QuantumCircuit, noise_model=None) -> NDArray[np.complex128]:
+    def execute(self, circuit: QuantumCircuit, noise_model=None) -> tuple:
         dims = circuit.dimensions
-        state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
-        state = simulate_circuit(state, circuit, noise_model)
-        sv = mps_to_statevector(state)
-        return sv.reshape(1, len(sv))
+        dim_total = int(np.prod(dims))
 
+        if noise_model is None or self.shots == 1:
+            state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
+            state = simulate_circuit(state, circuit, noise_model)
+            sv = mps_to_statevector(state)
+            rho = np.outer(sv, sv.conj())
+            return sv.reshape(1, len(sv)), rho
+        
+        rho = np.zeros((dim_total, dim_total), dtype=complex)
+        for _ in range(self.shots):
+            state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
+            state = simulate_circuit(state, circuit, noise_model)
+            sv = mps_to_statevector(state)
+            rho += np.outer(sv, sv.conj())
+        rho /= self.shots
+        return None, rho
+    
 if __name__ == "__main__":
     import numpy as np
     from mqt.yaqs.core.data_structures.mps import MPS
