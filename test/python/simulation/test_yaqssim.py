@@ -58,12 +58,28 @@ class TestYAQSSim(TestCase):
             assert np.allclose(sv, expected)
 
     @staticmethod
+    def test_long_range_gate():
+        provider = MQTQuditProvider()
+        backend = provider.get_backend("yaqssim")
+
+        d = 2
+        qreg = QuantumRegister("reg", 3, [d, d, d])
+        circuit = QuantumCircuit(qreg)
+        circuit.h(0)
+        circuit.csum([0, 2])
+        
+        job = backend.run(circuit)
+        sv = job.result().get_state_vector()
+        expected = np.zeros(d**3, dtype=complex)
+        expected[0] = 1 / np.sqrt(2)
+        expected[5] = 1 / np.sqrt(2)
+        assert np.allclose(sv, expected)
+
+    @staticmethod
     def test_generalized_operators():
-        # d=2: must recover standard Pauli matrices
         assert np.allclose(_generalized_x(2), np.array([[0, 1], [1, 0]]))
         assert np.allclose(_generalized_z(2), np.array([[1, 0], [0, -1]]))
 
-        # for any d: X^d = Z^d = identity
         for d in range(2, 6):
             assert np.allclose(np.linalg.matrix_power(_generalized_x(d), d), np.eye(d))
             assert np.allclose(np.linalg.matrix_power(_generalized_z(d), d), np.eye(d))
