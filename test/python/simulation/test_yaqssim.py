@@ -1,5 +1,15 @@
+# Copyright (c) 2023 - 2026 Chair for Design Automation, TUM
+# Copyright (c) 2025 - 2026 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 from unittest import TestCase
+
 import numpy as np
+
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
@@ -36,13 +46,13 @@ class TestYAQSSim(TestCase):
             sv = job.result().get_state_vector()
 
             assert np.allclose(sv, expected)
-        
+
     @staticmethod
     def test_two_qudit_csum():
         provider = MQTQuditProvider()
         backend = provider.get_backend("yaqssim")
 
-        for d in range(2,5):
+        for d in range(2, 5):
             qreg = QuantumRegister("reg", 2, [d, d])
             circuit = QuantumCircuit(qreg)
             h = circuit.h(0)
@@ -67,7 +77,7 @@ class TestYAQSSim(TestCase):
         circuit = QuantumCircuit(qreg)
         circuit.h(0)
         circuit.csum([0, 2])
-        
+
         job = backend.run(circuit)
         sv = job.result().get_state_vector()
         expected = np.zeros(d**3, dtype=complex)

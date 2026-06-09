@@ -1,8 +1,14 @@
+# Copyright (c) 2023 - 2026 Chair for Design Automation, TUM
+# Copyright (c) 2025 - 2026 Munich Quantum Software Company GmbH
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+#
+# Licensed under the MIT License
+
 """Example: Using YAQSSim as a backend for MQT Qudits circuits."""
 
 from __future__ import annotations
-
-import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
@@ -27,9 +33,7 @@ noise_model.add_quantum_error_locally(Noise(0.05, 0.0), ["csum"])
 job = backend.run(circuit)
 rho = job.result().get_density_matrix()
 
-print(f"Noiseless density matrix: {rho}")
 
 job_noisy = backend.run(circuit, noise_model=noise_model, shots=300)
 rho_noisy = job_noisy.result().get_density_matrix()
 
-print(f"Noiseless density matrix: {rho_noisy}")

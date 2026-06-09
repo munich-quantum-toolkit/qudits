@@ -15,8 +15,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, cast
 
 import numpy as np
 
-from .gates.rx import Rx
-from .gates.rzz import Rzz
 from .components import ClassicRegister, QuantumRegister
 from .gates import (
     LS,
@@ -40,6 +38,8 @@ from .gates import (
     X,
     Z,
 )
+from .gates.rx import Rx
+from .gates.rzz import Rzz
 from .qasm import QASM
 
 if TYPE_CHECKING:
@@ -289,7 +289,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def rzz(self, qudits: list[int], parameters: list[int | float], controls: ControlData | None = None) -> Rzz:
         return Rzz(self, "Rzz", qudits, parameters, self.dimensions[qudits[0]], controls)
-    
+
     @add_gate_decorator
     def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
         return Rz(self, "Rz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)

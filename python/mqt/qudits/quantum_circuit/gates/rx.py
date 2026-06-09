@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from ..components.extensions.controls import ControlData
     from ..gate import Parameter
 
+
 class Rx(Gate):
     def __init__(
         self,
@@ -73,9 +74,7 @@ class Rx(Gate):
         ).to_matrix()
 
         # Combine: pi_back @ rotate @ pi_there
-        return np.asarray(
-            np.matmul(np.matmul(pi_back, rotate), pi_there), dtype=np.complex128
-        )
+        return np.asarray(np.matmul(np.matmul(pi_back, rotate), pi_there), dtype=np.complex128)
 
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:
