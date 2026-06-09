@@ -56,7 +56,7 @@ def apply_two_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     state.tensors[left_site] = new_left
     state.tensors[right_site] = new_right
 
-def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> None:
+def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> MPS:
     sim_params = WeakSimParams(shots=1, preset="exact")
     dag = circuit_to_dag(circuit)
     while dag.op_nodes():
@@ -66,12 +66,13 @@ def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> N
             else:
                 apply_two_qudit_gate(state, node)
 
-            local_noise = build_local_yaqs_noise(noise_model, node.op_name, node.target_qudits)
+            local_noise = build_local_yaqs_noise(noise_model, node.op_name, node.target_qudits, node.dimensions)
             if local_noise is not None:
                 apply_dissipation(state, local_noise, dt=1, sim_params=sim_params)
                 state = stochastic_process(state, local_noise, dt=1, sim_params=sim_params, rng=None)
 
             dag.remove_op_node(node)
+    return state
 
 def mps_to_statevector(state: MPS) -> NDArray[np.complex128]:
     result = state.tensors[0][:, 0, :]
@@ -82,23 +83,27 @@ def mps_to_statevector(state: MPS) -> NDArray[np.complex128]:
         result = np.einsum("ij,kjl->ikl", result, t).reshape(-1, t.shape[2])
     return result[:, 0]
 
-def build_local_yaqs_noise(mqt_noise_model, gate_name, sites):
+def build_local_yaqs_noise(mqt_noise_model, gate_name, sites, dimensions):
     if mqt_noise_model is None:
         return None
     errors = mqt_noise_model.quantum_errors
     if gate_name not in errors:
         return None
-    
+
     processes = []
     gate_errors = errors[gate_name]
-
     noise = gate_errors.get("local") or gate_errors.get("all")
     if noise:
-        for site in sites:
+        for site, d in zip(sites, dimensions):
             if noise.probability_depolarizing > 0:
-                processes.append({"name": "x", "sites": [site], "strength": noise.probability_depolarizing})
+                X = np.zeros((d, d), dtype=complex)
+                for j in range(d):
+                    X[(j + 1) % d, j] = 1.0
+                processes.append({"name": "x", "sites": [site], "strength": noise.probability_depolarizing, "matrix": X})
             if noise.probability_dephasing > 0:
-                processes.append({"name": "z", "sites": [site], "strength": noise.probability_dephasing})
+                omega = np.exp(2j * np.pi / d)
+                Z = np.diag([omega**j for j in range(d)])
+                processes.append({"name": "z", "sites": [site], "strength": noise.probability_dephasing, "matrix": Z})
     return YAQSNoiseModel(processes) if processes else None
 
 class YAQSSim(Backend):
@@ -117,7 +122,7 @@ class YAQSSim(Backend):
     def execute(self, circuit: QuantumCircuit, noise_model=None) -> NDArray[np.complex128]:
         dims = circuit.dimensions
         state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
-        simulate_circuit(state, circuit, noise_model)
+        state = simulate_circuit(state, circuit, noise_model)
         sv = mps_to_statevector(state)
         return sv.reshape(1, len(sv))
 
