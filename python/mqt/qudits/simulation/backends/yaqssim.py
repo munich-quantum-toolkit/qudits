@@ -17,6 +17,10 @@ from mqt.yaqs.core.methods.decompositions import merge_two_site, split_two_site
 from mqt.yaqs.digital.utils.qudit_dag_utils import circuit_to_dag
 from ..jobs import Job, JobResult
 from .backendv2 import Backend
+from mqt.yaqs.core.data_structures.noise_model import NoiseModel as YAQSNoiseModel
+from mqt.yaqs.core.data_structures.simulation_parameters import WeakSimParams
+from mqt.yaqs.core.methods.dissipation import apply_dissipation
+from mqt.yaqs.core.methods.stochastic_process import stochastic_process
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -52,7 +56,8 @@ def apply_two_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     state.tensors[left_site] = new_left
     state.tensors[right_site] = new_right
 
-def simulate_circuit(state: MPS, circuit: QuantumCircuit) -> None:
+def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> None:
+    sim_params = WeakSimParams(shots=1, preset="exact")
     dag = circuit_to_dag(circuit)
     while dag.op_nodes():
         for node in dag.front_layer():
@@ -60,6 +65,12 @@ def simulate_circuit(state: MPS, circuit: QuantumCircuit) -> None:
                 apply_single_qudit_gate(state, node)
             else:
                 apply_two_qudit_gate(state, node)
+
+            local_noise = build_local_yaqs_noise(noise_model, node.op_name, node.target_qudits)
+            if local_noise is not None:
+                apply_dissipation(state, local_noise, dt=1, sim_params=sim_params)
+                state = stochastic_process(state, local_noise, dt=1, sim_params=sim_params, rng=None)
+
             dag.remove_op_node(node)
 
 def mps_to_statevector(state: MPS) -> NDArray[np.complex128]:
@@ -71,6 +82,25 @@ def mps_to_statevector(state: MPS) -> NDArray[np.complex128]:
         result = np.einsum("ij,kjl->ikl", result, t).reshape(-1, t.shape[2])
     return result[:, 0]
 
+def build_local_yaqs_noise(mqt_noise_model, gate_name, sites):
+    if mqt_noise_model is None:
+        return None
+    errors = mqt_noise_model.quantum_errors
+    if gate_name not in errors:
+        return None
+    
+    processes = []
+    gate_errors = errors[gate_name]
+
+    noise = gate_errors.get("local") or gate_errors.get("all")
+    if noise:
+        for site in sites:
+            if noise.probability_depolarizing > 0:
+                processes.append({"name": "x", "sites": [site], "strength": noise.probability_depolarizing})
+            if noise.probability_dephasing > 0:
+                processes.append({"name": "z", "sites": [site], "strength": noise.probability_dephasing})
+    return YAQSNoiseModel(processes) if processes else None
+
 class YAQSSim(Backend):
     def __init__(self, provider, name=None, description=None, **fields):
         super().__init__(provider, name=name, description=description, **fields)
@@ -81,13 +111,13 @@ class YAQSSim(Backend):
         self.noise_model = self._options.get("noise_model", None)
         self.shots = self._options.get("shots", 50)
         self.memory = self._options.get("memory", False)
-        job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
+        job.set_result(JobResult(state_vector=self.execute(circuit, self.noise_model), counts=[]))
         return job
     
     def execute(self, circuit: QuantumCircuit, noise_model=None) -> NDArray[np.complex128]:
         dims = circuit.dimensions
         state = MPS(length=len(dims), physical_dimensions=dims, state="zeros")
-        simulate_circuit(state, circuit)
+        simulate_circuit(state, circuit, noise_model)
         sv = mps_to_statevector(state)
         return sv.reshape(1, len(sv))
 
