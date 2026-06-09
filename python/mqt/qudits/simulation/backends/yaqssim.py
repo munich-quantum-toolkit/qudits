@@ -33,28 +33,54 @@ def apply_single_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     U = node.gate.to_matrix()
     state.tensors[site] = oe.contract("ab,bcd->acd", U, state.tensors[site])
 
+def _apply_adjacent_two_qudit_gate(state: MPS, left_site: int, right_site: int,
+                                    d_left: int, d_right: int, U: np.ndarray) -> None:
+    merged = merge_two_site(state.tensors[left_site], state.tensors[right_site])
+    theta = merged.reshape(d_left, d_right, merged.shape[1], merged.shape[2])
+    theta_new = oe.contract("ijkl,klab->ijab", U, theta)
+    merged_new = theta_new.reshape(d_left * d_right, merged.shape[1], merged.shape[2])
+    new_left, new_right = split_two_site(
+        merged_new, [d_left, d_right],
+        svd_distribution="right", trunc_mode="discarded_weight",
+        threshold=0.0, max_bond_dim=None, min_bond_dim=1,
+    )
+    state.tensors[left_site] = new_left
+    state.tensors[right_site] = new_right
+
+def _apply_swap(state: MPS, site: int) -> None:
+    d_left = state.tensors[site].shape[0]
+    d_right = state.tensors[site + 1].shape[0]
+    SWAP = np.zeros((d_left * d_right, d_left * d_right), dtype=complex)
+    for k in range(d_left):
+        for l in range(d_right):
+            SWAP[l * d_left + k, k * d_right + l] = 1.0
+    SWAP = SWAP.reshape(d_right, d_left, d_left, d_right)
+    merged = merge_two_site(state.tensors[site], state.tensors[site + 1])
+    theta = merged.reshape(d_left, d_right, merged.shape[1], merged.shape[2])
+    theta_new = oe.contract("ijkl,klab->ijab", SWAP, theta)
+    merged_new = theta_new.reshape(d_left * d_right, merged.shape[1], merged.shape[2])
+    new_left, new_right = split_two_site(
+        merged_new, [d_right, d_left],
+        svd_distribution="right", trunc_mode="discarded_weight",
+        threshold=0.0, max_bond_dim=None, min_bond_dim=1,
+    )
+    state.tensors[site] = new_left
+    state.tensors[site + 1] = new_right
+
 def apply_two_qudit_gate(state: MPS, node: QuditOpNode) -> None:
     left_site = node.target_qudits[0]
     right_site = node.target_qudits[1]
     d_left = node.dimensions[0]
     d_right = node.dimensions[1]
-    U = node.gate.to_matrix()
-    U = U.reshape(d_left, d_right, d_left, d_right)
-    merged = merge_two_site(state.tensors[left_site], state.tensors[right_site])
-    theta  = merged.reshape(d_left, d_right, merged.shape[1], merged.shape[2])
-    theta_new = oe.contract("ijkl,klab->ijab", U, theta)
-    merged_new = theta_new.reshape(d_left * d_right, merged.shape[1], merged.shape[2])
-    new_left, new_right = split_two_site(
-        merged_new,
-        [d_left, d_right],
-        svd_distribution="right",
-        trunc_mode="discarded_weight",
-        threshold=0.0,
-        max_bond_dim=None,
-        min_bond_dim=1,
-    )
-    state.tensors[left_site] = new_left
-    state.tensors[right_site] = new_right
+    U = node.gate.to_matrix().reshape(d_left, d_right, d_left, d_right)
+    if right_site - left_site == 1:
+        _apply_adjacent_two_qudit_gate(state, left_site, right_site, d_left, d_right, U)
+    else:
+        for s in range(left_site, right_site - 1):
+            _apply_swap(state, s)
+        _apply_adjacent_two_qudit_gate(state, right_site - 1, right_site, d_left, d_right, U)
+        for s in range(right_site - 2, left_site - 1, -1):
+            _apply_swap(state, s)
 
 def simulate_circuit(state: MPS, circuit: QuantumCircuit, noise_model=None) -> MPS:
     sim_params = WeakSimParams(shots=1, preset="exact")
