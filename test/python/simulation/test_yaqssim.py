@@ -76,6 +76,28 @@ class TestYAQSSim(TestCase):
         assert np.allclose(sv, expected)
 
     @staticmethod
+    def test_multiple_shots():
+        provider = MQTQuditProvider()
+        backend = provider.get_backend("yaqssim")
+
+        qreg = QuantumRegister("reg", 1, [2])
+        circuit = QuantumCircuit(qreg)
+        circuit.h(0)
+
+        noise_model = NoiseModel()
+        noise_model.add_quantum_error_locally(Noise(0.3, 0.0), ["h"])
+
+        job_single = backend.run(circuit, noise_model=noise_model, shots=1)
+        sv = job_single.result().get_state_vector()
+        rho_single = np.outer(sv.flatten(), sv.flatten().conj())
+        assert np.isclose(np.trace(rho_single @ rho_single).real, 1.0, atol=1e-6)
+
+        job_multi = backend.run(circuit, noise_model=noise_model, shots=100)
+        rho_multi = job_multi.result().get_density_matrix()
+        assert np.isclose(np.trace(rho_multi).real, 1.0, atol=1e-6)
+        assert np.trace(rho_multi @ rho_multi).real < 1.0
+
+    @staticmethod
     def test_generalized_operators():
         assert np.allclose(_generalized_x(2), np.array([[0, 1], [1, 0]]))
         assert np.allclose(_generalized_z(2), np.array([[1, 0], [0, -1]]))
@@ -97,6 +119,5 @@ class TestYAQSSim(TestCase):
         noise_model.add_quantum_error_locally(Noise(0.1, 0.05), ["h"])
 
         job = backend.run(circuit, noise_model=noise_model)
-        sv = job.result().get_state_vector()
-
-        assert np.allclose(np.linalg.norm(sv), 1.0)
+        rho = job.result().get_density_matrix()
+        assert np.isclose(np.trace(rho).real, 1.0)
