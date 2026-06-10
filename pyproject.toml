@@ -67,6 +67,7 @@ dependencies = [
     "matplotlib>=3.10; python_version >= '3.13'",
     "matplotlib>=3.10.5; python_version >= '3.14'",
     "typing-extensions>=4.1",
+    "mqt-yaqs @ git+https://github.com/Marerido/yaqs.git@3658dd20dec76d0e022aff32374cf423f28fe2c1",
 ]
 dynamic = ["version"]
 
@@ -179,10 +180,6 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 warn_unreachable = true
 
-
-[[tool.mypy.overrides]]
-module = ["opt_einsum", "mqt.yaqs.*"]
-ignore_missing_imports = true
 
 [tool.check-wheel-contents]
 ignore = ["W002"]  # Triggers on __init__.py's
