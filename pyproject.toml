@@ -9,9 +9,9 @@
 [build-system]
 requires = [
     "nanobind~=2.12.0",
-    "scikit-build-core>=0.11.6",
+    "scikit-build-core>=0.12.2",
     "setuptools-scm>=9.2.2",
-    "mqt.core~=3.4.0",
+    "mqt.core~=3.6.0",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -26,7 +26,7 @@ authors = [
 
 keywords = ["MQT", "quantum-computing", "design-automation", "qudits"]
 license = "MIT"
-license-files = ["LICENSE.md"]
+license-files = ["LICENSE"]
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -49,10 +49,10 @@ classifiers = [
 ]
 requires-python = ">=3.10, !=3.14.1"
 dependencies = [
-    "numpy>=1.24, !=2.4.2; python_version < '3.12'",
-    "numpy>=1.26, !=2.4.2; python_version >= '3.12'",
-    "numpy>=2.1.0, !=2.4.2; python_version >= '3.13'",
-    "numpy>=2.3.2, !=2.4.2; python_version >= '3.14'",
+    "numpy>=1.24, !=2.4.2, !=2.4.3; python_version < '3.12'",
+    "numpy>=1.26, !=2.4.2, !=2.4.3; python_version >= '3.12'",
+    "numpy>=2.1.0, !=2.4.2, !=2.4.3; python_version >= '3.13'",
+    "numpy>=2.3.2, !=2.4.2, !=2.4.3; python_version >= '3.14'",
     "networkx>=3.0",
     "scipy>=1.10; python_version < '3.12'",
     "scipy>=1.12; python_version >= '3.12'",
@@ -195,6 +195,7 @@ show-fixes = true
 src = ["python"]
 
 [tool.ruff.format]
+preview = true
 docstring-code-format = true
 
 [tool.ruff.lint]
@@ -281,12 +282,11 @@ anc = "anc"
 mone = "mone"
 
 
-[tool.repo-review]
-ignore = [
-  "GH200", # We use Renovate instead of Dependabot
-  "PC160", # We use a mirror of crate-ci/typos
-  "PC170", # We do not use rST files anymore
-]
+[tool.repo-review.ignore]
+GH200 = "We use Renovate instead of Dependabot"
+PC111 = "We use ruff instead of blacken-docs"
+PC160 = "We use a mirror of crate-ci/typos"
+PC170 = "We do not use rST files anymore"
 
 
 [tool.cibuildwheel]
@@ -295,8 +295,7 @@ skip = ["*-musllinux_*", "cp313t-*"]
 archs = "auto64"
 test-groups = ["test"]
 test-command = "pytest {project}/test/python"
-build-frontend = "build[uv]"
-enable = ["cpython-freethreading"]
+build-frontend = "uv"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 manylinux-ppc64le-image = "manylinux_2_28"
@@ -338,9 +337,9 @@ mqt-qudits = { workspace = true }
 [dependency-groups]
 build = [
     "nanobind~=2.12.0",
-    "scikit-build-core>=0.11.6",
+    "scikit-build-core>=0.12.2",
     "setuptools-scm>=9.2.2",
-    "mqt.core~=3.4.0",
+    "mqt.core~=3.6.0",
 ]
 docs = [
     "furo>=2025.09.25",
