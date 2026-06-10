@@ -180,6 +180,10 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+module = ["opt_einsum", "mqt.yaqs.*"]
+ignore_missing_imports = true
+
 
 [tool.check-wheel-contents]
 ignore = ["W002"]  # Triggers on __init__.py's
