@@ -1787,7 +1787,7 @@ requires-dist = [
     { name = "scipy", marker = "python_full_version >= '3.13'", specifier = ">=1.15" },
     { name = "scipy", marker = "python_full_version >= '3.14'", specifier = ">=1.16.1" },
     { name = "tensornetwork", specifier = ">=0.4" },
-    { name = "typing-extensions", specifier = ">=4.1" },
+    { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
 
 [package.metadata.requires-dev]

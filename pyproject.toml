@@ -66,7 +66,7 @@ dependencies = [
     "matplotlib>=3.8; python_version >= '3.12'",
     "matplotlib>=3.10; python_version >= '3.13'",
     "matplotlib>=3.10.5; python_version >= '3.14'",
-    "typing-extensions>=4.1",
+    "typing-extensions>=4.15.0",
     "mqt-yaqs @ git+https://github.com/Marerido/yaqs.git@3658dd20dec76d0e022aff32374cf423f28fe2c1",
 ]
 dynamic = ["version"]
