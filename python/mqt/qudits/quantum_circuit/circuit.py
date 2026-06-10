@@ -38,6 +38,7 @@ from .gates import (
     X,
     Z,
 )
+from .gates.rx import Rx
 from .qasm import QASM
 
 if TYPE_CHECKING:
@@ -90,6 +91,7 @@ class QuantumCircuit:
         "rh": "rh",
         "rdu": "randu",
         "rz": "rz",
+        "rx": "rx",
         "virtrz": "virtrz",
         "s": "s",
         "x": "x",
@@ -279,6 +281,10 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
+    def rx(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rx:
+        return Rx(self, "Rx" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
     def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
         return Rz(self, "Rz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
@@ -463,3 +469,29 @@ class QuantumCircuit:
         new_circuit = preparation.compile_state()
         self.set_instructions(new_circuit.instructions)
         return self
+
+    def reverse_bits(self) -> QuantumCircuit:
+
+        new_circuit = self.copy()
+
+        new_circuit.quantum_registers = new_circuit.quantum_registers[::-1]
+
+        new_circuit.sitemap = {}
+        new_circuit.inverse_sitemap = {}
+
+        new_qudit_index = 0
+        for qreg in new_circuit.quantum_registers:
+            for i in range(qreg.size):
+                qreg.local_sitemap[i] = new_qudit_index
+                new_circuit.sitemap[str(qreg.label), i] = (new_qudit_index, qreg.dimensions[i])
+                new_circuit.inverse_sitemap[new_qudit_index] = (str(qreg.label), i)
+                new_qudit_index += 1
+
+        new_circuit.num_qudits = sum(qreg.size for qreg in new_circuit.quantum_registers)
+        new_circuit._dimensions = []  # noqa: SLF001
+        for qreg in new_circuit.quantum_registers:
+            new_circuit._dimensions.extend(qreg.dimensions)  # noqa: SLF001
+
+        new_circuit.instructions = new_circuit.instructions[::-1]
+
+        return new_circuit
