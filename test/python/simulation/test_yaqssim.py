@@ -15,18 +15,6 @@ from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 
-def _generalized_x(d: int) -> np.ndarray:
-    x = np.zeros((d, d), dtype=complex)
-    for j in range(d):
-        x[(j + 1) % d, j] = 1.0
-    return x
-
-
-def _generalized_z(d: int) -> np.ndarray:
-    omega = np.exp(2j * np.pi / d)
-    return np.diag([omega**j for j in range(d)])
-
-
 class TestYAQSSim(TestCase):
     @staticmethod
     def test_single_qudit_h() -> None:
@@ -108,14 +96,6 @@ class TestYAQSSim(TestCase):
         assert np.isclose(np.trace(rho_multi).real, 1.0, atol=1e-6)
         assert np.trace(rho_multi @ rho_multi).real < 1.0
 
-    @staticmethod
-    def test_generalized_operators() -> None:
-        assert np.allclose(_generalized_x(2), np.array([[0, 1], [1, 0]]))
-        assert np.allclose(_generalized_z(2), np.array([[1, 0], [0, -1]]))
-
-        for d in range(2, 6):
-            assert np.allclose(np.linalg.matrix_power(_generalized_x(d), d), np.eye(d))
-            assert np.allclose(np.linalg.matrix_power(_generalized_z(d), d), np.eye(d))
 
     @staticmethod
     def test_noise() -> None:
