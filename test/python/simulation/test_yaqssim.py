@@ -96,7 +96,6 @@ class TestYAQSSim(TestCase):
         assert np.isclose(np.trace(rho_multi).real, 1.0, atol=1e-6)
         assert np.trace(rho_multi @ rho_multi).real < 1.0
 
-
     @staticmethod
     def test_noise() -> None:
         provider = MQTQuditProvider()
