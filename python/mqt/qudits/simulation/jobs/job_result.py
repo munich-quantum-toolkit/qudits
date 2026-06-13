@@ -18,12 +18,24 @@ if TYPE_CHECKING:
 
 
 class JobResult:
-    def __init__(self, state_vector: NDArray[np.complex128], counts: Sequence[int]) -> None:
+    def __init__(
+        self,
+        state_vector: NDArray[np.complex128] | None,
+        counts: Sequence[int],
+        density_matrix: NDArray[np.complex128] | None = None,
+    ) -> None:
         self.state_vector = state_vector
         self.counts = counts
+        self.density_matrix = density_matrix
 
     def get_counts(self) -> Sequence[int]:
         return self.counts
 
     def get_state_vector(self) -> NDArray[np.complex128]:
+        if self.state_vector is None:
+            msg = "No state vector available — use get_density_matrix() for multi-shot noisy results."
+            raise ValueError(msg)
         return self.state_vector
+
+    def get_density_matrix(self) -> NDArray[np.complex128] | None:
+        return self.density_matrix

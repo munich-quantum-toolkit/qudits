@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from .backends import Innsbruck01, MISim, TNSim
+from .backends import Innsbruck01, MISim, TNSim, YAQSSim
 from .backends.fake_backends import FakeIonTraps2Six, FakeIonTraps2Trits, FakeIonTraps3Six
 
 if TYPE_CHECKING:
@@ -26,6 +26,7 @@ class MQTQuditProvider:
     __backends: ClassVar[dict[str, type[Backend]]] = {
         "tnsim": TNSim,
         "misim": MISim,
+        "yaqssim": YAQSSim,
         "innsbruck01": Innsbruck01,
         "faketraps2trits": FakeIonTraps2Trits,
         "faketraps2six": FakeIonTraps2Six,
