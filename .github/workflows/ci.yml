@@ -182,19 +182,19 @@ jobs:
         with:
           allowed-skips: >-
             ${{
-              fromJSON(needs.change-detection.outputs.run-cpp-tests)
-              && '' || 'cpp-tests-ubuntu,cpp-tests-macos,cpp-tests-windows,cpp-coverage,'
+              !fromJSON(needs.change-detection.outputs.run-cpp-tests)
+              && 'cpp-tests-ubuntu,cpp-tests-macos,cpp-tests-windows,cpp-coverage,' || ''
             }}
             ${{
-              fromJSON(needs.change-detection.outputs.run-cpp-linter)
-              && '' || 'cpp-linter,'
+              !fromJSON(needs.change-detection.outputs.run-cpp-linter)
+              && 'cpp-linter,' || ''
             }}
             ${{
-              fromJSON(needs.change-detection.outputs.run-python-tests)
-              && '' || 'python-tests,python-coverage,python-linter,'
+              !fromJSON(needs.change-detection.outputs.run-python-tests)
+              && 'python-tests,python-coverage,python-linter,' || ''
             }}
             ${{
-              fromJSON(needs.change-detection.outputs.run-cd)
-              && '' || 'build-sdist,build-wheel'
+              !fromJSON(needs.change-detection.outputs.run-cd)
+              && 'build-sdist,build-wheel' || ''
             }}
           jobs: ${{ toJSON(needs) }}
