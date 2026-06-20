@@ -147,6 +147,6 @@ repos:
         additional_dependencies:
           - pandas-stubs
           - pytest
-          - scipy-stubs
+          - scipy-stubs<1.18.0.0
           - types-networkx
         priority: 8
