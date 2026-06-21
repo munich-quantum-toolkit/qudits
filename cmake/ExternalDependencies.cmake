@@ -65,8 +65,11 @@ endif()
 FetchContent_MakeAvailable(${FETCH_PACKAGES})
 
 # TODO: Remove when GoogleTest is updated
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "21")
-  # Workaround for a GoogleTest bug with char conversions recognized by Clang 21+. See
-  # https://github.com/google/googletest/issues/4762.
-  target_compile_options(gtest PRIVATE -Wno-character-conversion)
+if(BUILD_MQT_QUDITS_TESTS)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL
+                                                "21")
+    # Workaround for a GoogleTest bug with char conversions recognized by Clang 21+. See
+    # https://github.com/google/googletest/issues/4762.
+    target_compile_options(gtest PRIVATE -Wno-character-conversion)
+  endif()
 endif()
