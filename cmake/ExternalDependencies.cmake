@@ -70,6 +70,7 @@ if(BUILD_MQT_QUDITS_TESTS)
                                                 "21")
     # Workaround for a GoogleTest bug with char conversions recognized by Clang 21+. See
     # https://github.com/google/googletest/issues/4762.
+    target_compile_options(gmock PRIVATE -Wno-character-conversion)
     target_compile_options(gtest PRIVATE -Wno-character-conversion)
   endif()
 endif()
