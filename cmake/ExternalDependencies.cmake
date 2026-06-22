@@ -64,13 +64,12 @@ endif()
 # Make all declared dependencies available.
 FetchContent_MakeAvailable(${FETCH_PACKAGES})
 
-# TODO: Remove when GoogleTest is updated
+# TODO: Remove when https://github.com/google/googletest/issues/4762 is resolved
 if(BUILD_MQT_QUDITS_TESTS)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL
                                                 "21")
-    # Workaround for a GoogleTest bug with char conversions recognized by Clang 21+. See
-    # https://github.com/google/googletest/issues/4762.
     target_compile_options(gmock PRIVATE -Wno-character-conversion)
+    target_compile_options(gmock_main PRIVATE -Wno-character-conversion)
     target_compile_options(gtest PRIVATE -Wno-character-conversion)
   endif()
 endif()
