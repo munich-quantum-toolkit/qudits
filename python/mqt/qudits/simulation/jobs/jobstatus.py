@@ -28,7 +28,7 @@ class JobStatus(str, enum.Enum):
 
     @property
     def description(self) -> str:
-        """Return a detailed description of the status."""
+        """A detailed description of the job status."""
         return {
             self.INITIALIZING: "Job is being initialized",
             self.QUEUED: "Job is waiting in the queue",
