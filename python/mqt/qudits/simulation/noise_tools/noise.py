@@ -139,7 +139,7 @@ class NoiseModel:
 
     @property
     def basis_gates(self) -> list[str]:
-        """Get the list of basis gates in the noise model."""
+        """The basis gates in the noise model."""
         return list(self.quantum_errors.keys())
 
     def __str__(self) -> str:

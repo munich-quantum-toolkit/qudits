@@ -145,7 +145,7 @@ class Gate(Instruction):
         self.check_long_range()
         return self
 
-    def validate_parameter(self, parameter: Parameter) -> bool:  # noqa: PLR6301 ARG002
+    def validate_parameter(self, parameter: Parameter) -> bool:  # noqa: ARG002, PLR6301
         return False
 
     @property
@@ -154,11 +154,7 @@ class Gate(Instruction):
 
     @property
     def target_qudits(self) -> list[int] | int:
-        """Get the target qudits.
-
-        Returns:
-            Union[List[int], np.ndarray]: The current target qudits.
-        """
+        """The current target qudits."""
         return self._target_qudits
 
     @target_qudits.setter
