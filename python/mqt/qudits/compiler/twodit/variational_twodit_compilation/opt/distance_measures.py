@@ -11,13 +11,13 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
@@ -35,7 +35,7 @@ def fidelity_on_operator(a: NDArray[np.complex128], b: NDArray[np.complex128]) -
     numerator = np.abs(np.trace(adag @ b))
     denominator = np.sqrt(np.trace(a @ adag) * np.trace(b @ bdag))
 
-    return typing.cast("float", (numerator / denominator))
+    return cast("float", (numerator / denominator))
 
 
 def fidelity_on_unitares(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> float:
@@ -45,7 +45,7 @@ def fidelity_on_unitares(a: NDArray[np.complex128], b: NDArray[np.complex128]) -
 
     dimension = a.shape[0]
 
-    return typing.cast("float", np.abs(np.trace(a.T.conj() @ b)) / dimension)
+    return cast("float", np.abs(np.trace(a.T.conj() @ b)) / dimension)
 
 
 def fidelity_on_density_operator(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> float:
@@ -56,7 +56,7 @@ def fidelity_on_density_operator(a: NDArray[np.complex128], b: NDArray[np.comple
     numerator = np.abs(np.trace(a @ b))
     denominator = np.sqrt(np.trace(a @ a) * np.trace(b @ b))
 
-    return typing.cast("float", (numerator / denominator))
+    return cast("float", (numerator / denominator))
 
 
 def naive_state_fidelity(state1: NDArray[np.complex128], state2: NDArray[np.complex128]) -> float:

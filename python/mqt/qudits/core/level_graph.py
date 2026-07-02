@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
-class LevelGraph(nx.Graph):  # type: ignore [type-arg]
+class LevelGraph(nx.Graph):
     def __new__(cls, *args: object, **kwargs: object) -> Self:  # noqa: ARG004
         return object.__new__(cls)
 
@@ -120,17 +120,11 @@ class LevelGraph(nx.Graph):  # type: ignore [type-arg]
 
         return new_lst
 
-    # Define a TypeVar that can be either NodesWithAttributes or List[Tuple[int, int]]
     NL = TypeVar("NL", NodesWithAttributes, list[tuple[int, int]])
 
     @staticmethod
     def deep_copy_func(l_n: NL) -> NL:
-        copy_list = []
-        for li in l_n:
-            d2 = copy.deepcopy(li)
-            copy_list.append(d2)
-
-        return copy_list
+        return copy.deepcopy(l_n)
 
     @staticmethod
     def index(lev_graph: list[tuple[int, int]] | NodesWithAttributes, node: int) -> int:

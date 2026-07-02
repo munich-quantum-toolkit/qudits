@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import numpy as np
@@ -19,7 +19,7 @@ from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 

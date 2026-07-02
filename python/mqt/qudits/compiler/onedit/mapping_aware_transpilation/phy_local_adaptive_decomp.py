@@ -114,6 +114,8 @@ class PhyAdaptiveDecomposition:
             self.dfs(self.TREE.root)
 
         matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
+        assert final_graph is not None
+
         matrices_decomposed_m: list[Gate] = []
         if matrices_decomposed:
             matrices_decomposed_m, final_graph = self.z_extraction(
@@ -198,6 +200,7 @@ class PhyAdaptiveDecomposition:
         ucopy = current_root.u_of_level.copy()
 
         current_placement = current_root.graph
+        assert current_placement is not None
 
         # is the diagonal noisy?
         valid_diag = any(abs(np.diag(ucopy)) > 1.0e-4)

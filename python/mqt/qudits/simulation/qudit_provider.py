@@ -9,7 +9,9 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar
+
+from typing_extensions import Unpack
 
 from .backends import Innsbruck01, MISim, TNSim
 from .backends.fake_backends import FakeIonTraps2Six, FakeIonTraps2Trits, FakeIonTraps3Six
@@ -32,7 +34,7 @@ class MQTQuditProvider:
         "faketraps3six": FakeIonTraps3Six,
     }
 
-    def get_backend(self, name: str | None = None, **kwargs: dict[str, Any]) -> Backend:
+    def get_backend(self, name: str | None = None, **kwargs: Unpack[Backend.DefaultOptions]) -> Backend:
         """Return a single backend matching the specified filtering."""
         if name is None:
             msg = "Backend name must be provided"
@@ -48,7 +50,7 @@ class MQTQuditProvider:
             msg = f"Multiple backends found matching '{name}': {matching_backends}"
             raise ValueError(msg)
 
-        return self.__backends[matching_backends[0]](provider=self, **kwargs)  # type: ignore[arg-type]
+        return self.__backends[matching_backends[0]](provider=self, **kwargs)
 
     def backends(self, name: str | None = None) -> list[str]:
         """Return a list of backend names matching the specified filtering."""

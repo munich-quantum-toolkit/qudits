@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from typing_extensions import override
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
@@ -56,8 +57,8 @@ class CustomOne(Gate):
 
         return self.__array_storage
 
-    @staticmethod
-    def validate_parameter(parameter: Parameter | None = None) -> bool:
+    @override
+    def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
         return bool(

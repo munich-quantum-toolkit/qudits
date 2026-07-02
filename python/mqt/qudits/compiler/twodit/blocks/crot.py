@@ -9,13 +9,13 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from mqt.qudits.quantum_circuit import gates
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
@@ -96,8 +96,8 @@ class CRotGen:
         q0_i = int(np.floor(i / dim_target))  # finds the control block (level) of control line
         q1_i = int(i - (dim_target * q0_i))  # finds lev_a or rotated subspace on target
 
-        rot_there = []
-        rot_back = []
+        rot_there: list[Gate] = []
+        rot_back: list[Gate] = []
 
         rotation = self.crot_101_as_list(theta, phase)
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 import multiprocessing as mp
 import os
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from ...quantum_circuit import QuantumCircuit
     from . import MISim, TNSim
     from .backendv2 import Backend
+
+    Results = list[NDArray[np.complex128]] | list[int]
 
 
 def generate_seed() -> int:
@@ -39,15 +41,15 @@ def measure_state(vector_data: NDArray[np.complex128]) -> int:
     return rng.choice(len(probabilities), p=probabilities)
 
 
-def save_results(backend: Backend, results: list[NDArray[np.complex128] | int]) -> None:
+def save_results(backend: Backend, results: Results) -> None:
     """Save the simulation results based on backend configuration."""
     if backend.full_state_memory and backend.file_path and backend.file_name:
-        save_full_states(results, backend.file_path, backend.file_name)  # type: ignore [arg-type]
+        save_full_states(cast("list[NDArray[np.complex128]]", results), backend.file_path, backend.file_name)
     elif backend.memory and backend.file_path and backend.file_name:
-        save_shots(results, backend.file_path, backend.file_name)  # type: ignore [arg-type]
+        save_shots(cast("list[int]", results), backend.file_path, backend.file_name)
 
 
-def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> list[NDArray[np.complex128] | int]:
+def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> Results:
     noise_model: NoiseModel = NoiseModel()
     if backend.noise_model is not None:
         noise_model = backend.noise_model
@@ -56,15 +58,15 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> list[NDA
     num_processes: int = mp.cpu_count()
     from . import MISim, TNSim
 
-    results: list[NDArray[np.complex128] | int]
+    results: Results
     with mp.Pool(processes=num_processes) as pool:
         if isinstance(backend, TNSim):
             factory = NoisyCircuitFactory(noise_model, circuit)
             args_tn = [(backend, factory) for _ in range(shots)]
-            results = pool.map(stochastic_execution_tn, args_tn)
+            results = cast("Results", pool.map(stochastic_execution_tn, args_tn))
         elif isinstance(backend, MISim):
             args_misim = [(backend, circuit, noise_model) for _ in range(shots)]
-            results = pool.map(stochastic_execution_mi, args_misim)
+            results = cast("Results", pool.map(stochastic_execution_mi, args_misim))
         else:
             msg = "Unsupported backend type"
             raise TypeError(msg)

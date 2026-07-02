@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from scipy.linalg import expm
+from typing_extensions import override
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
@@ -65,8 +66,8 @@ class LS(Gate):
 
         return np.asarray(expm(-1j * self.theta * exp_matrix), dtype=np.complex128)
 
-    @staticmethod
-    def validate_parameter(parameter: Parameter) -> bool:
+    @override
+    def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
             return False
 

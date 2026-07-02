@@ -8,14 +8,14 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from mqt.qudits.compiler.twodit.blocks.pswap import PSwapGen
 from mqt.qudits.compiler.twodit.entanglement_qr import CRotGen
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 

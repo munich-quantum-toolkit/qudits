@@ -42,17 +42,15 @@ class LogLocAdaPass(CompilerPass):
 
         qr = QrDecomp(gate, energy_graph_i)
 
-        _decomp, algorithmic_cost, total_cost = qr.execute()
+        _, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = LogAdaptiveDecomposition(
             gate, energy_graph_i, (algorithmic_cost, total_cost), cast("int", gate.dimensions)
         )
 
-        (
-            matrices_decomposed,
-            _best_cost,
-            self.backend.energy_level_graphs[cast("int", gate.target_qudits)],
-        ) = adaptive.execute()
+        matrices_decomposed, _, new_graph = adaptive.execute()
+        if new_graph is not None:
+            self.backend.energy_level_graphs[cast("int", gate.target_qudits)] = new_graph
 
         return matrices_decomposed
 
@@ -90,7 +88,7 @@ class LogAdaptiveDecomposition:
         self.phase_propagation: bool = bool(z_prop)
         self.TREE: NAryTree = NAryTree()
 
-    def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph]:
+    def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph | None]:
         self.TREE.add(
             0,
             gates.CustomOne(
@@ -108,8 +106,9 @@ class LogAdaptiveDecomposition:
             self.dfs(self.TREE.root)
 
         matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
+
         matrices_decomposed_m: list[Gate] = []
-        if matrices_decomposed != []:
+        if matrices_decomposed:
             matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph)
 
         self.TREE.print_tree(self.TREE.root, "TREE: ")
@@ -117,8 +116,8 @@ class LogAdaptiveDecomposition:
         return matrices_decomposed_m, best_cost, final_graph
 
     def z_extraction(
-        self, decomposition: list[TreeNode], placement: LevelGraph
-    ) -> tuple[list[Gate], LevelGraph]:  # phase_propagation: bool
+        self, decomposition: list[TreeNode], placement: LevelGraph | None
+    ) -> tuple[list[Gate], LevelGraph | None]:
         matrices: list[Gate] = []
 
         for d in decomposition[1:]:
@@ -172,12 +171,7 @@ class LogAdaptiveDecomposition:
         # if is diagonal enough then somehow signal end of algorithm
         if (not not_diag) and valid_diag:
             current_root.finished = True
-
             raise SequenceFoundError(current_root.key)
-
-        ################################################
-        ###############
-        #########
 
         # BEGIN SEARCH
 
@@ -212,7 +206,7 @@ class LogAdaptiveDecomposition:
                                 new_key,
                                 rotation_involved,
                                 u_temp,
-                                None,  # type: ignore[arg-type]
+                                None,
                                 0,  # next_step_cost,
                                 decomp_next_step_cost,
                                 current_root.max_cost,

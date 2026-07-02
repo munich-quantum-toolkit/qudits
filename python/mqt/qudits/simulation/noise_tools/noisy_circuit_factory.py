@@ -109,8 +109,6 @@ class NoisyCircuitFactory:
 
         for mode, noise_info in self.noise_model.quantum_errors[instruction.qasm_tag].items():
             qudits = self._get_affected_qudits(instruction, mode)
-            if qudits is None:
-                continue  # type: ignore[unreachable]
 
             if isinstance(noise_info, SubspaceNoise):
                 noise_info = self._dynamic_subspace_noise_info_rectification(noise_info, instruction)  # noqa: PLW2901
@@ -119,10 +117,7 @@ class NoisyCircuitFactory:
             self._apply_dephasing_noise(noisy_circuit, qudits, noise_info)
 
     def _get_affected_qudits(self, instruction: Gate, mode: str) -> list[int]:
-        if isinstance(mode, str):
-            return self._get_qudits_for_mode(instruction, mode)
-        msg = "Something broken is construction of Noise Model."  # type: ignore[unreachable]
-        raise ValueError(msg)
+        return self._get_qudits_for_mode(instruction, mode)
 
     def _get_qudits_for_mode(self, instruction: Gate, mode: str) -> list[int]:
         mode_handlers: dict[str, Callable[[], list[int]]] = {
@@ -185,8 +180,10 @@ class NoisyCircuitFactory:
                 dim = noisy_circuit.dimensions[dit]
                 prob_each = noise_info.probability_depolarizing / dim / dim  # TODO: ARE WE SURE THIS IS CORRECT?
                 noise_combinations = list(product(range(dim), repeat=2))
-                probabilities = [1 - prob_each * (dim * dim - 1)] + [prob_each] * (dim * dim - 1)
-                power_noise_x, power_noise_z = self.rng.choice(noise_combinations, p=probabilities)
+                probabilities: list[float] = [1 - prob_each * (dim * dim - 1)] + [prob_each] * (dim * dim - 1)
+                power_noise_x, power_noise_z = noise_combinations[
+                    self.rng.choice(len(noise_combinations), p=probabilities)
+                ]
                 # TODO: THE FOLLOWING LINES COULD CREATE A LOT OF OVERHEAD IN SIMULATION
                 for _ in range(power_noise_x):
                     noisy_circuit.x(dit)
@@ -210,12 +207,12 @@ class NoisyCircuitFactory:
                     # Calculate probabilities for noise operations
                     prob_each = noise_info.subspace_w_probs[lev_a, lev_b].probability_depolarizing / 4
 
-                    # Generate possible noise combinations (X,Z gates)
+                    # Generate possible noise combinations (X and Z gates)
                     noise_combinations = list(product(range(2), repeat=2))
-                    probabilities = [1 - 3 * prob_each] + [prob_each] * 3
+                    probabilities: list[float] = [1 - 3 * prob_each] + [prob_each] * 3
 
                     # Choose noise operation based on probability distribution
-                    noise_x, noise_z = self.rng.choice(noise_combinations, p=probabilities)
+                    noise_x, noise_z = noise_combinations[self.rng.choice(len(noise_combinations), p=probabilities)]
 
                     # Apply appropriate noise operation
                     if (noise_x, noise_z) == (1, 0):

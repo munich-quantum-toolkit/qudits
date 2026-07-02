@@ -9,15 +9,20 @@
 from __future__ import annotations
 
 import getpass
-import typing
 import uuid
 from pathlib import Path
+from typing import TYPE_CHECKING, TypedDict
 
-import h5py  # type: ignore[import-not-found]
+import h5py
 import numpy as np
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
+
+
+class _VectorEntry(TypedDict):
+    name: str
+    data: NDArray[np.complex128]
 
 
 def save_full_states(
@@ -39,7 +44,7 @@ def save_full_states(
     vector_names: list[str] = [str(uuid.uuid4()) for _ in range(len(list_of_vectors_og))]
 
     # Combine names and vectors into a list of dictionaries
-    list_of_vectors: list[dict[str, str | NDArray[np.complex128]]] = [
+    list_of_vectors: list[_VectorEntry] = [
         {"name": name, "data": vector} for name, vector in zip(vector_names, list_of_vectors_og, strict=False)
     ]
 
@@ -50,7 +55,7 @@ def save_full_states(
         table_data = np.array(
             [
                 (
-                    vector_info["name"].encode("utf-8"),  # type: ignore [union-attr]
+                    vector_info["name"].encode("utf-8"),
                     vector_info["data"],
                 )
                 for vector_info in list_of_vectors

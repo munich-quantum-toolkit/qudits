@@ -47,7 +47,7 @@ class Rz(Gate):
         if self.validate_parameter(parameters):
             self.original_lev_a: int = cast("int", parameters[0])
             self.original_lev_b: int = cast("int", parameters[1])
-            self.phi: float = cast("float", parameters[2])
+            self.phi: float = parameters[2]
             self.phi = regulate_theta(self.phi)
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters

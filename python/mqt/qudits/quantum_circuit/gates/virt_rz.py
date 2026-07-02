@@ -45,7 +45,7 @@ class VirtRz(Gate):
         )
         if self.validate_parameter(parameters):
             self.lev_a: int = cast("int", parameters[0])
-            self.phi: float = cast("float", parameters[1])
+            self.phi: float = parameters[1]
             self.phi = regulate_theta(self.phi)
             self._params = parameters
 
@@ -57,18 +57,18 @@ class VirtRz(Gate):
 
         return matrix
 
-    def validate_parameter(self, param: Parameter) -> bool:
-        if param is None:
+    def validate_parameter(self, parameter: Parameter) -> bool:
+        if parameter is None:
             return False
 
-        if isinstance(param, list):
-            if len(param) != 2:
+        if isinstance(parameter, list):
+            if len(parameter) != 2:
                 return False
-            if not (isinstance(param[0], int) and isinstance(param[1], float)):
+            if not (isinstance(parameter[0], int) and isinstance(parameter[1], float)):
                 return False
-            return 0 <= param[0] < self.dimensions
+            return 0 <= parameter[0] < self.dimensions
 
-        if isinstance(param, np.ndarray):
+        if isinstance(parameter, np.ndarray):
             # Add validation for numpy array if needed
             return False
 
