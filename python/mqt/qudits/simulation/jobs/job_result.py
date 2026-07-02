@@ -16,11 +16,7 @@ if TYPE_CHECKING:
 
 
 class JobResult:
-    def __init__(
-        self,
-        state_vector: NDArray[np.complex128],
-        counts: list[int],
-    ) -> None:
+    def __init__(self, state_vector: NDArray[np.complex128], counts: list[int]) -> None:
         self.state_vector = state_vector
         self.counts = counts
 

@@ -181,9 +181,7 @@ class NoisyCircuitFactory:
                 prob_each = noise_info.probability_depolarizing / dim / dim  # TODO: ARE WE SURE THIS IS CORRECT?
                 noise_combinations = list(product(range(dim), repeat=2))
                 probabilities: list[float] = [1 - prob_each * (dim * dim - 1)] + [prob_each] * (dim * dim - 1)
-                power_noise_x, power_noise_z = noise_combinations[
-                    self.rng.choice(len(noise_combinations), p=probabilities)
-                ]
+                power_noise_x, power_noise_z = self.rng.choice(np.asarray(noise_combinations), p=probabilities)
                 # TODO: THE FOLLOWING LINES COULD CREATE A LOT OF OVERHEAD IN SIMULATION
                 for _ in range(power_noise_x):
                     noisy_circuit.x(dit)
@@ -212,7 +210,7 @@ class NoisyCircuitFactory:
                     probabilities: list[float] = [1 - 3 * prob_each] + [prob_each] * 3
 
                     # Choose noise operation based on probability distribution
-                    noise_x, noise_z = noise_combinations[self.rng.choice(len(noise_combinations), p=probabilities)]
+                    noise_x, noise_z = self.rng.choice(np.asarray(noise_combinations), p=probabilities)
 
                     # Apply appropriate noise operation
                     if (noise_x, noise_z) == (1, 0):
