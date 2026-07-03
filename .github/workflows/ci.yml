@@ -132,6 +132,8 @@ jobs:
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-python-linter.yml@e7f84f39ce2d3b6c5d1d04526b8f94f98e455143 # v2.2.0
     with:
       check-stubs: true
+      enable-ty: true
+      enable-mypy: false
 
   build-sdist:
     name: 🚀 CD

@@ -9,8 +9,8 @@
 from __future__ import annotations
 
 import copy
-import typing
 from itertools import starmap
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from scipy.optimize import minimize
@@ -20,7 +20,7 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimi
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -43,7 +43,7 @@ def apply_rotations(
 def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: NDArray[np.float64]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
-    dims = typing.cast("list[int]", gate.dimensions)
+    dims = cast("list[int]", gate.dimensions)
     params = params_splitter(params_list, dims)
 
     decomposition: list[Gate] = []
@@ -67,11 +67,11 @@ def density(m_prime: NDArray[np.float64]) -> float:
 
 
 def manhattan_norm(matrix: NDArray[np.complex128]) -> float:
-    return typing.cast("float", np.sum(np.abs(matrix)))
+    return cast("float", np.sum(np.abs(matrix)))
 
 
 def frobenius_norm(matrix: NDArray[np.complex128]) -> float:
-    return typing.cast("float", np.sqrt(np.sum(np.abs(matrix) ** 2)))
+    return cast("float", np.sqrt(np.sum(np.abs(matrix) ** 2)))
 
 
 def compute_f(x: NDArray[np.complex128]) -> float:
@@ -128,7 +128,7 @@ def objective_function(thetas: NDArray[np.float64], m: NDArray[np.complex128], d
 
 def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
     m = gate.to_matrix()
-    dims = typing.cast("list[int]", gate.dimensions)
+    dims = cast("list[int]", gate.dimensions)
 
     Optimizer.set_class_variables(m, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()

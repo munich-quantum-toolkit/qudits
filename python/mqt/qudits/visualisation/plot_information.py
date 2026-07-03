@@ -11,7 +11,7 @@ from __future__ import annotations
 import itertools
 from typing import TYPE_CHECKING
 
-import matplotlib.pyplot as plt  # type: ignore[import-not-found]
+import matplotlib.pyplot as plt
 import numpy as np
 
 if TYPE_CHECKING:

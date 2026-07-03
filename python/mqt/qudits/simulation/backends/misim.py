@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from typing_extensions import Unpack
@@ -54,7 +54,8 @@ class MISim(Backend):
 
         if self.noise_model is not None:
             assert self.shots >= 50, "Number of shots should be above 50"
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))  # type: ignore [arg-type]
+            counts = cast("list[int]", stochastic_simulation(self, circuit))
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=counts))
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
 

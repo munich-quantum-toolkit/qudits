@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import copy
-import typing
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -23,7 +23,7 @@ from mqt.qudits.core.micro_dd import (
 )
 from mqt.qudits.quantum_circuit.gates import R
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from mqt.qudits.core.micro_dd import MicroDDNode, NodeContribution
@@ -42,7 +42,7 @@ def find_complex_number(x: complex, c: complex) -> complex:
 
 def get_angles(from_: complex, to_: complex) -> tuple[float, float]:
     theta = 2 * np.arctan2(abs(from_), abs(to_))
-    phi = typing.cast("float", -(np.pi / 2 + np.angle(to_) - np.angle(from_)))
+    phi = cast("float", -(np.pi / 2 + np.angle(to_) - np.angle(from_)))
 
     return theta, phi
 

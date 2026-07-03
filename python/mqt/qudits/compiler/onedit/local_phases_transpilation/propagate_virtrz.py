@@ -11,6 +11,8 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING, cast
 
+from typing_extensions import override
+
 from ....quantum_circuit import gates
 from ... import CompilerPass
 from ...compilation_minitools import pi_mod
@@ -27,8 +29,8 @@ class ZPropagationOptPass(CompilerPass):
         super().__init__(backend)
         self.back = back
 
-    @staticmethod
-    def transpile_gate(gate: Gate) -> list[Gate]:
+    @override
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         return [gate]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:

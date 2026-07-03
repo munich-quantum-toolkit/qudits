@@ -9,12 +9,14 @@
 from __future__ import annotations
 
 import copy
-import typing
+from typing import TYPE_CHECKING
+
+from typing_extensions import override
 
 from ....quantum_circuit import gates
 from ... import CompilerPass
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from ....quantum_circuit import QuantumCircuit
     from ....quantum_circuit.gate import Gate
     from ....simulation.backends.backendv2 import Backend
@@ -24,8 +26,8 @@ class ZRemovalOptPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    @staticmethod
-    def transpile_gate(gate: Gate) -> list[Gate]:
+    @override
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         return [gate]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:

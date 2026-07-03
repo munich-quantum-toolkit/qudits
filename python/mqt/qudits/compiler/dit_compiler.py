@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from ..core.lanes import Lanes
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
@@ -17,7 +17,7 @@ from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPa
 from .twodit import LogEntQRCEXPass
 from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
     from ..quantum_circuit.gate import Gate
     from ..simulation.backends.backendv2 import Backend
@@ -25,7 +25,7 @@ if typing.TYPE_CHECKING:
 
 
 class QuditCompiler:
-    passes_enabled: typing.ClassVar = {
+    passes_enabled: ClassVar = {
         "PhyLocQRPass": PhyLocQRPass,
         "PhyLocAdaPass": PhyLocAdaPass,
         "LocQRPass": PhyLocQRPass,
@@ -55,7 +55,7 @@ class QuditCompiler:
             elif "Multi" in str(compiler_pass):
                 passes_dict[GateTypes.MULTI] = decomposition
         for gate in circuit.instructions:
-            decomposer = typing.cast("CompilerPass | None", passes_dict.get(gate.gate_type))
+            decomposer = cast("CompilerPass | None", passes_dict.get(gate.gate_type))
             if decomposer is not None:
                 new_instructions = decomposer.transpile_gate(gate)
                 new_instr.extend(new_instructions)

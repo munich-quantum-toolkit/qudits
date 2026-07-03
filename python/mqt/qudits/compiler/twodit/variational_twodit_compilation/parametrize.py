@@ -45,13 +45,10 @@ def params_splitter(params: NDArray[np.float64] | list[float], dims: list[int]) 
         msg = f"Length of params ({len(params)}) is not compatible with the given dimensions"
         raise ValueError(msg)
 
-    if isinstance(params, np.ndarray):
-        params = params.tolist()
-    assert isinstance(params, list)
-
+    params_list: list[float] = list(params) if isinstance(params, np.ndarray) else params
     split_params = []
-    for i in range(0, len(params), step_size):
-        split_params.extend([params[i : i + n], params[i + n : i + step_size]])
+    for i in range(0, len(params_list), step_size):
+        split_params.extend([params_list[i : i + n], params_list[i + n : i + step_size]])
 
     return split_params
 

@@ -9,7 +9,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -18,7 +18,7 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize impor
 from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from mqt.qudits.quantum_circuit import QuantumCircuit

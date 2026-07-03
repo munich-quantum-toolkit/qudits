@@ -9,8 +9,8 @@
 from __future__ import annotations
 
 import copy
-import typing
 from operator import itemgetter
+from typing import TYPE_CHECKING, Literal
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz import (
     create_cu_instance,
@@ -21,7 +21,7 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_solve_n_search import binary_search_compile
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
@@ -29,7 +29,7 @@ if typing.TYPE_CHECKING:
 def variational_compile(
     target: Gate,
     tolerance: float,
-    ansatz_type: typing.Literal["MS", "LS", "CU"],
+    ansatz_type: Literal["MS", "LS", "CU"],
     layers: int,
     custom_primitive: Gate | None = None,
 ) -> QuantumCircuit:

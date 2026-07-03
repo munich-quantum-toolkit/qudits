@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
-import tensornetwork as tn  # type: ignore[import-not-found]
+import tensornetwork as tn
 from typing_extensions import Unpack
 
 from ...quantum_circuit.components.extensions.gate_types import GateTypes
@@ -57,7 +57,8 @@ class TNSim(Backend):
 
         if self.noise_model is not None:
             assert self.shots >= 50, "Number of shots should be above 50"
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))  # type: ignore [arg-type]
+            counts = cast("list[int]", stochastic_simulation(self, circuit))
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=counts))
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
 
@@ -75,7 +76,7 @@ class TNSim(Backend):
         return np.asarray(result.reshape(1, state_size), dtype=np.complex128)
 
     @staticmethod
-    def __apply_gate(qudit_edges: tn.Edge, gate: NDArray[np.complex128], operating_qudits: list[int]) -> None:
+    def __apply_gate(qudit_edges: list[tn.Edge], gate: NDArray[np.complex128], operating_qudits: list[int]) -> None:
         op = tn.Node(gate)
         for i, bit in enumerate(operating_qudits):
             tn.connect(qudit_edges[bit], op[i])

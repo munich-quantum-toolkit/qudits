@@ -10,12 +10,12 @@ from __future__ import annotations
 
 import itertools
 import operator
-import typing
 from functools import reduce
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
@@ -32,7 +32,7 @@ class MatrixFactory:
         if self.gate.dagger:
             matrix = matrix.conj().T
 
-        control_info = typing.cast("ControlData | None", self.gate.control_info["controls"])
+        control_info = cast("ControlData | None", self.gate.control_info["controls"])
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))

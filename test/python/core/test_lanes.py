@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import numpy as np
@@ -17,7 +17,7 @@ from mqt.qudits.core.lanes import Lanes
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.gates import CEx, CustomMulti, R
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
@@ -26,7 +26,7 @@ class TestLanes(TestCase):
         self.circuit = QuantumCircuit(3, [3, 3, 3], 0)
 
     def test_create_lanes(self):
-        gates = [
+        gates: list[Gate] = [
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
@@ -49,7 +49,7 @@ class TestLanes(TestCase):
         assert self.lanes.index_dict == expected_index_dict
 
     def test_extract_circuit(self):
-        gates = [
+        gates: list[Gate] = [
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
@@ -68,7 +68,7 @@ class TestLanes(TestCase):
         assert result == [gates[0], gates[1], gates[2], gates[3], gates[4]]
 
     def test_extract_lane(self):
-        gates = [
+        gates: list[Gate] = [
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             CEx(self.circuit, "CEx", [0, 1], None, [self.circuit.dimensions[i] for i in [0, 1]]),
@@ -87,7 +87,7 @@ class TestLanes(TestCase):
         assert result == [gates[2], gates[3], gates[4]]
 
     def test_find_consecutive_singles(self):
-        gates = [
+        gates: list[Gate] = [
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),
             R(self.circuit, "R", 1, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[1]),
             R(self.circuit, "R", 0, [0, 1, np.pi, np.pi / 2], self.circuit.dimensions[0]),

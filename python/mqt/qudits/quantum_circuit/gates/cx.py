@@ -13,6 +13,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+from typing_extensions import override
 
 from ..components.extensions.gate_types import GateTypes
 from ..components.extensions.matrix_factory import from_dirac_to_basis
@@ -52,7 +53,7 @@ class CEx(Gate):
             self.lev_a: int = cast("int", parameters[0])
             self.lev_b: int = cast("int", parameters[1])
             self.ctrl_lev: int = cast("int", parameters[2])
-            self.phi: float = cast("float", parameters[3])
+            self.phi: float = parameters[3]
             # self.lev_a, self.lev_b, self.ctrl_lev, self.phi = parameters
             self._params: list[int | float] = parameters
         else:
@@ -62,7 +63,7 @@ class CEx(Gate):
         levels_swap_low: int = cast("int", self._params[0])
         levels_swap_high: int = cast("int", self._params[1])
         ctrl_level: int = cast("int", self._params[2])
-        ang: float = cast("float", self._params[3])
+        ang: float = self._params[3]
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
         qudits_targeted = cast("list[int]", self.target_qudits)
@@ -91,8 +92,8 @@ class CEx(Gate):
 
         return result
 
-    @staticmethod
-    def validate_parameter(parameter: Parameter) -> bool:
+    @override
+    def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
             return False
 

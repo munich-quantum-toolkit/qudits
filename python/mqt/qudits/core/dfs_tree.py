@@ -10,12 +10,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from numpy import inf
+import numpy as np
 
 from ..exceptions import NodeNotFoundError
 
 if TYPE_CHECKING:
-    import numpy as np
     from numpy.typing import NDArray
 
     from ..quantum_circuit import gates
@@ -29,7 +28,7 @@ class Node:
         key: int,
         rotation: gates.R | CustomOne,
         u_of_level: NDArray[np.complex128],
-        graph_current: LevelGraph,
+        graph_current: LevelGraph | None,
         current_cost: float,
         current_decomp_cost: float,
         max_cost: tuple[float, float],
@@ -57,7 +56,7 @@ class Node:
         new_key: int,
         rotation: gates.R | CustomOne,
         u_of_level: NDArray[np.complex128],
-        graph_current: LevelGraph,
+        graph_current: LevelGraph | None,
         current_cost: float,
         current_decomp_cost: float,
         max_cost: tuple[float, float],
@@ -102,7 +101,7 @@ class NAryTree:
         new_key: int,
         rotation: gates.R | CustomOne,
         u_of_level: NDArray[np.complex128],
-        graph_current: LevelGraph,
+        graph_current: LevelGraph | None,
         current_cost: float,
         current_decomp_cost: float,
         max_cost: tuple[float, float],
@@ -176,7 +175,7 @@ class NAryTree:
 
         return node.finished
 
-    def min_cost_decomp(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph]:
+    def min_cost_decomp(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph | None]:
         if not node.children:
             return [node], (node.current_cost, node.current_decomp_cost), node.graph
 
@@ -186,13 +185,13 @@ class NAryTree:
         minimum_child.insert(0, node)
         return minimum_child, best_cost, final_graph
 
-    def retrieve_decomposition(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph]:
+    def retrieve_decomposition(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph | None]:
         self.found_checker(node)
 
+        decomp_nodes: list[Node]
         if not node.finished:
-            decomp_nodes: list[Node] = []
-
-            best_cost = (inf, inf)
+            decomp_nodes = []
+            best_cost = (np.inf, np.inf)
             final_graph = node.graph
         else:
             decomp_nodes, best_cost, final_graph = self.min_cost_decomp(node)

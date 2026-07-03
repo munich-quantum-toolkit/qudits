@@ -12,7 +12,7 @@ ci:
   autoupdate_commit_msg: "⬆️🪝 update pre-commit hooks"
   autoupdate_schedule: quarterly
   autofix_commit_msg: "🎨 pre-commit fixes"
-  skip: [mypy]
+  skip: [ty]
 
 repos:
   ## Standard hooks
@@ -137,16 +137,10 @@ repos:
         types_or: [python, pyi, jupyter, markdown]
         priority: 7
 
-  ## Check Python types with mypy
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+  ## Check Python types with ty
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.53
     hooks:
-      - id: mypy
-        files: ^(python/mqt|test/python)
-        args: []
-        additional_dependencies:
-          - pandas-stubs
-          - pytest
-          - scipy-stubs<1.18.0.0
-          - types-networkx
+      - id: ty
+        args: [--only-dev]
         priority: 8

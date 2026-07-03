@@ -10,12 +10,13 @@
 from __future__ import annotations
 
 import gc
-import typing
 from operator import itemgetter
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy import matmul as mml
 from numpy.linalg import det, solve
+from typing_extensions import override
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
@@ -25,7 +26,7 @@ from ..blocks.crot import CRotGen
 from ..blocks.czrot import CZRotGen
 from ..blocks.pswap import PSwapGen
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -37,10 +38,10 @@ class LogEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    @staticmethod
-    def transpile_gate(gate: Gate) -> list[Gate]:
+    @override
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         eqr = EntangledQRCEX(gate)
-        decomp, _countcr, _countpsw = eqr.execute()
+        decomp, _, _ = eqr.execute()
         return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:

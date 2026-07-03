@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from typing_extensions import override
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.core.lanes import Lanes
@@ -29,8 +30,8 @@ class NaiveLocResynthOptPass(CompilerPass):
         self.circuit: QuantumCircuit | None = None  # Replace 'Any' with the actual circuit type
         self.lanes: Lanes | None = None
 
-    @staticmethod
-    def transpile_gate(gate: Gate) -> list[Gate]:
+    @override
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         if gate is not None:
             msg = "transpile_gate method not implemented"
             raise NotImplementedError(msg)

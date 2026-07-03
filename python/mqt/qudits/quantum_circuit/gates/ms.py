@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from scipy.linalg import expm
+from typing_extensions import override
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
@@ -75,8 +76,8 @@ class MS(Gate):
         )
         return np.asarray(expm(-1j * theta * gate_part_1 @ gate_part_2 / 4), dtype=np.complex128)
 
-    @staticmethod
-    def validate_parameter(parameter: Parameter) -> bool:
+    @override
+    def validate_parameter(self, parameter: Parameter) -> bool:
         if parameter is None:
             return False
 
