@@ -11,7 +11,7 @@ requires = [
     "nanobind~=2.13.0",
     "scikit-build-core~=0.12",
     "setuptools-scm>=9.2.2",
-    "mqt.core~=3.6.0",
+    "mqt.core~=3.7.0",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -335,7 +335,7 @@ build = [
     "nanobind~=2.13.0",
     "scikit-build-core~=0.12",
     "setuptools-scm>=9.2.2",
-    "mqt.core~=3.6.0",
+    "mqt.core~=3.7.0",
 ]
 docs = [
     "furo>=2025.09.25",
