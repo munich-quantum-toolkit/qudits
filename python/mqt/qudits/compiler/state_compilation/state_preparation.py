@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -42,8 +42,7 @@ def find_complex_number(x: complex, c: complex) -> complex:
 
 def get_angles(from_: complex, to_: complex) -> tuple[float, float]:
     theta = 2 * np.arctan2(abs(from_), abs(to_))
-    phi = cast("float", -(np.pi / 2 + np.angle(to_) - np.angle(from_)))
-
+    phi = -(np.pi / 2 + np.angle(to_) - np.angle(from_))
     return theta, phi
 
 
