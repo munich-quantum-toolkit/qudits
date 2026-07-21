@@ -43,15 +43,9 @@ template <class Node> struct Edge {
     return Node::isTerminal(nextNode);
   }
 
-  // edges pointing to zero and one terminals
-  static const inline Edge one{
-      Node::terminal,
-      Complex::one}; // NOLINT(readability-identifier-naming) automatic renaming
-                     // does not work reliably, so skip linting
-  static const inline Edge zero{
-      Node::terminal,
-      Complex::zero}; // NOLINT(readability-identifier-naming) automatic
-                      // renaming does not work reliably, so skip linting
+  // Edges pointing to zero and one terminals
+  static const Edge one;  // NOLINT(readability-identifier-naming)
+  static const Edge zero; // NOLINT(readability-identifier-naming)
 
   [[nodiscard]] static constexpr Edge terminal(const Complex& weight) {
     return {Node::terminal, weight};
@@ -63,6 +57,13 @@ template <class Node> struct Edge {
     return Node::isTerminal(nextNode) && weight == Complex::one;
   }
 };
+
+// Defined out of class so that `Edge` is a complete type when the terminal
+// edges are initialized.
+template <class Node>
+const Edge<Node> Edge<Node>::one{Node::terminal, Complex::one};
+template <class Node>
+const Edge<Node> Edge<Node>::zero{Node::terminal, Complex::zero};
 
 template <typename Node> struct CachedEdge {
   Node* nextNode{};

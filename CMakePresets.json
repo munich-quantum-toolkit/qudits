@@ -27,8 +27,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "description": "Default configuration for Windows builds. Uses the default generator",
-      "toolset": "ClangCL"
+      "description": "Default configuration for Windows builds. Uses the default generator"
     },
     {
       "name": "debug",

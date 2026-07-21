@@ -242,7 +242,7 @@ inline TritMatrix U301(fp lambda, fp phi, fp theta) {
 }
 
 inline TritMatrix RXY3(fp theta, fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 2 or levb > 2) {
+  if (leva > levb || leva > 2 || levb > 2) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   TritMatrix identity = {COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
@@ -260,7 +260,7 @@ inline TritMatrix RXY3(fp theta, fp phi, size_t leva, size_t levb) {
 }
 
 inline TritMatrix RH3(size_t leva, size_t levb) {
-  if (leva > levb or leva > 2 or levb > 2) {
+  if (leva > levb || leva > 2 || levb > 2) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   TritMatrix identity = {COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
@@ -274,7 +274,7 @@ inline TritMatrix RH3(size_t leva, size_t levb) {
 }
 
 inline TritMatrix RZ3(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 2 or levb > 2) {
+  if (leva > levb || leva > 2 || levb > 2) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   TritMatrix identity = {COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
@@ -319,7 +319,7 @@ inline TritMatrix S3() {
 }
 
 inline TritMatrix embX3(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 2 or levb > 2) {
+  if (leva > levb || leva > 2 || levb > 2) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   TritMatrix identity = {COMPLEX_ONE,  COMPLEX_ZERO, COMPLEX_ZERO,
@@ -384,7 +384,7 @@ inline QuartMatrix H4() {
                                          std::sin(9. * 2. * PI / 4.)}};
 }
 inline QuartMatrix RXY4(fp theta, fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 3 or levb > 3) {
+  if (leva > levb || leva > 3 || levb > 3) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuartMatrix identity = {
@@ -407,7 +407,7 @@ inline QuartMatrix RXY4(fp theta, fp phi, size_t leva, size_t levb) {
 }
 
 inline QuartMatrix RH4(size_t leva, size_t levb) {
-  if (leva > levb or leva > 3 or levb > 3) {
+  if (leva > levb || leva > 3 || levb > 3) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuartMatrix identity = {
@@ -437,7 +437,7 @@ constexpr QuartMatrix X4{
     COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO};
 
 inline QuartMatrix RZ4(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 3 or levb > 3) {
+  if (leva > levb || leva > 3 || levb > 3) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuartMatrix identity = {
@@ -493,7 +493,7 @@ inline QuartMatrix S4() {
 }
 
 inline QuartMatrix embX4(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 3 or levb > 3) {
+  if (leva > levb || leva > 3 || levb > 3) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuartMatrix identity = {
@@ -580,7 +580,7 @@ inline QuintMatrix H5() {
 }
 
 inline QuintMatrix RXY5(fp theta, fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 4 or levb > 4) {
+  if (leva > levb || leva > 4 || levb > 4) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuintMatrix identity = {
@@ -605,7 +605,7 @@ inline QuintMatrix RXY5(fp theta, fp phi, size_t leva, size_t levb) {
 }
 
 inline QuintMatrix RH5(size_t leva, size_t levb) {
-  if (leva > levb or leva > 4 or levb > 4) {
+  if (leva > levb || leva > 4 || levb > 4) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuintMatrix identity = {
@@ -641,7 +641,7 @@ constexpr QuintMatrix X5{
     COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO};
 
 inline QuintMatrix RZ5(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 4 or levb > 4) {
+  if (leva > levb || leva > 4 || levb > 4) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuintMatrix identity = {
@@ -702,7 +702,7 @@ inline QuintMatrix S5() {
   return id;
 }
 inline QuintMatrix embX5(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 4 or levb > 4) {
+  if (leva > levb || leva > 4 || levb > 4) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   QuintMatrix identity = {
@@ -816,7 +816,7 @@ inline SextMatrix H6() {
 }
 
 inline SextMatrix RXY6(fp theta, fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 5 or levb > 5) {
+  if (leva > levb || leva > 5 || levb > 5) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SextMatrix identity = I6;
@@ -832,7 +832,7 @@ inline SextMatrix RXY6(fp theta, fp phi, size_t leva, size_t levb) {
 }
 
 inline SextMatrix RH6(size_t leva, size_t levb) {
-  if (leva > levb or leva > 5 or levb > 5) {
+  if (leva > levb || leva > 5 || levb > 5) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SextMatrix identity = I6;
@@ -872,7 +872,7 @@ constexpr SextMatrix X6{COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ZERO,
                         COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO};
 
 inline SextMatrix RZ6(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 5 or levb > 5) {
+  if (leva > levb || leva > 5 || levb > 5) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SextMatrix identity = I6;
@@ -909,7 +909,7 @@ inline SextMatrix S6() {
   return id;
 }
 inline SextMatrix embX6(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 5 or levb > 5) {
+  if (leva > levb || leva > 5 || levb > 5) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SextMatrix identity = I6;
@@ -1045,7 +1045,7 @@ inline SeptMatrix H7() {
 }
 
 inline SeptMatrix RXY7(fp theta, fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 6 or levb > 6) {
+  if (leva > levb || leva > 6 || levb > 6) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SeptMatrix identity = I7;
@@ -1061,7 +1061,7 @@ inline SeptMatrix RXY7(fp theta, fp phi, size_t leva, size_t levb) {
 }
 
 inline SeptMatrix RH7(size_t leva, size_t levb) {
-  if (leva > levb or leva > 6 or levb > 6) {
+  if (leva > levb || leva > 6 || levb > 6) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SeptMatrix identity = I7;
@@ -1107,7 +1107,7 @@ constexpr SeptMatrix X7{
     COMPLEX_ZERO, COMPLEX_ZERO, COMPLEX_ONE,  COMPLEX_ZERO};
 
 inline SeptMatrix RZ7(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 6 or levb > 6) {
+  if (leva > levb || leva > 6 || levb > 6) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SeptMatrix identity = I7;
@@ -1144,7 +1144,7 @@ inline SeptMatrix S7() {
   return id;
 }
 inline SeptMatrix embX7(fp phi, size_t leva, size_t levb) {
-  if (leva > levb or leva > 6 or levb > 6) {
+  if (leva > levb || leva > 6 || levb > 6) {
     throw std::invalid_argument("LEV A cannot be higher than  LEV B");
   }
   SeptMatrix identity = I7;
