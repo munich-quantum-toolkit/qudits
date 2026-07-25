@@ -51,7 +51,7 @@ class MS(Gate):
             self.theta = parameters[0]
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         theta = self.theta
         dimension_0 = self.dimensions[0]
         dimension_1 = self.dimensions[1]

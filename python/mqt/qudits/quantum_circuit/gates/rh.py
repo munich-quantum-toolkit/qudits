@@ -51,7 +51,7 @@ class Rh(Gate):
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
         dimension = self.dimensions
         qudit_targeted: int = cast("int", self.target_qudits)

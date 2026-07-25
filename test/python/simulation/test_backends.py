@@ -25,7 +25,7 @@ class TestMISimAndTNSim(TestCase):
     @staticmethod
     def run_test_on_both_backends(
         circuit: QuantumCircuit,
-        expected_state: NDArray[np.complex128] | NDArray[np.float64],  # noqa: ARG004
+        expected_state: NDArray[np.complex128] | NDArray[np.float64],  # ruff:ignore[unused-static-method-argument]
     ) -> None:
         backends = ["tnsim", "misim"]
         provider = MQTQuditProvider()

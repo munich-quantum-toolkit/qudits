@@ -128,7 +128,7 @@ class Optimizer:
         ansatz_type: str,
         result_queue: multiprocessing.Queue[tuple[float, NDArray[np.float64]]],
     ) -> None:
-        try:  # noqa: PLW0717
+        try:  # ruff:ignore[too-many-statements-in-try-clause]
             if ansatz_type == "MS":  # MS is 0
                 opt = dual_annealing(cls.objective_fnc_ms, bounds=bounds)
             elif ansatz_type == "LS":  # LS is 1

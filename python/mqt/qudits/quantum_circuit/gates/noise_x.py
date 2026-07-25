@@ -49,7 +49,7 @@ class NoiseX(Gate):
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         dimension = self.dimensions
         matrix = np.identity(dimension, dtype=np.complex128)
 

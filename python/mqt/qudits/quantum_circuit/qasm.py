@@ -90,7 +90,7 @@ class QASM:
             # Define a dictionary of allowed names
             allowed_names = {"__builtins__": None, "pi": np.pi}
             # Use eval with restricted names
-            return float(eval(expression, allowed_names))  # noqa: S307
+            return float(eval(expression, allowed_names))  # ruff:ignore[suspicious-eval-usage]
         except (ValueError, SyntaxError):
             return None
 

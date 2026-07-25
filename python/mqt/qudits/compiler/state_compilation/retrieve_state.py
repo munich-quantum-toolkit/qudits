@@ -48,7 +48,7 @@ def generate_all_combinations(dimensions: list[int]) -> list[list[int]]:
     for i in range(dimensions[0]):
         sub_combinations = generate_all_combinations(dimensions[1:])
         for sub_combination in sub_combinations:
-            all_combinations.append([i, *sub_combination])  # noqa: PERF401
+            all_combinations.append([i, *sub_combination])  # ruff:ignore[manual-list-comprehension]
 
     return all_combinations
 

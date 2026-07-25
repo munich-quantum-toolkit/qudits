@@ -90,7 +90,7 @@ class Gate(Instruction):
         return lines
 
     @abstractmethod
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         pass
 
     def dag(self) -> Gate:
@@ -145,7 +145,7 @@ class Gate(Instruction):
         self.check_long_range()
         return self
 
-    def validate_parameter(self, parameter: Parameter) -> bool:  # noqa: ARG002, PLR6301
+    def validate_parameter(self, parameter: Parameter) -> bool:  # ruff:ignore[unused-method-argument, no-self-use]
         return False
 
     @property
@@ -161,7 +161,7 @@ class Gate(Instruction):
     def target_qudits(self, value: list[int] | int) -> None:
         self._target_qudits = value
 
-    def __qasm__(self) -> str:  # noqa: PLW3201
+    def __qasm__(self) -> str:  # ruff:ignore[bad-dunder-method-name]
         """Generate QASM for Gate export."""
         string = f"{self.qasm_tag} "
         if isinstance(self._params, np.ndarray):
@@ -225,7 +225,7 @@ class Gate(Instruction):
         if not self.parent_circuit.path_save or self._params is None:
             return "(custom_data) "
 
-        key = "".join(random.choice(string.ascii_letters) for _ in range(4))  # noqa: S311
+        key = "".join(random.choice(string.ascii_letters) for _ in range(4))  # ruff:ignore[suspicious-non-cryptographic-random-usage]
         file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
         np.save(file_path, self._params)
         return f"({file_path}) "

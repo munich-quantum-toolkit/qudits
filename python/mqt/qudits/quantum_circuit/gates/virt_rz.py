@@ -49,7 +49,7 @@ class VirtRz(Gate):
             self.phi = regulate_theta(self.phi)
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         dimension = self.dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype=np.complex128)

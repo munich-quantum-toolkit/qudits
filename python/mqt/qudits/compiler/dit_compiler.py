@@ -70,7 +70,7 @@ class QuditCompiler:
         transpiled_circuit.set_mapping(mappings)
         return transpiled_circuit.set_instructions(new_instr)
 
-    def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
+    def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # ruff:ignore[invalid-function-name]
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
         compiled = self.compile(backend, circuit, passes)
 
@@ -82,7 +82,7 @@ class QuditCompiler:
         return compiled
 
     @staticmethod
-    def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
+    def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # ruff:ignore[invalid-function-name]
         phyloc = PhyLocQRPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
@@ -106,7 +106,7 @@ class QuditCompiler:
         return transpiled_circuit.set_instructions(new_instructions)
 
     @staticmethod
-    def compile_O2(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
+    def compile_O2(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # ruff:ignore[invalid-function-name]
         phyent = PhyEntQRCEXPass(backend)
 
         lanes = Lanes(circuit)

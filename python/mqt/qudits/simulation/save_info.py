@@ -65,7 +65,7 @@ def save_full_states(
 
         hdf_file.create_dataset("vectors", data=table_data)
 
-    print(f"States saved to {full_path}")  # noqa: T201
+    print(f"States saved to {full_path}")  # ruff:ignore[print]
 
 
 def save_shots(shots: list[int], file_path: str | Path, file_name: str) -> None:
@@ -85,4 +85,4 @@ def save_shots(shots: list[int], file_path: str | Path, file_name: str) -> None:
         )
         hdf_file.create_dataset("shots", data=table_data)
 
-    print(f"Simulation results saved to {full_path}")  # noqa: T201
+    print(f"Simulation results saved to {full_path}")  # ruff:ignore[print]

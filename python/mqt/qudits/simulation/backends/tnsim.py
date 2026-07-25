@@ -64,7 +64,7 @@ class TNSim(Backend):
 
         return job
 
-    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:  # noqa: ARG002
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:  # ruff:ignore[unused-method-argument]
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
 
