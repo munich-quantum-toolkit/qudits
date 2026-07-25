@@ -226,7 +226,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
     def test_invalid_mode():
         err = SubspaceNoise(0.999, 0.999, (0, 1))
         noise_model = NoiseModel()
-        noise_model._add_quantum_error(err, ["z"], "error_mode")  # noqa: SLF001
+        noise_model._add_quantum_error(err, ["z"], "error_mode")  # ruff:ignore[private-member-access]
         qreg_example = QuantumRegister("reg", 2, 2 * [2])
         circ = QuantumCircuit(qreg_example)
         circ.z(0)

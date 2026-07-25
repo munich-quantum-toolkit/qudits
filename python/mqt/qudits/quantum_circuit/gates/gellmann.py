@@ -51,7 +51,7 @@ class GellMann(Gate):
         )
         self.type_m = cast("str", parameters[2])
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         d = self._dimensions
         assert isinstance(d, int)
 

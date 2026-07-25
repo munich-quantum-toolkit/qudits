@@ -59,7 +59,7 @@ class CEx(Gate):
         else:
             self.ctrl_lev = 1
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         levels_swap_low: int = cast("int", self._params[0])
         levels_swap_high: int = cast("int", self._params[1])
         ctrl_level: int = cast("int", self._params[2])

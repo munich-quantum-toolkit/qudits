@@ -477,10 +477,10 @@ class TestTNSim(TestCase):
         assert len(state_vector.squeeze()) == 5**3
         assert is_quantum_state(state_vector)
 
-    def test_tn_multi(self):  # noqa: PLR6301
+    def test_tn_multi(self):  # ruff:ignore[no-self-use]
         # TODO: Implement test currently just a stub
         assert True
 
-    def test_ion_ent_gates(self):  # noqa: PLR6301
+    def test_ion_ent_gates(self):  # ruff:ignore[no-self-use]
         # TODO: Implement test for ion entity gates
         assert True

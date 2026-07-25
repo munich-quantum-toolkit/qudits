@@ -51,7 +51,7 @@ class QuantumRegister:
         self.dimensions: list[int] = size * [2] if dims is None else dims
         self.local_sitemap: dict[int, int] = {}
 
-    def __qasm__(self) -> str:  # noqa: PLW3201
+    def __qasm__(self) -> str:  # ruff:ignore[bad-dunder-method-name]
         string_dims = str(self.dimensions).replace(" ", "")
         return "qreg " + self.label + " [" + str(self.size) + "]" + string_dims + ";"
 

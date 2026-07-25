@@ -54,7 +54,7 @@ class R(Gate):
             self.theta = regulate_theta(self.theta)
             self._params = parameters
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         dimension = self.dimensions
         theta = self.theta
         phi = self.phi

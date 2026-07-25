@@ -111,7 +111,7 @@ class NoisyCircuitFactory:
             qudits = self._get_affected_qudits(instruction, mode)
 
             if isinstance(noise_info, SubspaceNoise):
-                noise_info = self._dynamic_subspace_noise_info_rectification(noise_info, instruction)  # noqa: PLW2901
+                noise_info = self._dynamic_subspace_noise_info_rectification(noise_info, instruction)  # ruff:ignore[redefined-loop-name]
 
             self._apply_depolarizing_noise(noisy_circuit, qudits, noise_info)
             self._apply_dephasing_noise(noisy_circuit, qudits, noise_info)

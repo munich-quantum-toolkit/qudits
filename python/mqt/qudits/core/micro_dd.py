@@ -321,18 +321,18 @@ def count_nodes_after(node: MicroDDNode, counter: list[int], cardinalities: list
 
 
 def print_decision_weights(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), node.weight)  # noqa: T201
+    print(indent + "Q " + str(node.value), node.weight)  # ruff:ignore[print]
     for child in node.children:
         print_decision_weights(child, indent + "  ")
 
 
 def print_decision_obj_id(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), id(node))  # noqa: T201
+    print(indent + "Q " + str(node.value), id(node))  # ruff:ignore[print]
     for child in node.children:
         print_decision_obj_id(child, indent + "  ")
 
 
 def print_decision_hash(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), node.dd_hash)  # noqa: T201
+    print(indent + "Q " + str(node.value), node.dd_hash)  # ruff:ignore[print]
     for child in node.children:
         print_decision_hash(child, indent + "  ")

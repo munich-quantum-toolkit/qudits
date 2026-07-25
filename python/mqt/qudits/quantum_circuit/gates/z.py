@@ -41,7 +41,7 @@ class Z(Gate):
             qasm_tag="z",
         )
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for i in range(self.dimensions):
             omega = np.mod(2 * i / self.dimensions, 2)

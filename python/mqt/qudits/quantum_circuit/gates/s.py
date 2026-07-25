@@ -46,7 +46,7 @@ class S(Gate):
             msg = "S can be applied to prime dimensional qudits"
             raise InvalidQuditDimensionError(msg)
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         if self.dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
         matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)

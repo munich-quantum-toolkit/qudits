@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class LevelGraph(nx.Graph):
-    def __new__(cls, *args: object, **kwargs: object) -> Self:  # noqa: ARG004
+    def __new__(cls, *args: object, **kwargs: object) -> Self:  # ruff:ignore[unused-static-method-argument]
         return object.__new__(cls)
 
     def __init__(

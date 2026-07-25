@@ -42,7 +42,7 @@ class H(Gate):
             qasm_tag="h",
         )
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         matrix = np.zeros((self.dimensions, self.dimensions), dtype=np.complex128)
         for e0, e1 in itertools.product(range(self.dimensions), repeat=2):
             omega = np.mod(2 / self.dimensions * (e0 * e1), 2)

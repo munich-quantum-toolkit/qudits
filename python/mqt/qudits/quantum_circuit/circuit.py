@@ -65,7 +65,7 @@ G = TypeVar("G", bound="Gate")
 
 
 def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
-    def gate_constructor(circ: QuantumCircuit, *args: Any) -> G:  # noqa: ANN401
+    def gate_constructor(circ: QuantumCircuit, *args: Any) -> G:  # ruff:ignore[any-type]
         gate = func(circ, *args)
         circ.number_gates += 1
         circ.instructions.append(gate)
@@ -436,7 +436,7 @@ class QuantumCircuit:
         result = job.result()
         return result.get_state_vector()
 
-    def compileO0(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+    def compileO0(self, backend_name: str) -> QuantumCircuit:  # ruff:ignore[invalid-function-name]
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 
@@ -446,7 +446,7 @@ class QuantumCircuit:
 
         return qudit_compiler.compile_O0(backend_ion, self)
 
-    def compileO1(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+    def compileO1(self, backend_name: str) -> QuantumCircuit:  # ruff:ignore[invalid-function-name]
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 

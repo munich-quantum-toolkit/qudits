@@ -44,7 +44,7 @@ class RandU(Gate):
             qasm_tag="rdu",
         )
 
-    def __array__(self) -> NDArray[np.complex128]:  # noqa: PLW3201
+    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
         dim = reduce(operator.mul, self.dimensions)
         return np.asarray(unitary_group.rvs(dim), dtype=np.complex128)
 
