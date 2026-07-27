@@ -650,7 +650,6 @@ Once everything is in order, navigate to the
 GitHub, edit the release draft if necessary, and publish the release.
 
 <!--- Links --->
-
 [clion]: https://www.jetbrains.com/clion/
 [vscode]: https://code.visualstudio.com/
 [nox]: https://nox.thea.codes/en/stable/
