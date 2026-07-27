@@ -13,9 +13,10 @@ mystnb:
 
 # MQT Qudits Tutorial
 
-_Discover a New Dimension in Quantum Computing._
-Embark on a journey with MQT Qudits, a framework for mixed-dimensional quantum computing.
-The following tutorial will guide you through the initial tools and contributions we have made to advance quantum information processing for science and technology.
+_Discover a New Dimension in Quantum Computing._ Embark on a journey with MQT
+Qudits, a framework for mixed-dimensional quantum computing. The following
+tutorial will guide you through the initial tools and contributions we have made
+to advance quantum information processing for science and technology.
 
 +++
 
@@ -29,9 +30,11 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 ### **New QASM Extension:**
 
-Dive into a language meticulously designed to express quantum algorithms and circuits.
-MQT Qudits extends the OpenQASM 2.0 grammar, effortlessly adapting to mixed-dimensional registers.
-In the following, a **DITQASM** program is explicitly written, although several methods for importing programs from files are present in the library.
+Dive into a language meticulously designed to express quantum algorithms and
+circuits. MQT Qudits extends the OpenQASM 2.0 grammar, effortlessly adapting to
+mixed-dimensional registers. In the following, a **DITQASM** program is
+explicitly written, although several methods for importing programs from files
+are present in the library.
 
 ```{code-cell} ipython3
 qasm = """
@@ -73,15 +76,20 @@ print(f"Dimensions: {circuit.dimensions}")
 
 ### **Python Interface**
 
-Constructing and manipulating quantum programs becomes a breeze with Python. You have the flexibility to:
+Constructing and manipulating quantum programs becomes a breeze with Python. You
+have the flexibility to:
 
-1. **Initialize Quantum Circuits:** Start by creating your quantum circuits effortlessly.
+1. **Initialize Quantum Circuits:** Start by creating your quantum circuits
+   effortlessly.
 
-2. **Create Quantum Registers:** Build dedicated quantum registers tailored to your needs.
+2. **Create Quantum Registers:** Build dedicated quantum registers tailored to
+   your needs.
 
-3. **Compose Circuits:** Seamlessly bring together your quantum registers, forming a unified and powerful circuit.
+3. **Compose Circuits:** Seamlessly bring together your quantum registers,
+   forming a unified and powerful circuit.
 
-4. **Apply Operations:** Easily apply a variety of qudit operations, without worrying about the right representation.
+4. **Apply Operations:** Easily apply a variety of qudit operations, without
+   worrying about the right representation.
 
 Let's construct a quantum circuit from scratch, with the python interface.
 
@@ -101,9 +109,11 @@ print(f"Number of qudits in the circuit: {circuit.num_qudits}")
 print(f"Gate set: {circuit.gate_set}")
 ```
 
-No operations were inserted yet, let's take a look at how operations can be applied!
+No operations were inserted yet, let's take a look at how operations can be
+applied!
 
-The size of every line is detected automatically and the right operations are applied to the right qudits
+The size of every line is detected automatically and the right operations are
+applied to the right qudits
 
 ```{code-cell} ipython3
 circuit.h(field_reg[0])
@@ -206,11 +216,16 @@ r_c1.reference_lines
 
 ## Simulation
 
-After crafting your quantum circuit with precision, take it for a spin using two distinct engines, each flaunting its unique set of data structures.
+After crafting your quantum circuit with precision, take it for a spin using two
+distinct engines, each flaunting its unique set of data structures.
 
-- **External Tensor-Network Simulator:** Delve into the quantum realm with a robust external tensor-network simulator. Can simulate all the gate-set.
+- **External Tensor-Network Simulator:** Delve into the quantum realm with a
+  robust external tensor-network simulator. Can simulate all the gate-set.
 
-- **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based simulation with MiSiM, seamlessly interfaced with Python for a fluid and efficient experience. Can only simulate the machine following machine gate set:
+- **MiSiM (C++-Powered):** Unleash the power of decision-diagram-based
+  simulation with MiSiM, seamlessly interfaced with Python for a fluid and
+  efficient experience. Can only simulate the machine following machine gate
+  set:
   - csum
   - cx
   - h
@@ -273,11 +288,14 @@ plot_state(state_vector, circuit)
 
 ### Extending Engines with Noise Model and Properties for FakeBackend
 
-Enhance your quantum simulation experience by extending the engines with a noise model and incorporating various properties.
-By combining a noise model and carefully tuned properties, you can craft a FakeBackend that closely emulates the performance of the best quantum machines in experimental laboratories.
-This allows for more realistic and insightful quantum simulations.
+Enhance your quantum simulation experience by extending the engines with a noise
+model and incorporating various properties. By combining a noise model and
+carefully tuned properties, you can craft a FakeBackend that closely emulates
+the performance of the best quantum machines in experimental laboratories. This
+allows for more realistic and insightful quantum simulations.
 
-Experiment, iterate, and simulate quantum circuits with the sophistication of real-world conditions, all within the controlled environment of your simulation.
+Experiment, iterate, and simulate quantum circuits with the sophistication of
+real-world conditions, all within the controlled environment of your simulation.
 
 ```{code-cell} ipython3
 from mqt.qudits.simulation.noise_tools.noise import Noise, NoiseModel
@@ -330,7 +348,8 @@ counts = result.get_counts()
 plot_counts(counts, circuit)
 ```
 
-You can also invoke a fake backend and retrieve a few relevant properties, that are already embedded in them
+You can also invoke a fake backend and retrieve a few relevant properties, that
+are already embedded in them
 
 ```{code-cell} ipython3
 provider = MQTQuditProvider()
@@ -362,20 +381,28 @@ plot_counts(counts, circuit)
 
 ## Compilation
 
-Tailor your quantum compilation process to achieve optimal performance and emulate the intricacies of experimental setups.
+Tailor your quantum compilation process to achieve optimal performance and
+emulate the intricacies of experimental setups.
 
 ### Compiler Customization with Modern Passes
 
-1. **Optimization Strategies:** Implement specific optimization strategies based on your quantum algorithm's characteristics. Fine-tune compilation for better resource utilization and reduced gate counts.
+1. **Optimization Strategies:** Implement specific optimization strategies based
+   on your quantum algorithm's characteristics. Fine-tune compilation for better
+   resource utilization and reduced gate counts.
 
-2. **Gate Decomposition:** Customize gate decomposition techniques to match the capabilities of experimental quantum hardware. Aligning with the native gate set enhances the efficiency of your compiled circuits.
+2. **Gate Decomposition:** Customize gate decomposition techniques to match the
+   capabilities of experimental quantum hardware. Aligning with the native gate
+   set enhances the efficiency of your compiled circuits.
 
 ### Experimental-Inspired Compilation
 
-Emulate the features of the best experimental laboratories in your compilation process.
-Leverage modern compiler passes to customize optimization, gate decomposition, and noise-aware strategies, creating compiled circuits that closely resemble the challenges and advantages of cutting-edge quantum hardware.
+Emulate the features of the best experimental laboratories in your compilation
+process. Leverage modern compiler passes to customize optimization, gate
+decomposition, and noise-aware strategies, creating compiled circuits that
+closely resemble the challenges and advantages of cutting-edge quantum hardware.
 
-Customize, compile, and push the boundaries of quantum algorithms with a tailored approach to quantum compilation.
+Customize, compile, and push the boundaries of quantum algorithms with a
+tailored approach to quantum compilation.
 
 ```{code-cell} ipython3
 from mqt.qudits.compiler import QuditCompiler

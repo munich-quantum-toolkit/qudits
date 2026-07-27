@@ -112,10 +112,6 @@ myst_heading_anchors = 3
 # -- Options for {MyST}NB ----------------------------------------------------
 
 nb_execution_mode = "cache"
-nb_mime_priority_overrides = [
-    # builder name, mime type, priority
-    ("latex", "image/svg+xml", 15),
-]
 
 
 class CDAStyle(UnsrtStyle):
@@ -172,47 +168,4 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
     "navigation_with_keys": True,
-}
-
-# -- Options for LaTeX output ------------------------------------------------
-
-numfig = True
-numfig_secnum_depth = 0
-
-sd_fontawesome_latex = True
-image_converter_args = ["-density", "300"]
-latex_engine = "pdflatex"
-latex_documents = [
-    (
-        master_doc,
-        "mqt_qudits.tex",
-        r"MQT Qudits\\{\Large A Framework For Mixed-Dimensional Qudit Quantum Computing}",
-        r"""\IEEEauthorblockN{Chair for Design Automation}\\
-        \IEEEauthorblockA{Technical University of Munich, Germany}\\
-        \IEEEauthorblockA{\href{mailto:quantum.cda@xcit.tum.de}{quantum.cda@xcit.tum.de}}\\""",
-        "howto",
-        False,
-    ),
-]
-latex_logo = "_static/mqt_dark.png"
-latex_elements = {
-    "papersize": "a4paper",
-    "releasename": "Version",
-    "printindex": r"\footnotesize\raggedright\printindex",
-    "tableofcontents": "",
-    "sphinxsetup": "iconpackage=fontawesome",
-    "extrapackages": r"\usepackage{qrcode,graphicx,calc,amsthm}",
-    "preamble": r"""
-\newtheorem{example}{Example}
-\clubpenalty=10000
-\widowpenalty=10000
-\interlinepenalty 10000
-\def\subparagraph{} % because IEEE classes don't define this, but titlesec assumes it's present
-""",
-    "extraclassoptions": r"journal, onecolumn",
-    "fvset": r"\fvset{fontsize=\small}",
-}
-latex_domain_indices = False
-latex_docclass = {
-    "howto": "IEEEtran",
 }
