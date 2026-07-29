@@ -288,15 +288,11 @@ PC170 = "We do not use rST files anymore"
 
 [tool.cibuildwheel]
 build = "cp3*"
-skip = ["*-musllinux_*", "cp313t-*"]
+skip = ["*-musllinux_*"]
 archs = "auto64"
 test-groups = ["test"]
 test-command = "pytest {project}/test/python"
 build-frontend = "uv"
-manylinux-x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux_2_28"
-manylinux-ppc64le-image = "manylinux_2_28"
-manylinux-s390x-image = "manylinux_2_28"
 test-skip = [
   "cp3??t-*", # no freethreading qiskit wheels
   "cp*-win_arm64", # no numpy, qiskit, ... wheels
@@ -310,12 +306,6 @@ environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel} --namespace-pkg mqt"
-
-[[tool.cibuildwheel.overrides]]
-select = "cp312-*"
-inherit.repair-wheel-command = "append"
-repair-wheel-command = "uvx abi3audit --strict --report {wheel}"
-
 
 [tool.uv]
 required-version = ">=0.5.20"
