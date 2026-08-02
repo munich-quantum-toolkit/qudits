@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   change-detection:
     name: 🔍 Change
@@ -96,6 +99,9 @@ jobs:
       files-changed-only: true
       install-pkgs: "nanobind==2.13.0"
       setup-python: true
+    permissions:
+      contents: read
+      pull-requests: write
 
   python-tests:
     name: 🐍 Test
