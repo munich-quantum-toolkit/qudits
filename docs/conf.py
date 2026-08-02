@@ -61,6 +61,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinx_llm.txt",
     "sphinx.ext.autodoc",
     "sphinx.ext.imgconverter",
     "sphinx.ext.intersphinx",
