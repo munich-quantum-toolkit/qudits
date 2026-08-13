@@ -97,7 +97,7 @@ jobs:
       clang-version: 21
       cpp-linter-extra-args: "-std=c++20"
       files-changed-only: true
-      install-pkgs: "nanobind==2.13.0"
+      install-pkgs: "nanobind==2.14.0"
       setup-python: true
     permissions:
       contents: read
