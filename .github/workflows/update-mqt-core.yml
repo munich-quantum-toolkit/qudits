@@ -18,6 +18,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   update-mqt-core:
     name: ⬆️ Update MQT Core
@@ -28,5 +30,5 @@ jobs:
       APP_ID: ${{ secrets.APP_ID }}
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # Needed to push the update branch
+      pull-requests: write # Needed to open the update pull request
