@@ -6,4 +6,4 @@
 #
 # Licensed under the MIT License
 
-from . import misim as misim
+from mqt.qudits.pyqudits import misim as misim

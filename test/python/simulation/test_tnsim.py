@@ -18,7 +18,7 @@ from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 from mqt.qudits.simulation.noise_tools.noise import SubspaceNoise
 
-from .._qudits.test_pymisim import is_quantum_state
+from ..pyqudits.test_pymisim import is_quantum_state
 
 
 class TestTNSim(TestCase):

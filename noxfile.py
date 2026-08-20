@@ -195,7 +195,7 @@ def stubs(session: nox.Session) -> None:
         "--output-dir",
         package_root,
         "--module",
-        "mqt.qudits._qudits",
+        "mqt.qudits.pyqudits",
     )
 
     pyi_files = list(package_root.glob("**/*.pyi"))

@@ -6,12 +6,12 @@
 #
 # Licensed under the MIT License
 
-add_mqt_python_binding_nanobind(
+add_mqt_python_binding(
   QUDITS
   ${MQT_QUDITS_TARGET_NAME}-bindings
   bindings.cpp
   MODULE_NAME
-  _qudits
+  pyqudits
   INSTALL_DIR
   .
   LINK_LIBS

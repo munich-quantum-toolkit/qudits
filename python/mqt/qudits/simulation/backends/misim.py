@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 from typing_extensions import Unpack
 
-from ..._qudits.misim import state_vector_simulation
+from ...pyqudits.misim import state_vector_simulation
 from ..jobs import Job, JobResult
 from ..noise_tools import NoiseModel
 from .backendv2 import Backend
