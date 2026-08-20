@@ -17,7 +17,7 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
-from .._qudits.test_pymisim import is_quantum_state
+from ..pyqudits.test_pymisim import is_quantum_state
 
 
 class TestMISim(TestCase):

@@ -13,7 +13,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from mqt.qudits._qudits.misim import state_vector_simulation  # ruff:ignore[import-private-name]
+from mqt.qudits.pyqudits.misim import state_vector_simulation
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
