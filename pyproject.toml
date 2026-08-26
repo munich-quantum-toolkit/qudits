@@ -40,7 +40,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -51,9 +50,9 @@ classifiers = [
     "Topic :: Software Development :: Compilers",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10, !=3.14.1"
+requires-python = ">=3.11, !=3.14.1"
 dependencies = [
-    "h5py>=3.8; python_version >= '3.11'",
+    "h5py>=3.8",
     "h5py>=3.12.1; python_version >= '3.12'",
     "h5py>=3.15.0; python_version >= '3.14'",
     "matplotlib>=3.7",
@@ -309,7 +308,7 @@ test-skip = [
 environment = { DEPLOY="ON" }
 
 [tool.cibuildwheel.macos]
-environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
+environment = { MACOSX_DEPLOYMENT_TARGET = "13.3" }
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel} --namespace-pkg mqt"

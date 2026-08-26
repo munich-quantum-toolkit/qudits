@@ -11,7 +11,7 @@ from __future__ import annotations
 import enum
 
 
-class JobStatus(str, enum.Enum):
+class JobStatus(enum.StrEnum):
     """Enumeration for job status."""
 
     INITIALIZING = "initializing"

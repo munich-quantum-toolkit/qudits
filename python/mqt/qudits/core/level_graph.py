@@ -9,11 +9,10 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TYPE_CHECKING, Self, TypeVar, cast
 
 import networkx as nx
 import numpy as np
-from typing_extensions import Self
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
