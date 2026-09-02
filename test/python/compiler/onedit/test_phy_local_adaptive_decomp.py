@@ -33,6 +33,18 @@ def _qft_matrix(dimension: int) -> NDArray[np.complex128]:
     )
 
 
+def _assert_compiled_unitary(
+    compiled: QuantumCircuit, target: NDArray[np.complex128], initial_mapping: list[int]
+) -> None:
+    assert compiled.mappings is not None
+    actual = np.eye(len(initial_mapping), dtype=np.complex128)
+    for gate in compiled.instructions:
+        actual = gate.to_matrix(identities=0) @ actual
+    initial_permutation = np.eye(len(initial_mapping))[:, initial_mapping]
+    final_permutation = np.eye(len(initial_mapping))[:, compiled.mappings[0]]
+    assert np.allclose(initial_permutation.T @ actual @ final_permutation, target)
+
+
 class TestPhyLocAdaPass(TestCase):
     @staticmethod
     def test_transpile():
@@ -64,16 +76,67 @@ class TestPhyLocAdaPass(TestCase):
             compiled = QuditCompiler.compile_O2(backend, circuit)
 
         assert tree_sizes[0] < 100
-        assert compiled.mappings is not None
-        actual = np.eye(dimension, dtype=np.complex128)
-        for gate in compiled.instructions:
-            actual = gate.to_matrix(identities=0) @ actual
-        initial_permutation = np.eye(dimension)[:, initial_mapping]
-        final_permutation = np.eye(dimension)[:, compiled.mappings[0]]
-        assert np.allclose(initial_permutation.T @ actual @ final_permutation, _qft_matrix(dimension))
+        _assert_compiled_unitary(compiled, _qft_matrix(dimension), initial_mapping)
+
+    @staticmethod
+    def test_qr_fallback():
+        dimension = 4
+        nodes = list(range(dimension))
+        initial_mapping = [2, 0, 3, 1]
+        circuit = QuantumCircuit(1, [dimension], 0)
+        circuit.cu_one(0, _qft_matrix(dimension))
+        graph = LevelGraph(
+            [(level, level + 1, {}) for level in range(dimension - 1)],
+            nodes,
+            initial_mapping,
+            [0],
+            0,
+            circuit,
+        )
+        backend = MQTQuditProvider().get_backend("faketraps2six")
+        backend.energy_level_graphs[0] = graph
+
+        def no_adaptive_solution(decomposition: PhyAdaptiveDecomposition):
+            return [], (np.inf, np.inf), decomposition.graph
+
+        with patch.object(PhyAdaptiveDecomposition, "execute", no_adaptive_solution):
+            compiled = QuditCompiler.compile_O2(backend, circuit)
+
+        assert compiled.instructions
+        _assert_compiled_unitary(compiled, _qft_matrix(dimension), initial_mapping)
 
 
 class TestPhyAdaptiveDecomposition(TestCase):
+    @staticmethod
+    def test_execute_preserves_later_column_branch():
+        dimension = 4
+        rng = np.random.default_rng(162)
+        matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+        unitary, triangular = np.linalg.qr(matrix)
+        unitary *= (np.diag(triangular) / np.abs(np.diag(triangular))).conj()
+
+        mapping = [0, 3, 2, 1]
+        circuit = QuantumCircuit(1, [dimension], 0)
+        target = circuit.cu_one(0, unitary)
+        graph = LevelGraph(
+            [(0, 2, {}), (2, 1, {}), (2, 3, {})],
+            list(range(dimension)),
+            mapping,
+            [0],
+            0,
+            circuit,
+        )
+
+        _, algorithmic_cost, total_cost = PhyQrDecomp(target, graph).execute()
+        adaptive = PhyAdaptiveDecomposition(target, graph, (algorithmic_cost, total_cost), dimension)
+        decomposition, best_cost, final_graph = adaptive.execute()
+
+        verifier = UnitaryVerifier(
+            decomposition, target, [dimension], list(range(dimension)), mapping, final_graph.log_phy_map
+        )
+        assert best_cost[1] < total_cost
+        assert verifier.verify()
+
     @staticmethod
     def test_execute():
         dim = 5

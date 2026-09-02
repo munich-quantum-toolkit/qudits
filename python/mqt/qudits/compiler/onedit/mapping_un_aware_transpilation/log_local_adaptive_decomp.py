@@ -43,13 +43,18 @@ class LogLocAdaPass(CompilerPass):
 
         qr = QrDecomp(gate, energy_graph_i)
 
-        _, algorithmic_cost, total_cost = qr.execute()
+        qr_decomp, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = LogAdaptiveDecomposition(
             gate, energy_graph_i, (algorithmic_cost, total_cost), cast("int", gate.dimensions)
         )
 
-        matrices_decomposed, _, new_graph = adaptive.execute()
+        matrices_decomposed, best_cost, new_graph = adaptive.execute()
+        if not np.isfinite(best_cost[1]):
+            matrices_decomposed = qr_decomp
+            new_graph = energy_graph_i
+            for node in new_graph.nodes:
+                new_graph.nodes[node]["phase_storage"] = 0
         if new_graph is not None:
             self.backend.energy_level_graphs[cast("int", gate.target_qudits)] = new_graph
 
@@ -180,23 +185,25 @@ class LogAdaptiveDecomposition:
 
         dimension = u_.shape[0]
 
-        # Preserve QR progress by finishing the leftmost active column first.
-        column = next(
-            (c for c in range(dimension - 1) if np.any(np.abs(u_[c + 1 :, c]) > 1.0e-8)),
-            None,
-        )
-        if column is None:
-            return
-        for r, r2 in itertools.combinations(range(column, dimension), 2):
-            if abs(u_[r2, column]) > 1.0e-8:
-                theta = 2 * np.arctan2(abs(u_[r2, column]), abs(u_[r, column]))
-                phi = -(np.pi / 2 + np.angle(u_[r, column]) - np.angle(u_[r2, column]))
+        subdiagonal_support = np.tril(np.abs(u_) > 1.0e-8, k=-1)
+        support_size = np.count_nonzero(subdiagonal_support)
+        for c in range(dimension - 1):
+            for r, r2 in itertools.combinations(range(c, dimension), 2):
+                if not subdiagonal_support[r2, c]:
+                    continue
+                theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))
+                phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
 
                 rotation_involved = gates.R(
                     self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                 )  # R(theta, phi, r, r2, dimension)
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
+
+                # Do not reopen an entry eliminated by an earlier rotation.
+                next_support = np.tril(np.abs(u_temp) > 1.0e-8, k=-1)
+                if np.any(next_support & ~subdiagonal_support) or np.count_nonzero(next_support) >= support_size:
+                    continue
 
                 decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
 
