@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import contextlib
 import gc
+import itertools
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -179,39 +180,44 @@ class LogAdaptiveDecomposition:
 
         dimension = u_.shape[0]
 
-        for c in range(dimension):
-            for r in range(c, dimension):
-                for r2 in range(r + 1, dimension):
-                    if abs(u_[r2, c]) > 1.0e-8 and (abs(u_[r, c]) > 1.0e-18 or abs(u_[r, c]) == 0):
-                        theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))
-                        phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
+        # Preserve QR progress by finishing the leftmost active column first.
+        column = next(
+            (c for c in range(dimension - 1) if np.any(np.abs(u_[c + 1 :, c]) > 1.0e-8)),
+            None,
+        )
+        if column is None:
+            return
+        for r, r2 in itertools.combinations(range(column, dimension), 2):
+            if abs(u_[r2, column]) > 1.0e-8:
+                theta = 2 * np.arctan2(abs(u_[r2, column]), abs(u_[r, column]))
+                phi = -(np.pi / 2 + np.angle(u_[r, column]) - np.angle(u_[r2, column]))
 
-                        rotation_involved = gates.R(
-                            self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
-                        )  # R(theta, phi, r, r2, dimension)
+                rotation_involved = gates.R(
+                    self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                )  # R(theta, phi, r, r2, dimension)
 
-                        u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
+                u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
-                        decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
+                decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
 
-                        branch_condition = current_root.max_cost[1] - decomp_next_step_cost
+                branch_condition = current_root.max_cost[1] - decomp_next_step_cost
 
-                        if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
-                            # if cost is better can be only candidate otherwise try them all
+                if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
+                    # if cost is better can be only candidate otherwise try them all
 
-                            self.TREE.global_id_counter += 1
-                            new_key = self.TREE.global_id_counter
+                    self.TREE.global_id_counter += 1
+                    new_key = self.TREE.global_id_counter
 
-                            current_root.add(
-                                new_key,
-                                rotation_involved,
-                                u_temp,
-                                None,
-                                0,  # next_step_cost,
-                                decomp_next_step_cost,
-                                current_root.max_cost,
-                                [],
-                            )
+                    current_root.add(
+                        new_key,
+                        rotation_involved,
+                        u_temp,
+                        None,
+                        0,  # next_step_cost,
+                        decomp_next_step_cost,
+                        current_root.max_cost,
+                        [],
+                    )
 
         # ===============CONTINUE SEARCH ON CHILDREN========================================
         if current_root.children is not None:

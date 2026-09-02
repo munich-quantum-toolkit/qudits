@@ -10,7 +10,12 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+import numpy as np
+
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
+from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp import (
+    LogAdaptiveDecomposition,
+)
 from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import QrDecomp
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -52,3 +57,29 @@ class TestQrDecomp(TestCase):
         assert (decomp[2].lev_a, decomp[2].lev_b) == (1, 2)
         assert decomp[3].lev_a == 1
         assert decomp[4].lev_a == 2
+
+
+class TestLogAdaptiveDecomposition(TestCase):
+    @staticmethod
+    def test_execute_path_graph():
+        dimension = 4
+        nodes = list(range(dimension))
+        levels = np.arange(dimension)
+        qft = np.exp(2j * np.pi * np.outer(levels, levels) / dimension) / np.sqrt(dimension)
+        circuit = QuantumCircuit(1, [dimension], 0)
+        graph = LevelGraph(
+            [(level, level + 1, {}) for level in range(dimension - 1)],
+            nodes,
+            nodes,
+            [0],
+            0,
+            circuit,
+        )
+        target = circuit.cu_one(0, qft)
+
+        _, algorithmic_cost, total_cost = QrDecomp(target, graph).execute()
+        adaptive = LogAdaptiveDecomposition(target, graph, (algorithmic_cost, total_cost), dimension)
+        decomposition, _, _ = adaptive.execute()
+
+        assert len(adaptive.TREE.root.children) == dimension * (dimension - 1) // 2
+        assert UnitaryVerifier(decomposition, target, [dimension]).verify()

@@ -220,13 +220,18 @@ class PhyAdaptiveDecomposition:
         u_ = current_root.u_of_level
 
         dimension = u_.shape[0]
-        for c, r, r2 in itertools.product(range(dimension), range(dimension), range(dimension)):
-            if r < c or r2 <= r:
-                continue
-            if abs(u_[r2, c]) > 1.0e-8 and (abs(u_[r, c]) > 1.0e-18 or abs(u_[r, c]) == 0):
-                theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))
+        # Preserve QR progress by finishing the leftmost active column first.
+        column = next(
+            (c for c in range(dimension - 1) if np.any(np.abs(u_[c + 1 :, c]) > 1.0e-8)),
+            None,
+        )
+        if column is None:
+            return
+        for r, r2 in itertools.combinations(range(column, dimension), 2):
+            if abs(u_[r2, column]) > 1.0e-8:
+                theta = 2 * np.arctan2(abs(u_[r2, column]), abs(u_[r, column]))
 
-                phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
+                phi = -(np.pi / 2 + np.angle(u_[r, column]) - np.angle(u_[r2, column]))
 
                 rotation_involved = gates.R(
                     self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
