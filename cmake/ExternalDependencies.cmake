@@ -35,9 +35,9 @@ endif()
 # cmake-format: off
 set(MQT_CORE_MINIMUM_VERSION 3.9.0
     CACHE STRING "MQT Core minimum version")
-set(MQT_CORE_VERSION 3.9.2
+set(MQT_CORE_VERSION 3.10.0
     CACHE STRING "MQT Core version")
-set(MQT_CORE_REV "46b9b0f2daffdce89637e08de624744f114f9701"
+set(MQT_CORE_REV "e9e2c959b3c81fda10ea8db34b908b638e61ba49"
     CACHE STRING "MQT Core identifier (tag, branch or commit hash)")
 set(MQT_CORE_REPO_OWNER "munich-quantum-toolkit"
 	CACHE STRING "MQT Core repository owner (change when using a fork)")
