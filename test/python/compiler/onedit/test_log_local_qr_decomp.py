@@ -9,16 +9,48 @@
 from __future__ import annotations
 
 from unittest import TestCase
+from unittest.mock import patch
+
+import numpy as np
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
+from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp import (
+    LogAdaptiveDecomposition,
+    LogLocAdaPass,
+)
 from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import QrDecomp
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.simulation import MQTQuditProvider
 
 
 class TestLogLocQRPass(TestCase):
-    def test_transpile(self):
-        pass
+    @staticmethod
+    def test_adaptive_qr_fallback():
+        dimension = 4
+        levels = np.arange(dimension)
+        qft = np.exp(2j * np.pi * np.outer(levels, levels) / dimension) / np.sqrt(dimension)
+        circuit = QuantumCircuit(1, [dimension], 0)
+        target = circuit.cu_one(0, qft)
+        graph = LevelGraph(
+            [(level, level + 1, {}) for level in range(dimension - 1)],
+            list(range(dimension)),
+            list(range(dimension)),
+            [0],
+            0,
+            circuit,
+        )
+        backend = MQTQuditProvider().get_backend("faketraps2six")
+        backend.energy_level_graphs[0] = graph
+
+        def no_adaptive_solution(decomposition: LogAdaptiveDecomposition):
+            return [], (np.inf, np.inf), decomposition.graph
+
+        with patch.object(LogAdaptiveDecomposition, "execute", no_adaptive_solution):
+            decomposition = LogLocAdaPass(backend).transpile_gate(target)
+
+        assert decomposition
+        assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
 
 class TestQrDecomp(TestCase):
@@ -52,3 +84,29 @@ class TestQrDecomp(TestCase):
         assert (decomp[2].lev_a, decomp[2].lev_b) == (1, 2)
         assert decomp[3].lev_a == 1
         assert decomp[4].lev_a == 2
+
+
+class TestLogAdaptiveDecomposition(TestCase):
+    @staticmethod
+    def test_execute_path_graph():
+        dimension = 4
+        nodes = list(range(dimension))
+        levels = np.arange(dimension)
+        qft = np.exp(2j * np.pi * np.outer(levels, levels) / dimension) / np.sqrt(dimension)
+        circuit = QuantumCircuit(1, [dimension], 0)
+        graph = LevelGraph(
+            [(level, level + 1, {}) for level in range(dimension - 1)],
+            nodes,
+            nodes,
+            [0],
+            0,
+            circuit,
+        )
+        target = circuit.cu_one(0, qft)
+
+        _, algorithmic_cost, total_cost = QrDecomp(target, graph).execute()
+        adaptive = LogAdaptiveDecomposition(target, graph, (algorithmic_cost, total_cost), dimension)
+        decomposition, _, _ = adaptive.execute()
+
+        assert adaptive.TREE.total_size < 100
+        assert UnitaryVerifier(decomposition, target, [dimension]).verify()
