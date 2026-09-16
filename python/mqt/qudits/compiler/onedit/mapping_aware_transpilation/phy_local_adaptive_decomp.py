@@ -248,7 +248,7 @@ class PhyAdaptiveDecomposition:
 
         dimension = u_.shape[0]
         subdiagonal_support = np.tril(np.abs(u_) > 1.0e-8, k=-1)
-        support_size = np.count_nonzero(subdiagonal_support)
+        column_support_sizes = np.count_nonzero(subdiagonal_support, axis=0)
         for c in range(dimension - 1):
             for r, r2 in itertools.combinations(range(c, dimension), 2):
                 if self.TREE.global_id_counter >= self.max_nodes:
@@ -265,9 +265,12 @@ class PhyAdaptiveDecomposition:
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
-                # Do not reopen an entry eliminated by an earlier rotation.
+                # Reduce this column without reopening zeros in earlier columns.
+                # Later columns may gain entries, as in a cyclic permutation.
                 next_support = np.tril(np.abs(u_temp) > 1.0e-8, k=-1)
-                if np.any(next_support & ~subdiagonal_support) or np.count_nonzero(next_support) >= support_size:
+                if np.any(next_support[:, :c] & ~subdiagonal_support[:, :c]) or (
+                    np.count_nonzero(next_support[:, c]) >= column_support_sizes[c]
+                ):
                     continue
 
                 non_zeros = int(np.count_nonzero(abs(u_temp) > 1.0e-4))
@@ -325,7 +328,5 @@ class PhyAdaptiveDecomposition:
                         current_root.max_cost,
                         pi_pulses_routing,
                     )
-
-        if current_root.children is not None:
-            for child in current_root.children:
-                self.dfs(child, level + 1)
+                    # Explore before generating siblings that consume the node budget.
+                    self.dfs(current_root.children[-1], level + 1)

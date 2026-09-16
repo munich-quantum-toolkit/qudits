@@ -14,13 +14,14 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+from scipy.stats import unitary_group
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
 from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyAdaptiveDecomposition, PhyQrDecomp
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.core.dfs_tree import Node
-from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.quantum_circuit import QuantumCircuit, gates
 from mqt.qudits.simulation import MQTQuditProvider
 
 if TYPE_CHECKING:
@@ -45,6 +46,28 @@ def _assert_compiled_unitary(
     initial_permutation = np.eye(len(initial_mapping))[:, initial_mapping]
     final_permutation = np.eye(len(initial_mapping))[:, compiled.mappings[0]]
     assert np.allclose(final_permutation.T @ actual @ initial_permutation, target)
+
+
+@pytest.mark.parametrize("dimension", range(4, 11))
+@pytest.mark.parametrize("dense", [False, True], ids=["shift", "random-unitary"])
+def test_compile_star_graph(dimension: int, dense: bool):
+    unitary = (
+        unitary_group(dimension).rvs(random_state=np.random.default_rng(42))
+        if dense
+        else np.roll(np.eye(dimension, dtype=np.complex128), -1, axis=1)
+    )
+    circuit = QuantumCircuit(1, [dimension], 0)
+    circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+
+    compiled = QuditCompiler().compile(backend, circuit, ["LocAdaPass"])
+
+    max_rotations = dimension * (dimension - 2) if dense else dimension
+    assert sum(isinstance(gate, gates.R) for gate in compiled.instructions) <= max_rotations
+    _assert_compiled_unitary(compiled, unitary, mapping)
 
 
 @pytest.mark.parametrize("dimension", [2, 3])
@@ -102,11 +125,17 @@ def test_compile_propagated_phases(dimension: int, last_max_nodes: int):
 
 
 @pytest.mark.parametrize("dimension", range(6, 11))
-def test_compile_dense_path_graph(dimension: int):
+@pytest.mark.parametrize("matrix_kind", ["random", "qft", "shift"])
+@pytest.mark.parametrize("permute_mapping", [False, True])
+def test_compile_path_graph(dimension: int, matrix_kind: str, permute_mapping: bool):
     rng = np.random.default_rng(427)
     matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
     unitary, _ = np.linalg.qr(matrix)
-    initial_mapping = rng.permutation(dimension).tolist()
+    if matrix_kind == "qft":
+        unitary = _qft_matrix(dimension)
+    elif matrix_kind == "shift":
+        unitary = np.roll(np.eye(dimension, dtype=np.complex128), -1, axis=1)
+    initial_mapping = rng.permutation(dimension).tolist() if permute_mapping else list(range(dimension))
     circuit = QuantumCircuit(1, [dimension], 0)
     circuit.cu_one(0, unitary)
     graph = LevelGraph(
