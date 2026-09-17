@@ -11,6 +11,7 @@ from __future__ import annotations
 import contextlib
 import gc
 import itertools
+import sys
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -88,8 +89,9 @@ class LogAdaptiveDecomposition:
         """Initialize a search capped at max_nodes generated nodes, excluding the root.
 
         A zero budget only checks whether the input is already diagonal. If no
-        solution is found within the budget, execute returns an empty sequence
-        and infinite costs so the compiler pass can use its QR decomposition.
+        solution is found within the node or recursion-depth limit, execute
+        returns an empty sequence and infinite costs so the compiler pass can
+        use its QR decomposition.
         """
         if max_nodes < 0:
             msg = "max_nodes must be non-negative."
@@ -188,6 +190,11 @@ class LogAdaptiveDecomposition:
         if (not not_diag) and valid_diag:
             current_root.finished = True
             raise SequenceFoundError(current_root.key)
+
+        # Tree traversal can use two frames per level. Reserve the other half
+        # of the recursion limit for callers and helper functions.
+        if level >= sys.getrecursionlimit() // 4:
+            return
 
         # BEGIN SEARCH
 

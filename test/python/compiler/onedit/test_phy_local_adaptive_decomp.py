@@ -70,6 +70,33 @@ def test_compile_star_graph(dimension: int, dense: bool):
     _assert_compiled_unitary(compiled, unitary, mapping)
 
 
+def test_compile_deep_search_uses_qr_fallback():
+    dimension = 60
+    rng = np.random.default_rng(42)
+    matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+    unitary, _ = np.linalg.qr(matrix)
+    circuit = QuantumCircuit(1, [dimension], 0)
+    circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    original_execute = PhyAdaptiveDecomposition.execute
+
+    def execute_without_solution(search: PhyAdaptiveDecomposition):
+        result = original_execute(search)
+        assert result[0] == []
+        assert result[1] == (np.inf, np.inf)
+        assert search.TREE.total_size <= search.max_nodes + 1
+        return result
+
+    with patch.object(PhyAdaptiveDecomposition, "execute", execute_without_solution):
+        compiled = QuditCompiler().compile(backend, circuit, ["LocAdaPass"])
+
+    assert compiled.instructions
+    _assert_compiled_unitary(compiled, unitary, mapping)
+
+
 @pytest.mark.parametrize("dimension", [2, 3])
 @pytest.mark.parametrize("last_max_nodes", [0, 1000])
 def test_compile_propagated_phases(dimension: int, last_max_nodes: int):

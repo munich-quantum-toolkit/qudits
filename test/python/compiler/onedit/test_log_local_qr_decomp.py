@@ -90,6 +90,33 @@ def test_adaptive_dense_path_graph(dimension: int):
     assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
 
+def test_deep_search_uses_qr_fallback():
+    dimension = 60
+    rng = np.random.default_rng(42)
+    matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+    unitary, _ = np.linalg.qr(matrix)
+    circuit = QuantumCircuit(1, [dimension], 0)
+    target = circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    original_execute = LogAdaptiveDecomposition.execute
+
+    def execute_without_solution(search: LogAdaptiveDecomposition):
+        result = original_execute(search)
+        assert result[0] == []
+        assert result[1] == (np.inf, np.inf)
+        assert search.TREE.total_size <= search.max_nodes + 1
+        return result
+
+    with patch.object(LogAdaptiveDecomposition, "execute", execute_without_solution):
+        decomposition = LogLocAdaPass(backend).transpile_gate(target)
+
+    assert decomposition
+    assert UnitaryVerifier(decomposition, target, [dimension]).verify()
+
+
 class TestLogLocQRPass(TestCase):
     @staticmethod
     def test_adaptive_qr_fallback():
