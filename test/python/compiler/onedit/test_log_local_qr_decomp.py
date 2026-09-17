@@ -27,7 +27,7 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
 
-@pytest.mark.parametrize("dimension", [4, 10])
+@pytest.mark.parametrize("dimension", [4, 10, 46])
 @pytest.mark.parametrize("dense", [False, True], ids=["shift", "random-unitary"])
 def test_adaptive_column_progress(dimension: int, dense: bool):
     unitary = (

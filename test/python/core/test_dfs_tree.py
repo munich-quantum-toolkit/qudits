@@ -193,6 +193,25 @@ class TestNAryTree(TestCase):
         self.T.add(2, self.r, self.U, self.graph_1, 0.1, 0.1, (10.0, 10.0), [], 0)
         assert not self.T.is_empty()
 
+    def test_deep_retrieval_preserves_cost_tie_order(self):
+        leaf = self.T.root
+        for key in range(1, 2001):
+            leaf.add(key, self.r, self.U, self.graph_1, 1.0, 2.0, (10.0, 10.0), [])
+            leaf = leaf.children[-1]
+
+        assert self.T.total_size == 2001
+        assert self.T.retrieve_decomposition(self.T.root) == ([], (np.inf, np.inf), self.graph_1)
+
+        leaf.finished = True
+        # Equal-cost solutions retain depth-first order, not the shorter path.
+        self.T.root.add(2001, self.r, self.U, self.graph_1, 1.0, 1.0, (10.0, 10.0), [])
+        self.T.root.children[-1].finished = True
+        path, cost, graph = self.T.retrieve_decomposition(self.T.root)
+
+        assert [node.key for node in path] == list(range(2001))
+        assert cost == (1.0, 2.0)
+        assert graph is self.graph_1
+
     def test_total_size(self):
         size = self.T.total_size
         R(QuantumCircuit(), "R", 0, [0, 1, 0.1, 0.3], 2)

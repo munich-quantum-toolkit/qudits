@@ -70,6 +70,22 @@ def test_compile_star_graph(dimension: int, dense: bool):
     _assert_compiled_unitary(compiled, unitary, mapping)
 
 
+def test_compile_deep_qft_preserves_adaptive_solution():
+    dimension = 24
+    unitary = _qft_matrix(dimension)
+    circuit = QuantumCircuit(1, [dimension], 0)
+    circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+
+    compiled = QuditCompiler().compile(backend, circuit, ["LocAdaPass"])
+
+    assert sum(isinstance(gate, gates.R) for gate in compiled.instructions) == 528
+    _assert_compiled_unitary(compiled, unitary, mapping)
+
+
 def test_compile_deep_search_uses_qr_fallback():
     dimension = 60
     rng = np.random.default_rng(42)

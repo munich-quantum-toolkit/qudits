@@ -11,7 +11,6 @@ from __future__ import annotations
 import contextlib
 import gc
 import itertools
-import sys
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -31,6 +30,8 @@ from ..local_operation_swap import (
 from ..mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from numpy.typing import NDArray
 
     from ....core import LevelGraph
@@ -108,7 +109,7 @@ class PhyAdaptiveDecomposition:
         """Initialize a search capped at max_nodes generated nodes, excluding the root.
 
         A zero budget only checks whether the input is already diagonal. If no
-        solution is found within the node or recursion-depth limit, execute
+        solution is found within the node limit, execute
         returns an empty sequence and infinite costs so the compiler pass can
         use its QR decomposition.
         """
@@ -224,7 +225,17 @@ class PhyAdaptiveDecomposition:
 
         return matrices, placement
 
-    def dfs(self, current_root: TreeNode, level: int = 0) -> None:
+    def dfs(self, current_root: TreeNode) -> None:
+        lower_triangle = np.tri(current_root.u_of_level.shape[0], k=-1, dtype=np.bool_)
+        stack = [self._children(current_root, lower_triangle)]
+        while stack:
+            child = next(stack[-1], None)
+            if child is None:
+                stack.pop()
+            else:
+                stack.append(self._children(child, lower_triangle))
+
+    def _children(self, current_root: TreeNode, lower_triangle: NDArray[np.bool_]) -> Iterator[TreeNode]:
         # check if close to diagonal
         ucopy = current_root.u_of_level.copy()
 
@@ -246,17 +257,14 @@ class PhyAdaptiveDecomposition:
 
             raise SequenceFoundError(current_root.key)
 
-        # Tree traversal can use two frames per level. Reserve the other half
-        # of the recursion limit for callers and helper functions.
-        if level >= sys.getrecursionlimit() // 4:
-            return
-
         u_ = current_root.u_of_level
 
         dimension = u_.shape[0]
-        subdiagonal_support = np.tril(np.abs(u_) > 1.0e-8, k=-1)
+        subdiagonal_support = (np.abs(u_) > 1.0e-8) & lower_triangle
         column_support_sizes = np.count_nonzero(subdiagonal_support, axis=0)
         for c in range(dimension - 1):
+            if not column_support_sizes[c]:
+                continue
             for r, r2 in itertools.combinations(range(c, dimension), 2):
                 if self.TREE.global_id_counter >= self.max_nodes:
                     break
@@ -274,7 +282,7 @@ class PhyAdaptiveDecomposition:
 
                 # Reduce this column without reopening zeros in earlier columns.
                 # Later columns may gain entries, as in a cyclic permutation.
-                next_support = np.tril(np.abs(u_temp) > 1.0e-8, k=-1)
+                next_support = (np.abs(u_temp) > 1.0e-8) & lower_triangle
                 if np.any(next_support[:, :c] & ~subdiagonal_support[:, :c]) or (
                     np.count_nonzero(next_support[:, c]) >= column_support_sizes[c]
                 ):
@@ -336,4 +344,4 @@ class PhyAdaptiveDecomposition:
                         pi_pulses_routing,
                     )
                     # Explore before generating siblings that consume the node budget.
-                    self.dfs(current_root.children[-1], level + 1)
+                    yield current_root.children[-1]

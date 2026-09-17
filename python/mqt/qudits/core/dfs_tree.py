@@ -156,34 +156,47 @@ class NAryTree:
         children_max_depth = [self.max_depth(child) for child in node.children]
         return 1 + max(children_max_depth)
 
-    def size_refresh(self, node: Node) -> int:
-        if len(node.children) == 0:
-            return 0
-        children_size = len(node.children)
-        for child in node.children:
-            children_size += self.size_refresh(child)
+    @staticmethod
+    def size_refresh(node: Node) -> int:
+        size = 0
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            size += len(current.children)
+            stack.extend(current.children)
+        return size
 
-        return children_size
-
-    def found_checker(self, node: Node) -> bool:
-        if not node.children:
-            return node.finished
-
-        children_checking = [self.found_checker(child) for child in node.children]
-        if True in children_checking:
-            node.finished = True
-
+    @staticmethod
+    def found_checker(node: Node) -> bool:
+        stack = [(node, False)]
+        while stack:
+            current, visited = stack.pop()
+            if visited:
+                current.finished |= any(child.finished for child in current.children)
+            else:
+                stack.append((current, True))
+                stack.extend((child, False) for child in current.children)
         return node.finished
 
-    def min_cost_decomp(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph | None]:
-        if not node.children:
-            return [node], (node.current_cost, node.current_decomp_cost), node.graph
-
-        children_cost = [self.min_cost_decomp(child) for child in node.children if child.finished]
-
-        minimum_child, best_cost, final_graph = min(children_cost, key=lambda t: t[1][0])
-        minimum_child.insert(0, node)
-        return minimum_child, best_cost, final_graph
+    @staticmethod
+    def min_cost_decomp(node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph | None]:
+        parents: dict[Node, Node] = {}
+        leaves = []
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            if not current.children:
+                leaves.append(current)
+            for child in reversed(current.children):
+                if child.finished:
+                    parents[child] = current
+                    stack.append(child)
+        leaf = min(leaves, key=lambda candidate: candidate.current_cost)
+        path = [leaf]
+        while path[-1] in parents:
+            path.append(parents[path[-1]])
+        path.reverse()
+        return path, (leaf.current_cost, leaf.current_decomp_cost), leaf.graph
 
     def retrieve_decomposition(self, node: Node) -> tuple[list[Node], tuple[float, float], LevelGraph | None]:
         self.found_checker(node)
