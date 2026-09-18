@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+from scipy.stats import unitary_group
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
 from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp import (
@@ -24,6 +25,29 @@ from mqt.qudits.core import LevelGraph
 from mqt.qudits.core.dfs_tree import Node
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
+
+
+@pytest.mark.parametrize("dimension", [4, 10, 46])
+@pytest.mark.parametrize("dense", [False, True], ids=["shift", "random-unitary"])
+def test_adaptive_column_progress(dimension: int, dense: bool):
+    unitary = (
+        unitary_group(dimension).rvs(random_state=np.random.default_rng(42))
+        if dense
+        else np.roll(np.eye(dimension, dtype=np.complex128), 1, axis=1)
+    )
+    circuit = QuantumCircuit(1, [dimension], 0)
+    target = circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    # The budget permits a complete elimination, without unused siblings.
+    max_nodes = dimension * (dimension - 1) // 2 if dense else dimension - 1
+    adaptive = LogAdaptiveDecomposition(target, graph, (np.inf, np.inf), dimension, max_nodes=max_nodes)
+
+    decomposition, best_cost, _ = adaptive.execute()
+
+    assert np.isfinite(best_cost[1])
+    assert adaptive.TREE.total_size <= max_nodes + 1
+    assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
 
 @pytest.mark.parametrize("dimension", range(6, 11))
@@ -63,6 +87,33 @@ def test_adaptive_dense_path_graph(dimension: int):
         decomposition = LogLocAdaPass(backend).transpile_gate(target)
 
     assert 1 < tree_sizes[0] <= 1001
+    assert UnitaryVerifier(decomposition, target, [dimension]).verify()
+
+
+def test_deep_search_uses_qr_fallback():
+    dimension = 60
+    rng = np.random.default_rng(42)
+    matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+    unitary, _ = np.linalg.qr(matrix)
+    circuit = QuantumCircuit(1, [dimension], 0)
+    target = circuit.cu_one(0, unitary)
+    mapping = list(range(dimension))
+    graph = LevelGraph([(0, level, {}) for level in range(1, dimension)], mapping, mapping, [0], 0, circuit)
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    original_execute = LogAdaptiveDecomposition.execute
+
+    def execute_without_solution(search: LogAdaptiveDecomposition):
+        result = original_execute(search)
+        assert result[0] == []
+        assert result[1] == (np.inf, np.inf)
+        assert search.TREE.total_size <= search.max_nodes + 1
+        return result
+
+    with patch.object(LogAdaptiveDecomposition, "execute", execute_without_solution):
+        decomposition = LogLocAdaPass(backend).transpile_gate(target)
+
+    assert decomposition
     assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
 

@@ -23,6 +23,8 @@ from ... import CompilerPass
 from .log_local_qr_decomp import QrDecomp
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from numpy.typing import NDArray
 
     from ....core import LevelGraph
@@ -88,7 +90,7 @@ class LogAdaptiveDecomposition:
         """Initialize a search capped at max_nodes generated nodes, excluding the root.
 
         A zero budget only checks whether the input is already diagonal. If no
-        solution is found within the budget, execute returns an empty sequence
+        solution is found within the node limit, execute returns an empty sequence
         and infinite costs so the compiler pass can use its QR decomposition.
         """
         if max_nodes < 0:
@@ -171,7 +173,17 @@ class LogAdaptiveDecomposition:
 
         return matrices, placement
 
-    def dfs(self, current_root: TreeNode, level: int = 0) -> None:
+    def dfs(self, current_root: TreeNode) -> None:
+        lower_triangle = np.tri(current_root.u_of_level.shape[0], k=-1, dtype=np.bool_)
+        stack = [self._children(current_root, lower_triangle)]
+        while stack:
+            child = next(stack[-1], None)
+            if child is None:
+                stack.pop()
+            else:
+                stack.append(self._children(child, lower_triangle))
+
+    def _children(self, current_root: TreeNode, lower_triangle: NDArray[np.bool_]) -> Iterator[TreeNode]:
         # check if close to diagonal
         ucopy = current_root.u_of_level.copy()
 
@@ -195,9 +207,11 @@ class LogAdaptiveDecomposition:
 
         dimension = u_.shape[0]
 
-        subdiagonal_support = np.tril(np.abs(u_) > 1.0e-8, k=-1)
-        support_size = np.count_nonzero(subdiagonal_support)
+        subdiagonal_support = (np.abs(u_) > 1.0e-8) & lower_triangle
+        column_support_sizes = np.count_nonzero(subdiagonal_support, axis=0)
         for c in range(dimension - 1):
+            if not column_support_sizes[c]:
+                continue
             for r, r2 in itertools.combinations(range(c, dimension), 2):
                 if self.TREE.global_id_counter >= self.max_nodes:
                     break
@@ -212,9 +226,12 @@ class LogAdaptiveDecomposition:
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
-                # Do not reopen an entry eliminated by an earlier rotation.
-                next_support = np.tril(np.abs(u_temp) > 1.0e-8, k=-1)
-                if np.any(next_support & ~subdiagonal_support) or np.count_nonzero(next_support) >= support_size:
+                # Reduce this column without reopening zeros in earlier columns.
+                # Later columns may gain entries, as in a cyclic permutation.
+                next_support = (np.abs(u_temp) > 1.0e-8) & lower_triangle
+                if np.any(next_support[:, :c] & ~subdiagonal_support[:, :c]) or (
+                    np.count_nonzero(next_support[:, c]) >= column_support_sizes[c]
+                ):
                     continue
 
                 decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
@@ -237,11 +254,5 @@ class LogAdaptiveDecomposition:
                         current_root.max_cost,
                         [],
                     )
-
-        # ===============CONTINUE SEARCH ON CHILDREN========================================
-        if current_root.children is not None:
-            for child in current_root.children:
-                self.dfs(child, level + 1)
-        # ===================================================================================
-
-        # END OF RECURSION#
+                    # Explore before generating siblings that consume the node budget.
+                    yield current_root.children[-1]
