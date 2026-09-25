@@ -33,7 +33,7 @@
 namespace {
 
 dd::Edge<dd::MDDPackage::vNode>
-fullMixWState([[maybe_unused]] std::ofstream& file,
+fullMixWState([[maybe_unused]] const std::ofstream& file,
               std::vector<size_t> orderOfLayers) {
   std::vector<std::size_t> lines{};
   dd::QuantumRegisterCount numLines = 0U;
@@ -68,10 +68,10 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
 
       initial = false;
     } else {
-      auto tempLine = lines.size();
+      const auto tempLine = lines.size();
       auto counter = 0U;
       for (auto k = 0U; k < tempLine; k++) {
-        auto adder = k + counter;
+        const auto adder = k + counter;
         for (auto j = 1U; j < orderOfLayers.at(i); j++) {
           lines.insert(lines.begin() + adder + j, orderOfLayers.at(i));
           numLines++;
@@ -98,7 +98,7 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
         }
       }
       if (i < orderOfLayers.size() - 1) {
-        for (auto& l : toAdd) {
+        for (const auto& l : toAdd) {
           indexes.push_back(std::vector<dd::QuantumRegister>{l});
           application[i + 1].push_back(sizeTracker);
           sizeTracker++;
@@ -113,7 +113,7 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
   std::vector<size_t> initState(numLines, 0);
   initState.at(0) = 1;
 
-  auto begin = std::chrono::high_resolution_clock::now();
+  const auto begin = std::chrono::high_resolution_clock::now();
 
   auto evolution = dd->makeBasisState(numLines, initState);
 
@@ -145,13 +145,13 @@ fullMixWState([[maybe_unused]] std::ofstream& file,
     }
   }
 
-  auto end = std::chrono::high_resolution_clock::now();
-  auto elapsed =
+  const auto end = std::chrono::high_resolution_clock::now();
+  const auto elapsed =
       std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
 
   std::unordered_set<decltype(evolution.nextNode)> nodeset{};
-  auto numnodes = dd->nodeCount(evolution, nodeset);
-  auto numcplx = dd->complexNumber.complexTable.getPeakCount();
+  const auto numnodes = dd->nodeCount(evolution, nodeset);
+  const auto numcplx = dd->complexNumber.complexTable.getPeakCount();
 
   // Build a comma-separated string of the elements
   std::ostringstream oss;
@@ -180,9 +180,9 @@ ghzQutritStateScaled(std::ofstream& file, dd::QuantumRegisterCount i) {
   const std::vector<std::size_t> init(i, 3);
   auto dd = std::make_unique<dd::MDDPackage>(i, init);
 
-  auto begin = std::chrono::high_resolution_clock::now();
+  const auto begin = std::chrono::high_resolution_clock::now();
   // Gates
-  auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), i, 0);
+  const auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), i, 0);
   std::vector<dd::MDDPackage::mEdge> gates = {};
 
   for (dd::QuantumRegister target = 1; std::cmp_less(target, i); target++) {
@@ -204,21 +204,21 @@ ghzQutritStateScaled(std::ofstream& file, dd::QuantumRegisterCount i) {
   auto evolution = dd->makeZeroState(i);
   evolution = dd->multiply(h3Gate, evolution);
 
-  for (auto& gate : gates) {
+  for (const auto& gate : gates) {
     evolution = dd->multiply(gate, evolution);
   }
-  auto end = std::chrono::high_resolution_clock::now();
-  auto elapsed =
+  const auto end = std::chrono::high_resolution_clock::now();
+  const auto elapsed =
       std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
 
-  auto numop = gates.size();
+  const auto numop = gates.size();
   std::unordered_set<decltype(evolution.nextNode)> nodeset{};
-  auto numnodes = dd->nodeCount(evolution, nodeset);
-  auto numcplx = dd->complexNumber.complexTable.getPeakCount();
+  const auto numnodes = dd->nodeCount(evolution, nodeset);
+  const auto numcplx = dd->complexNumber.complexTable.getPeakCount();
 
   // Build a comma-separated string of the elements
   std::ostringstream oss;
-  for (auto j : init) {
+  for (const auto j : init) {
     oss << j;
   }
 
@@ -251,7 +251,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
   std::uniform_int_distribution<std::size_t> pickcontrols(1, width - 1);
   std::uniform_real_distribution<> angles(0.0, 2. * dd::PI);
 
-  auto beginClock = std::chrono::high_resolution_clock::now();
+  const auto beginClock = std::chrono::high_resolution_clock::now();
 
   auto evolution =
       dd->makeZeroState(static_cast<dd::QuantumRegisterCount>(width));
@@ -259,27 +259,27 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
   for (auto timeStep = 0U; timeStep < depth; timeStep++) {
     for (auto line = 0U; line < width; line++) {
       // chose if local gate or entangling gate
-      auto randomChoice = pickbool(gen);
+      const auto randomChoice = pickbool(gen);
 
       if (randomChoice == 0) { // local op
 
-        auto localChoice = pickbool(gen);
+        const auto localChoice = pickbool(gen);
 
         if (localChoice == 0) { // hadamard
           if (particles.at(line) == 2) {
-            auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::H(), width, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 3) {
-            auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
                 dd::H3(), width, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 4) {
-            auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
                 dd::H4(), width, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 5) {
-            auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
                 dd::H5(), width, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           }
@@ -287,7 +287,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
           if (particles.at(line) == 2) {
             const double theta = 0.;
             const double phi = 0.;
-            auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::RXY(theta, phi), width,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -299,12 +299,12 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 3;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
                 dd::RXY3(theta, phi, levelA, levelB), width,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -316,12 +316,12 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 4;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
                 dd::RXY4(theta, phi, levelA, levelB), width,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -333,12 +333,12 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 5;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
                 dd::RXY5(theta, phi, levelA, levelB), width,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -346,8 +346,8 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
         }
       } else { // entangling
 
-        auto entChoice = pickbool(gen);
-        auto numberOfControls = pickcontrols(gen);
+        const auto entChoice = pickbool(gen);
+        const auto numberOfControls = pickcontrols(gen);
 
         std::vector<std::size_t> controlLines;
 
@@ -367,7 +367,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
         for (auto i = 0U; i < numberOfControls; i++) {
           std::uniform_int_distribution<std::size_t> picklevel(
               0, particles.at(controlParticles.at(i)) - 1);
-          auto level = picklevel(gen);
+          const auto level = picklevel(gen);
 
           const dd::Control c{
               .quantumRegister =
@@ -381,7 +381,7 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
           if (particles.at(line) == 2) {
             const double theta = angles(gen);
             const double phi = angles(gen);
-            auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::RXY(theta, phi), width, control,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -393,12 +393,12 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 3;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
                 dd::RXY3(theta, phi, levelA, levelB), width, control,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -410,12 +410,12 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 4;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
                 dd::RXY4(theta, phi, levelA, levelB), width, control,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
@@ -427,32 +427,32 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
             auto levelA = picklevel(gen);
             auto levelB = (levelA + 1) % 5;
             if (levelA > levelB) {
-              auto temp = levelA;
+              const auto temp = levelA;
               levelA = levelB;
               levelB = temp;
             }
 
-            auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
                 dd::RXY5(theta, phi, levelA, levelB), width, control,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           }
         } else { // Controlled clifford
           if (particles.at(line) == 2) {
-            auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::GateMatrix>(
                 dd::Xmat, width, control,
                 static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 3) {
-            auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::TritMatrix>(
                 dd::X3, width, control, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 4) {
-            auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuartMatrix>(
                 dd::X4, width, control, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           } else if (particles.at(line) == 5) {
-            auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
+            const auto chosenGate = dd->makeGateDD<dd::QuintMatrix>(
                 dd::X5, width, control, static_cast<dd::QuantumRegister>(line));
             evolution = dd->multiply(chosenGate, evolution);
           }
@@ -461,14 +461,14 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
     }
   }
 
-  auto end = std::chrono::high_resolution_clock::now();
-  auto elapsed =
+  const auto end = std::chrono::high_resolution_clock::now();
+  const auto elapsed =
       std::chrono::duration_cast<std::chrono::nanoseconds>(end - beginClock);
 
-  auto numop = width * depth;
+  const auto numop = width * depth;
   std::unordered_set<decltype(evolution.nextNode)> nodeset{};
-  auto numnodes = dd->nodeCount(evolution, nodeset);
-  auto numcplx = dd->complexNumber.complexTable.getPeakCount();
+  const auto numnodes = dd->nodeCount(evolution, nodeset);
+  const auto numcplx = dd->complexNumber.complexTable.getPeakCount();
 
   // Build a comma-separated string of the elements
   std::ostringstream oss;

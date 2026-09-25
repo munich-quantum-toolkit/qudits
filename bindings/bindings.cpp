@@ -149,7 +149,7 @@ nb::list complexVectorToList(const CVec& vec) {
 // PARSING FUNCTIONS
 // =======================================================================================================
 
-Circuit_info readCircuit(nb::object& circ) {
+Circuit_info readCircuit(const nb::object& circ) {
   Circuit result;
 
   const auto numQudits = nb::cast<unsigned int>(circ.attr("_num_qudits"));
@@ -199,9 +199,9 @@ Circuit_info readCircuit(nb::object& circ) {
       // std::cout << "control empty"<< "\n";
     } else {
       const nb::object controlsData = obj.attr("_controls_data");
-      auto indices = nb::cast<std::vector<dd::QuantumRegister>>(
+      const auto indices = nb::cast<std::vector<dd::QuantumRegister>>(
           controlsData.attr("indices"));
-      auto ctrlStates = nb::cast<std::vector<dd::Control::Type>>(
+      const auto ctrlStates = nb::cast<std::vector<dd::Control::Type>>(
           controlsData.attr("ctrl_states"));
 
       controlSet = std::make_tuple(indices, ctrlStates);
@@ -221,7 +221,7 @@ NoiseModel parseNoiseModel(const nb::dict& noiseModel) {
   NoiseModel newNoiseModel;
 
   for (const auto& gate : noiseModel) {
-    auto gateName = nb::cast<std::string>(gate.first);
+    const auto gateName = nb::cast<std::string>(gate.first);
 
     const auto gateNoise = nb::cast<nb::dict>(gate.second);
 
@@ -262,9 +262,10 @@ NoiseModel parseNoiseModel(const nb::dict& noiseModel) {
 Circuit generateCircuit(const Circuit_info& circuitInfo,
                         const NoiseModel& noiseModel) {
   // Get current time in milliseconds
-  auto currentTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
+  const auto currentTimeMs =
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count();
   const auto& [num_qudits, dimensions, circuit] = circuitInfo;
 
   std::random_device rd;
@@ -327,7 +328,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
             }
           }
           if (xChoice == 1) {
-            for (auto dit : qudits) {
+            for (const auto dit : qudits) {
               if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 std::vector<int> dims;
                 dims.push_back(
@@ -337,7 +338,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 size_t value0 = 0;
                 size_t value1 = 0;
                 // Retrieve field 0 and 1 from params
-                auto pl = nb::cast<nb::list>(params);
+                const auto pl = nb::cast<nb::list>(params);
                 value0 = nb::cast<size_t>(pl[0]);
                 if (tag == "virtrz") {
                   if (dims.size() != 1) {
@@ -387,7 +388,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
           }
 
           if (zChoice == 1) {
-            for (auto dit : qudits) {
+            for (const auto dit : qudits) {
               if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 nb::list paramsNew;
 
@@ -398,7 +399,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 size_t value0 = 0;
                 size_t value1 = 0;
                 // Retrieve field 0 and 1 from params
-                auto pl = nb::cast<nb::list>(params);
+                const auto pl = nb::cast<nb::list>(params);
                 value0 = nb::cast<size_t>(pl[0]);
                 if (tag == "virtrz") {
                   if (dims.size() != 1) {
@@ -477,7 +478,7 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       instruction;
 
   dd::MDDPackage::mEdge gate;
-  auto numberRegs =
+  const auto numberRegs =
       static_cast<dd::QuantumRegisterCount>(dd->numberOfQuantumRegisters);
 
   dd::QuantumRegister tq = 0;
@@ -492,11 +493,11 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
   }
 
   if (tag == "rxy") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto theta = nb::cast<double>(pl[2]);
-    auto phi = nb::cast<double>(pl[3]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto theta = nb::cast<double>(pl[2]);
+    const auto phi = nb::cast<double>(pl[3]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RXY(theta, phi);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -519,10 +520,10 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "rz") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto phi = nb::cast<double>(pl[2]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto phi = nb::cast<double>(pl[2]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RZ(phi);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -545,9 +546,9 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "rh") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RH();
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -570,9 +571,9 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "virtrz") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto phi = nb::cast<double>(pl[1]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto phi = nb::cast<double>(pl[1]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::VirtRZ(phi, leva);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -683,17 +684,17 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "cx") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto ctrlLev = nb::cast<dd::Control::Type>(pl[2]);
-    auto phi = nb::cast<dd::fp>(pl[3]);
-    auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
-    auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto ctrlLev = nb::cast<dd::Control::Type>(pl[2]);
+    const auto phi = nb::cast<dd::fp>(pl[3]);
+    const auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
+    const auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
     return dd->cex(numberRegs, ctrlLev, phi, leva, levb, cReg, target, dag);
   } else if (tag == "csum") {
-    auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
-    auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
+    const auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
+    const auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
     return dd->csum(numberRegs, cReg, target, dag);
   }
   if (dag) {
@@ -730,8 +731,9 @@ CVec ddsimulator(dd::QuantumRegisterCount numLines,
   return dd->getVector(psi);
 }
 
-nb::list stateVectorSimulation(nb::object& circ, nb::object& noiseModel) {
-  auto parsedCircuitInfo = readCircuit(circ);
+nb::list stateVectorSimulation(const nb::object& circ,
+                               const nb::object& noiseModel) {
+  const auto parsedCircuitInfo = readCircuit(circ);
   auto [numQudits, dims, original_circuit] = parsedCircuitInfo;
 
   Circuit noisyCircuit = original_circuit;
