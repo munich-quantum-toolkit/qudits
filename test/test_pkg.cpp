@@ -845,8 +845,7 @@ TEST(DDPackageTest, RandomCircuits) {
   const std::size_t depth = 1000;
   const std::size_t maxD = 5;
 
-  std::mt19937 gen(12345); // NOLINT(cert-msc51-cpp): seed the generator with
-                           // fixed value for reproducibility
+  std::mt19937 gen(12345);
 
   std::vector<std::size_t> particles = {};
 
