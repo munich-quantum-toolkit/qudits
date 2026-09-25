@@ -43,11 +43,15 @@ TEST(DDPackageTest, TrivialTest) {
   EXPECT_EQ(dd->qregisters(), 2);
 
   dd::ComplexValue const h3plus =
-      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(2. * dd::PI / 3.),
-                                             .i = std::sin(2. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{
+                                .r = std::cos(2. * dd::PI / 3.),
+                                .i = std::sin(2. * dd::PI / 3.),
+                            };
   dd::ComplexValue const h3minus =
-      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{.r = std::cos(4. * dd::PI / 3.),
-                                             .i = std::sin(4. * dd::PI / 3.)};
+      dd::COMPLEX_SQRT3_3 * dd::ComplexValue{
+                                .r = std::cos(4. * dd::PI / 3.),
+                                .i = std::sin(4. * dd::PI / 3.),
+                            };
 
   const auto hGate0 = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, 0);
 
@@ -181,7 +185,7 @@ TEST(DDPackageTest, TrivialTest) {
   ASSERT_EQ(dd->getValueByPath(hGate1, "83"),
             (dd::ComplexValue{-dd::SQRT2_2, 0}));
 
-  dd::Controls const controls1{{1, 1}};
+  dd::Controls const controls1{{.quantumRegister = 1, .type = 1}};
   const auto controlledH3 =
       dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, controls1, 0);
 
@@ -261,7 +265,7 @@ TEST(DDPackageTest, TrivialTest) {
   ASSERT_TRUE(
       dd->getValueByPath(controlledH3, "83").approximatelyEquals(h3plus));
 
-  dd::Controls const controls0{{0, 1}};
+  dd::Controls const controls0{{.quantumRegister = 0, .type = 1}};
   const auto controlled0H2 =
       dd->makeGateDD<dd::GateMatrix>(dd::Hmat, 2, controls0, 1);
 
@@ -376,7 +380,10 @@ TEST(DDPackageTest, Multiplication) {
   const auto x3dagGate = dd->makeGateDD<dd::TritMatrix>(dd::X3dag, 3, 2);
   const auto x3Gate = dd->makeGateDD<dd::TritMatrix>(dd::X3, 3, 2);
 
-  dd::Controls const control{{0, 1}, {2, 1}};
+  dd::Controls const control{
+      {.quantumRegister = 0, .type = 1},
+      {.quantumRegister = 2, .type = 1},
+  };
   const auto ctrlxGate =
       dd->makeGateDD<dd::GateMatrix>(dd::Xmat, 3, control, 1);
 
@@ -413,11 +420,11 @@ TEST(DDPackageTest, QutritBellState) {
   // Gates
   const auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, 0);
 
-  dd::Controls const control01{{0, 1}};
+  dd::Controls const control01{{.quantumRegister = 0, .type = 1}};
   const auto ctrlx1Gate =
       dd->makeGateDD<dd::TritMatrix>(dd::X3, 2, control01, 1);
 
-  dd::Controls const control02{{0, 2}};
+  dd::Controls const control02{{.quantumRegister = 0, .type = 2}};
   const auto ctrlx2Gate =
       dd->makeGateDD<dd::TritMatrix>(dd::X3, 2, control02, 1);
 
@@ -467,9 +474,9 @@ TEST(DDPackageTest, W3State) {
   auto evolution = dd->makeZeroState(3);
 
   const auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 3, 1);
-  dd::Controls const control10{{1, 0}};
+  dd::Controls const control10{{.quantumRegister = 1, .type = 0}};
   const auto xp10 = dd->makeGateDD<dd::TritMatrix>(dd::X3, 3, control10, 0);
-  dd::Controls const control12{{1, 2}};
+  dd::Controls const control12{{.quantumRegister = 1, .type = 2}};
   const auto xp12 = dd->makeGateDD<dd::TritMatrix>(dd::X3, 3, control12, 2);
 
   const auto csum21 = dd->csum(3, 2, 1, true);
@@ -603,13 +610,13 @@ TEST(DDPackageTest, W5State) {
 
   const auto h5Gate = dd->makeGateDD<dd::QuintMatrix>(dd::H5(), 5, 1);
 
-  dd::Controls const control10{{1, 0}};
+  dd::Controls const control10{{.quantumRegister = 1, .type = 0}};
   const auto xp10 = dd->makeGateDD<dd::QuintMatrix>(dd::X5, 5, control10, 0);
-  dd::Controls const control12{{1, 2}};
+  dd::Controls const control12{{.quantumRegister = 1, .type = 2}};
   const auto xp12 = dd->makeGateDD<dd::QuintMatrix>(dd::X5, 5, control12, 2);
-  dd::Controls const control13{{1, 3}};
+  dd::Controls const control13{{.quantumRegister = 1, .type = 3}};
   const auto xp13 = dd->makeGateDD<dd::QuintMatrix>(dd::X5, 5, control13, 3);
-  dd::Controls const control14{{1, 4}};
+  dd::Controls const control14{{.quantumRegister = 1, .type = 4}};
   const auto xp14 = dd->makeGateDD<dd::QuintMatrix>(dd::X5, 5, control14, 4);
 
   const auto csum21 = dd->csum(5, 2, 1, true);
@@ -655,7 +662,8 @@ TEST(DDPackageTest, FullMixWState) {
       sizeTracker++;
       for (auto j = 0U; j < indexes.at(0).size(); j++) {
         indexes.push_back(std::vector<dd::QuantumRegister>{
-            indexes.at(0).at(static_cast<std::size_t>(j))});
+            indexes.at(0).at(static_cast<std::size_t>(j)),
+        });
         application[i + 1].push_back(sizeTracker);
         sizeTracker++;
       }
@@ -753,15 +761,21 @@ TEST(DDPackageTest, GHZQutritState) {
   // Gates
   const auto h3Gate = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 3, 0);
 
-  dd::Controls const control01{{0, 1}};
+  dd::Controls const control01{{.quantumRegister = 0, .type = 1}};
   const auto cX011 = dd->makeGateDD<dd::TritMatrix>(dd::X3, 3, control01, 1);
-  dd::Controls const control02{{0, 2}};
+  dd::Controls const control02{{.quantumRegister = 0, .type = 2}};
   const auto cX021 = dd->makeGateDD<dd::TritMatrix>(dd::X3dag, 3, control02, 1);
 
-  dd::Controls const control011{{0, 1}, {1, 1}};
+  dd::Controls const control011{
+      {.quantumRegister = 0, .type = 1},
+      {.quantumRegister = 1, .type = 1},
+  };
   const auto cXc01l1t2 =
       dd->makeGateDD<dd::TritMatrix>(dd::X3, 3, control011, 2);
-  dd::Controls const control012{{0, 2}, {1, 2}};
+  dd::Controls const control012{
+      {.quantumRegister = 0, .type = 2},
+      {.quantumRegister = 1, .type = 2},
+  };
   const auto cX0122 =
       dd->makeGateDD<dd::TritMatrix>(dd::X3dag, 3, control012, 2);
 
@@ -806,12 +820,14 @@ TEST(DDPackageTest, GHZQutritStateScaled) {
       dd::Controls target2{};
 
       for (int control = 0; control < target; control++) {
-        const dd::Control c1{.quantumRegister =
-                                 static_cast<dd::QuantumRegister>(control),
-                             .type = 1};
-        const dd::Control c2{.quantumRegister =
-                                 static_cast<dd::QuantumRegister>(control),
-                             .type = 2};
+        const dd::Control c1{
+            .quantumRegister = static_cast<dd::QuantumRegister>(control),
+            .type = 1,
+        };
+        const dd::Control c2{
+            .quantumRegister = static_cast<dd::QuantumRegister>(control),
+            .type = 2,
+        };
         target1.insert(c1);
         target2.insert(c2);
       }
@@ -999,7 +1015,8 @@ TEST(DDPackageTest, RandomCircuits) {
           const dd::Control c{
               .quantumRegister =
                   static_cast<dd::QuantumRegister>(controlParticles.at(i)),
-              .type = static_cast<dd::Control::Type>(level)};
+              .type = static_cast<dd::Control::Type>(level),
+          };
           control.insert(c);
         }
 

@@ -372,7 +372,8 @@ randomCircuits(dd::QuantumRegisterCount w, std::size_t d, std::ofstream& file) {
           const dd::Control c{
               .quantumRegister =
                   static_cast<dd::QuantumRegister>(controlParticles.at(i)),
-              .type = static_cast<dd::Control::Type>(level)};
+              .type = static_cast<dd::Control::Type>(level),
+          };
           control.insert(c);
         }
 
