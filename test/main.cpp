@@ -24,7 +24,7 @@ int main() { // NOLINT(bugprone-exception-escape)
   auto dd = std::make_unique<dd::MDDPackage>(
       numLines, lines); // Create new package instance capable of handling a
                         // qubit and a qutrit
-  auto zeroState = dd->makeZeroState(numLines); // zero_state = |0>
+  const auto zeroState = dd->makeZeroState(numLines); // zero_state = |0>
 
   /* Creating a DD requires the following inputs:
    * 1. A matrix describing a single-qubit/qudit operation (here: the Hadamard
@@ -34,7 +34,7 @@ int main() { // NOLINT(bugprone-exception-escape)
    * (4. Controlled operations can be created by additionally specifying a list
    * of control qubits before the target declaration)
    */
-  auto hOnQubit = dd->makeGateDD<dd::GateMatrix>(dd::H(), numLines, 0);
+  const auto hOnQubit = dd->makeGateDD<dd::GateMatrix>(dd::H(), numLines, 0);
   // auto h_on_qutrit = dd->makeGateDD<dd::TritMatrix>(dd::H3(), 2, 1);
 
   // Multiplying the operation and the state results in a new state, here a
@@ -52,7 +52,7 @@ int main() { // NOLINT(bugprone-exception-escape)
 
   // An example of a controlled qutrit X operation, controlled on the level 1 of
   // the qubit
-  auto cex = dd->makeGateDD<dd::TritMatrix>(dd::X3, numLines, control, 1);
+  const auto cex = dd->makeGateDD<dd::TritMatrix>(dd::X3, numLines, control, 1);
 
   psi = dd->multiply(cex, psi);
 

@@ -15,7 +15,6 @@
 
 #include <cassert>
 #include <chrono>
-#include <cmath>
 #include <complex>
 #include <cstdint>
 #include <ctime>
@@ -59,7 +58,7 @@ using CVec = std::vector<std::complex<double>>;
 
 void printCircuit(const Circuit& circuit) {
   for (const auto& instruction : circuit) {
-    auto [tag, dag, dims, gate_type, target_qudits, params, control_set] =
+    auto [tag, dag, dims, gateType, targetQudits, params, controls] =
         instruction;
     std::cout << "Tag: " << tag << "\n";
     std::cout << "Dag: " << dag << "\n";
@@ -68,15 +67,14 @@ void printCircuit(const Circuit& circuit) {
       std::cout << dim << " ";
     }
     std::cout << "\n";
-    std::cout << "Gate Type: " << gate_type << "\n";
+    std::cout << "Gate Type: " << gateType << "\n";
     std::cout << "Target Qudits: ";
-    for (const auto& qubit : target_qudits) {
+    for (const auto& qubit : targetQudits) {
       std::cout << qubit << " ";
     }
     std::cout << "\n";
 
-    // Printing control_set
-    auto [control1, control2] = control_set;
+    auto [control1, control2] = controls;
     std::cout << "Control Set: ";
     for (const auto& control : control1) {
       std::cout << control << " ";
@@ -149,7 +147,7 @@ nb::list complexVectorToList(const CVec& vec) {
 // PARSING FUNCTIONS
 // =======================================================================================================
 
-Circuit_info readCircuit(nb::object& circ) {
+Circuit_info readCircuit(const nb::object& circ) {
   Circuit result;
 
   const auto numQudits = nb::cast<unsigned int>(circ.attr("_num_qudits"));
@@ -199,9 +197,9 @@ Circuit_info readCircuit(nb::object& circ) {
       // std::cout << "control empty"<< "\n";
     } else {
       const nb::object controlsData = obj.attr("_controls_data");
-      auto indices = nb::cast<std::vector<dd::QuantumRegister>>(
+      const auto indices = nb::cast<std::vector<dd::QuantumRegister>>(
           controlsData.attr("indices"));
-      auto ctrlStates = nb::cast<std::vector<dd::Control::Type>>(
+      const auto ctrlStates = nb::cast<std::vector<dd::Control::Type>>(
           controlsData.attr("ctrl_states"));
 
       controlSet = std::make_tuple(indices, ctrlStates);
@@ -221,7 +219,7 @@ NoiseModel parseNoiseModel(const nb::dict& noiseModel) {
   NoiseModel newNoiseModel;
 
   for (const auto& gate : noiseModel) {
-    auto gateName = nb::cast<std::string>(gate.first);
+    const auto gateName = nb::cast<std::string>(gate.first);
 
     const auto gateNoise = nb::cast<nb::dict>(gate.second);
 
@@ -262,10 +260,11 @@ NoiseModel parseNoiseModel(const nb::dict& noiseModel) {
 Circuit generateCircuit(const Circuit_info& circuitInfo,
                         const NoiseModel& noiseModel) {
   // Get current time in milliseconds
-  auto currentTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
-  const auto& [num_qudits, dimensions, circuit] = circuitInfo;
+  const auto currentTimeMs =
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count();
+  const auto& [numQudits, dimensions, circuit] = circuitInfo;
 
   std::random_device rd;
   std::mt19937_64 gen(static_cast<uint64_t>(rd()) +
@@ -276,16 +275,15 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
   for (const Instruction& instruction : circuit) {
     noisyCircuit.push_back(instruction);
 
-    const auto& [tag, dag, dims_gate, gate_type, target_qudits, params,
-                 control_set] = instruction;
-    std::vector<int> referenceLines(target_qudits.begin(), target_qudits.end());
+    const auto& [tag, dag, dimsGate, gateType, targetQudits, params, controls] =
+        instruction;
+    std::vector<int> referenceLines(targetQudits.begin(), targetQudits.end());
 
-    if (!(std::get<0>(control_set).empty()) &&
-        (std::get<1>(control_set).empty())) {
-      auto [ctrl_dits, levels] = control_set; // Decompose the tuple
+    if (!std::get<0>(controls).empty() && std::get<1>(controls).empty()) {
+      auto [ctrlDits, levels] = controls; // Decompose the tuple
 
-      referenceLines.insert(referenceLines.end(), ctrl_dits.begin(),
-                            ctrl_dits.end());
+      referenceLines.insert(referenceLines.end(), ctrlDits.begin(),
+                            ctrlDits.end());
     }
 
     if (noiseModel.contains(tag)) {
@@ -312,22 +310,22 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
             if (modeStr == "local") {
               qudits = referenceLines;
             } else if (modeStr == "all") {
-              for (int i = 0; std::cmp_less(i, num_qudits); ++i) {
+              for (int i = 0; std::cmp_less(i, numQudits); ++i) {
                 qudits.push_back(i);
               }
             } else if (modeStr == "nonlocal") {
-              assert(gate_type == "TWO" || gate_type == "MULTI");
+              assert(gateType == "TWO" || gateType == "MULTI");
               qudits = referenceLines;
             } else if (modeStr == "control") {
-              assert(gate_type == "TWO");
-              qudits.push_back(target_qudits.at(0));
+              assert(gateType == "TWO");
+              qudits.push_back(targetQudits.at(0));
             } else if (modeStr == "target") {
-              assert(gate_type == "TWO");
-              qudits.push_back(target_qudits.at(1));
+              assert(gateType == "TWO");
+              qudits.push_back(targetQudits.at(1));
             }
           }
           if (xChoice == 1) {
-            for (auto dit : qudits) {
+            for (const auto dit : qudits) {
               if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 std::vector<int> dims;
                 dims.push_back(
@@ -337,7 +335,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 size_t value0 = 0;
                 size_t value1 = 0;
                 // Retrieve field 0 and 1 from params
-                auto pl = nb::cast<nb::list>(params);
+                const auto pl = nb::cast<nb::list>(params);
                 value0 = nb::cast<size_t>(pl[0]);
                 if (tag == "virtrz") {
                   if (dims.size() != 1) {
@@ -387,7 +385,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
           }
 
           if (zChoice == 1) {
-            for (auto dit : qudits) {
+            for (const auto dit : qudits) {
               if (tag == "rxy" || tag == "rz" || tag == "virtrz") {
                 nb::list paramsNew;
 
@@ -398,7 +396,7 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
                 size_t value0 = 0;
                 size_t value1 = 0;
                 // Retrieve field 0 and 1 from params
-                auto pl = nb::cast<nb::list>(params);
+                const auto pl = nb::cast<nb::list>(params);
                 value0 = nb::cast<size_t>(pl[0]);
                 if (tag == "virtrz") {
                   if (dims.size() != 1) {
@@ -473,30 +471,28 @@ Circuit generateCircuit(const Circuit_info& circuitInfo,
 using ddpkg = std::unique_ptr<dd::MDDPackage>;
 
 dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
-  const auto& [tag, dag, dims, gate_type, target_qudits, params, control_set] =
+  const auto& [tag, dag, dims, gateType, targetQudits, params, controls] =
       instruction;
 
   dd::MDDPackage::mEdge gate;
-  auto numberRegs =
+  const auto numberRegs =
       static_cast<dd::QuantumRegisterCount>(dd->numberOfQuantumRegisters);
 
   dd::QuantumRegister tq = 0;
-  tq = static_cast<dd::QuantumRegister>(target_qudits.at(0));
+  tq = static_cast<dd::QuantumRegister>(targetQudits.at(0));
 
   const dd::Controls controlSet{};
-  if ((!std::get<0>(control_set).empty()) &&
-      (!std::get<1>(control_set).empty())) {
-    const std::vector<dd::QuantumRegister> ctrlQudits =
-        std::get<0>(control_set);
-    const std::vector<dd::Control::Type> ctrlLevels = std::get<1>(control_set);
+  if ((!std::get<0>(controls).empty()) && (!std::get<1>(controls).empty())) {
+    const std::vector<dd::QuantumRegister> ctrlQudits = std::get<0>(controls);
+    const std::vector<dd::Control::Type> ctrlLevels = std::get<1>(controls);
   }
 
   if (tag == "rxy") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto theta = nb::cast<double>(pl[2]);
-    auto phi = nb::cast<double>(pl[3]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto theta = nb::cast<double>(pl[2]);
+    const auto phi = nb::cast<double>(pl[3]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RXY(theta, phi);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -519,10 +515,10 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "rz") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto phi = nb::cast<double>(pl[2]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto phi = nb::cast<double>(pl[2]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RZ(phi);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -545,9 +541,9 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "rh") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::RH();
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -570,9 +566,9 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "virtrz") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto phi = nb::cast<double>(pl[1]);
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto phi = nb::cast<double>(pl[1]);
     if (checkDim(dims, 2)) {
       const dd::GateMatrix matrix = dd::VirtRZ(phi, leva);
       gate = dd->makeGateDD<dd::GateMatrix>(matrix, numberRegs, controlSet, tq);
@@ -683,17 +679,17 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
   } else if (tag == "cx") {
-    auto pl = nb::cast<nb::list>(params);
-    auto leva = nb::cast<size_t>(pl[0]);
-    auto levb = nb::cast<size_t>(pl[1]);
-    auto ctrlLev = nb::cast<dd::Control::Type>(pl[2]);
-    auto phi = nb::cast<dd::fp>(pl[3]);
-    auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
-    auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
+    const auto pl = nb::cast<nb::list>(params);
+    const auto leva = nb::cast<size_t>(pl[0]);
+    const auto levb = nb::cast<size_t>(pl[1]);
+    const auto ctrlLev = nb::cast<dd::Control::Type>(pl[2]);
+    const auto phi = nb::cast<dd::fp>(pl[3]);
+    const auto cReg = static_cast<dd::QuantumRegister>(targetQudits.at(0));
+    const auto target = static_cast<dd::QuantumRegister>(targetQudits.at(1));
     return dd->cex(numberRegs, ctrlLev, phi, leva, levb, cReg, target, dag);
   } else if (tag == "csum") {
-    auto cReg = static_cast<dd::QuantumRegister>(target_qudits.at(0));
-    auto target = static_cast<dd::QuantumRegister>(target_qudits.at(1));
+    const auto cReg = static_cast<dd::QuantumRegister>(targetQudits.at(0));
+    const auto target = static_cast<dd::QuantumRegister>(targetQudits.at(1));
     return dd->csum(numberRegs, cReg, target, dag);
   }
   if (dag) {
@@ -730,11 +726,12 @@ CVec ddsimulator(dd::QuantumRegisterCount numLines,
   return dd->getVector(psi);
 }
 
-nb::list stateVectorSimulation(nb::object& circ, nb::object& noiseModel) {
-  auto parsedCircuitInfo = readCircuit(circ);
-  auto [numQudits, dims, original_circuit] = parsedCircuitInfo;
+nb::list stateVectorSimulation(const nb::object& circ,
+                               const nb::object& noiseModel) {
+  const auto parsedCircuitInfo = readCircuit(circ);
+  auto [numQudits, dims, originalCircuit] = parsedCircuitInfo;
 
-  Circuit noisyCircuit = original_circuit;
+  Circuit noisyCircuit = originalCircuit;
   const auto noiseModelDict =
       nb::cast<nb::dict>(noiseModel.attr("quantum_errors"));
   const NoiseModel newNoiseModel = parseNoiseModel(noiseModelDict);

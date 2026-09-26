@@ -111,7 +111,7 @@ jobs:
     if: fromJSON(needs.change-detection.outputs.run-cpp-linter)
     uses: munich-quantum-toolkit/workflows/.github/workflows/reusable-cpp-linter.yml@17f5c58e46c51027501e7d8d38dc182654ed035c # v2.5.0
     with:
-      clang-version: 21
+      clang-version: 23
       cpp-linter-extra-args: "-std=c++20"
       files-changed-only: true
       install-pkgs: "nanobind==3.0.1"
@@ -152,6 +152,9 @@ jobs:
       check-stubs: true
       enable-ty: true
       enable-mypy: false
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
     permissions:
       contents: read
 
