@@ -22,7 +22,7 @@ quantum computing. It is part of the
   </a>
 </p>
 
-## Key features
+## Key Features
 
 - **Mixed-dimensional quantum circuit support**: Design, simulate, and analyze
   quantum circuits with arbitrary qudit dimensions, not limited to qubits.
