@@ -22,7 +22,7 @@ quantum computing. It is part of the
   </a>
 </p>
 
-## Key features
+## Key Features
 
 - **Mixed-dimensional quantum circuit support**: Design, simulate, and analyze
   quantum circuits with arbitrary qudit dimensions, not limited to qubits.
@@ -33,6 +33,8 @@ quantum computing. It is part of the
 - **Cross-platform and open-source**: C++20 core with Python bindings, prebuilt
   wheels for Linux, macOS, and Windows via
   [PyPI](https://pypi.org/project/mqt.qudits/).
+- **Video demonstration**: Some of the functionalities of MQT Qudits are
+  illustrated in [this video](https://www.youtube.com/watch?v=due_CX7H85A).
 
 If you have any questions, feel free to create a
 [discussion](https://github.com/munich-quantum-toolkit/qudits/discussions) or an
@@ -96,10 +98,6 @@ uv pip install mqt.qudits
 
 **Detailed documentation and examples are available at
 [ReadTheDocs](https://mqt.readthedocs.io/projects/qudits).**
-
-> [!NOTE]
-> Some of the functionalities of MQT Qudits are illustrated in
-> [this video](https://www.youtube.com/watch?v=due_CX7H85A).
 
 ## System Requirements and Building
 
