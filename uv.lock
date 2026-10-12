@@ -1591,23 +1591,14 @@ build = [
 ]
 dev = [
     { name = "cmake" },
-    { name = "matplotlib" },
     { name = "mqt-core" },
     { name = "nanobind" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "nox" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
     { name = "scikit-build-core" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "tensornetwork" },
-    { name = "typing-extensions" },
     { name = "vcs-versioning" },
 ]
 docs = [
@@ -1625,19 +1616,10 @@ docs = [
     { name = "sphinxext-opengraph" },
 ]
 test = [
-    { name = "matplotlib" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "tensornetwork" },
-    { name = "typing-extensions" },
 ]
 
 [package.metadata]
@@ -1668,25 +1650,19 @@ build = [
     { name = "cmake", specifier = ">=4.4.1" },
     { name = "mqt-core", specifier = "~=3.11.0" },
     { name = "nanobind", specifier = "~=3.1.0" },
-    { name = "scikit-build-core", specifier = ">=1.0.3" },
+    { name = "scikit-build-core", specifier = ">=1.1" },
     { name = "vcs-versioning", specifier = ">=2.3" },
 ]
 dev = [
     { name = "cmake", specifier = ">=4.4.1" },
-    { name = "matplotlib", specifier = ">=3.7" },
     { name = "mqt-core", specifier = "~=3.11.0" },
     { name = "nanobind", specifier = "~=3.1.0" },
-    { name = "networkx", specifier = ">=3" },
     { name = "nox", specifier = ">=2025.11.12" },
-    { name = "numpy", specifier = ">=1.24" },
     { name = "pytest", specifier = ">=9.0.1" },
     { name = "pytest-cov", specifier = ">=7.1" },
     { name = "pytest-sugar", specifier = ">=1.1.1" },
     { name = "pytest-xdist", specifier = ">=3.8" },
-    { name = "scikit-build-core", specifier = ">=1.0.3" },
-    { name = "scipy", specifier = ">=1.10" },
-    { name = "tensornetwork", specifier = ">=0.4" },
-    { name = "typing-extensions", specifier = ">=4.16" },
+    { name = "scikit-build-core", specifier = ">=1.1" },
     { name = "vcs-versioning", specifier = ">=2.3" },
 ]
 docs = [
@@ -1703,16 +1679,10 @@ docs = [
     { name = "sphinxext-opengraph", specifier = ">=0.13" },
 ]
 test = [
-    { name = "matplotlib", specifier = ">=3.7" },
-    { name = "networkx", specifier = ">=3" },
-    { name = "numpy", specifier = ">=1.24" },
     { name = "pytest", specifier = ">=9.0.1" },
     { name = "pytest-cov", specifier = ">=7.1" },
     { name = "pytest-sugar", specifier = ">=1.1.1" },
     { name = "pytest-xdist", specifier = ">=3.8" },
-    { name = "scipy", specifier = ">=1.10" },
-    { name = "tensornetwork", specifier = ">=0.4" },
-    { name = "typing-extensions", specifier = ">=4.16" },
 ]
 
 [[package]]
