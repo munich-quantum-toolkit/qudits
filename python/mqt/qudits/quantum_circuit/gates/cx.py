@@ -55,15 +55,16 @@ class CEx(Gate):
             self.ctrl_lev: int = cast("int", parameters[2])
             self.phi: float = parameters[3]
             # self.lev_a, self.lev_b, self.ctrl_lev, self.phi = parameters
-            self._params: list[int | float] = parameters
+            self._params = parameters
         else:
             self.ctrl_lev = 1
 
     def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
-        levels_swap_low: int = cast("int", self._params[0])
-        levels_swap_high: int = cast("int", self._params[1])
-        ctrl_level: int = cast("int", self._params[2])
-        ang: float = self._params[3]
+        parameters = cast("list[int | float]", self._params)
+        levels_swap_low: int = cast("int", parameters[0])
+        levels_swap_high: int = cast("int", parameters[1])
+        ctrl_level: int = cast("int", parameters[2])
+        ang: float = parameters[3]
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
         qudits_targeted = cast("list[int]", self.target_qudits)
