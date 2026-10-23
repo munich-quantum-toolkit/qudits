@@ -54,17 +54,15 @@ class CEx(Gate):
             self.lev_b: int = cast("int", parameters[1])
             self.ctrl_lev: int = cast("int", parameters[2])
             self.phi: float = parameters[3]
-            # self.lev_a, self.lev_b, self.ctrl_lev, self.phi = parameters
             self._params = parameters
         else:
             self.ctrl_lev = 1
 
-    def __array__(self) -> NDArray[np.complex128]:  # ruff:ignore[bad-dunder-method-name]
-        parameters = cast("list[int | float]", self._params)
-        levels_swap_low: int = cast("int", parameters[0])
-        levels_swap_high: int = cast("int", parameters[1])
-        ctrl_level: int = cast("int", parameters[2])
-        ang: float = parameters[3]
+    def __array__(self) -> NDArray[np.complex128]:  # ruff: ignore[bad-dunder-method-name]
+        levels_swap_low = self.lev_a
+        levels_swap_high = self.lev_b
+        ctrl_level = self.ctrl_lev
+        ang = self.phi
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
         qudits_targeted = cast("list[int]", self.target_qudits)
@@ -103,10 +101,14 @@ class CEx(Gate):
             assert isinstance(parameter[1], int)
             assert isinstance(parameter[2], int)
             assert isinstance(parameter[3], float)
-            assert 0 <= parameter[0] < parameter[1], (
-                f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
-            )
-            assert 0 <= parameter[3] <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[2]}"
+
+            if not (0 <= parameter[0] < parameter[1]):
+                msg = f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
+                raise ValueError(msg)
+
+            if not (0 <= parameter[3] <= 2 * np.pi):
+                msg = f"Angle should be in the range [0, 2*pi]: {parameter[3]}"
+                raise ValueError(msg)
 
             return True
 

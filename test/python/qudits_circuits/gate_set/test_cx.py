@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
@@ -272,12 +273,8 @@ class TestCEx(TestCase):
         )
         assert cx.validate_parameter([0, 1, 2, np.pi])
 
-        try:
-            cx.validate_parameter([0, 3, 2, np.pi])
-        except AssertionError:
-            assert True
+        with pytest.raises(ValueError, match="lev_a and lev_b"):
+            cx.validate_parameter([1, 0, 2, np.pi])
 
-        try:
+        with pytest.raises(ValueError, match="Angle should be"):
             cx.validate_parameter([0, 1, 2, 4 * np.pi])
-        except AssertionError:
-            assert True
